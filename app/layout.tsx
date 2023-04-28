@@ -1,5 +1,6 @@
 import Link from "next/link"
 import "./globals.css"
+import "@code-hike/mdx/dist/index.css"
 import {Inter} from "next/font/google"
 import {ThemeProvider} from "@/components/theme-provider"
 import {Analytics} from "@/components/analytics"
@@ -29,7 +30,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 <ModeToggle />
                 <nav className="ml-auto text-sm font-medium space-x-6">
                   <Link href="/">Home</Link>
-                  <Link href="/schedule">Hire me</Link>
+                  <Link href="/hire-me">Hire me</Link>
                   <Link href="/about">About</Link>
                 </nav>
               </div>
