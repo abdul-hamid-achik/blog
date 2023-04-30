@@ -1,6 +1,6 @@
 "use client"
 
-import { useTheme } from "next-themes"
+import {useTheme} from "next-themes"
 
 export function ModeToggle() {
   const { setTheme, theme } = useTheme()
@@ -8,7 +8,7 @@ export function ModeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className="border rounded-md w-6 h-6 flex items-center justify-center"
+      className="border rounded-md w-8 h-8 md:w-6 md:h-6 flex items-center justify-center"
     >
       <span className="sr-only">Toggle mode</span>
       {theme === "light" ? (
