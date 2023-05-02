@@ -39,6 +39,21 @@ export async function generateMetadata({
   return {
     title: post.title,
     description: post.description,
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      type: "article",
+      images: [
+        {
+          url:
+            process.env.NODE_ENV === "production"
+              ? `https://abdulachik.dev/api/og?title=${post.title}`
+              : `http://localhost:3000/api/og?title=${post.title}`,
+        },
+      ],
+      authors: ["Abdul Hamid Achik"],
+      url: `https://abdulachik.dev/posts/${post.slugAsParams}`,
+    },
   }
 }
 

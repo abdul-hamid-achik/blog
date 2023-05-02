@@ -31,6 +31,7 @@ export default function LocaleLayout({ children, params }: RootLayoutProps) {
   if (params.locale !== locale) {
     notFound()
   }
+
   return (
     <html lang={locale}>
       <body
