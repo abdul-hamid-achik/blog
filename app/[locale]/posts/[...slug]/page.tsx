@@ -1,8 +1,9 @@
-import {notFound} from "next/navigation"
-import {allPosts} from "contentlayer/generated"
+import { notFound } from "next/navigation"
+import { allPosts } from "contentlayer/generated"
 
-import {Metadata} from "next"
-import {Mdx} from "@/components/mdx-components"
+import { Metadata } from "next"
+import { Mdx } from "@/components/mdx-components"
+import { useLocale } from "next-intl"
 
 interface PostProps {
   params: {
@@ -10,12 +11,17 @@ interface PostProps {
   }
 }
 
-async function getPostFromParams(params: PostProps["params"]) {
+async function getPostFromParams(
+  params: PostProps["params"],
+  locale: string = "en"
+) {
   const slug = params?.slug?.join("/")
-  const post = allPosts.find((post) => post.slugAsParams === slug)
+  const post = allPosts.find(
+    (post) => post.slugAsParams === slug && post.locale === locale
+  )
 
   if (!post) {
-    null
+    return null
   }
 
   return post
@@ -43,17 +49,18 @@ export async function generateStaticParams(): Promise<PostProps["params"][]> {
 }
 
 export default async function PostPage({ params }: PostProps) {
-  const post = await getPostFromParams(params)
+  const locale = useLocale()
+  const post = await getPostFromParams(params, locale)
 
   if (!post) {
     notFound()
   }
 
   return (
-    <article className="py-6 prose dark:prose-invert">
+    <article className="prose dark:prose-invert py-6">
       <h1 className="mb-2 text-xl md:text-4xl">{post.title}</h1>
       {post.description && (
-        <p className="text-md md:text-xl mt-0 text-slate-700 dark:text-slate-200">
+        <p className="text-md mt-0 text-slate-700 dark:text-slate-200 md:text-xl">
           {post.description}
         </p>
       )}

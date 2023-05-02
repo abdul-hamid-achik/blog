@@ -1,6 +1,6 @@
 {
-  "name": "next-contentlayer",
-  "version": "0.1.0",
+  "name": "abdulachik.dev",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,30 +12,29 @@
   "dependencies": {
     "@calcom/embed-react": "^1.0.12",
     "@code-hike/mdx": "^0.8.2",
+    "@headlessui/react": "^1.7.14",
     "@heroicons/react": "^2.0.17",
     "@tailwindcss/typography": "^0.5.9",
+    "@types/luxon": "^3.3.0",
     "@types/node": "18.16.1",
     "@types/react": "18.2.0",
     "@types/react-dom": "18.2.1",
     "@vercel/analytics": "^1.0.0",
     "autoprefixer": "10.4.14",
     "contentlayer": "^0.3.2",
-    "dompurify": "^3.0.2",
     "eslint": "8.39.0",
     "eslint-config-next": "13.3.1",
     "luxon": "^3.3.0",
-    "next": "13.3.1",
+    "next": "^13.3.1",
     "next-contentlayer": "^0.3.2",
+    "next-intl": "^2.14.0-beta.3",
     "next-themes": "^0.2.1",
     "postcss": "8.4.23",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "reading-time": "^1.5.0",
     "shiki": "^0.14.1",
     "tailwindcss": "3.3.2",
     "typescript": "5.0.4"
-  },
-  "devDependencies": {
-    "@types/dompurify": "^3.0.2",
-    "@types/luxon": "^3.3.0"
   }
 }

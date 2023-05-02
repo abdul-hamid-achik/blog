@@ -1,4 +1,5 @@
 const { withContentlayer } = require("next-contentlayer")
+const withNextIntl = require("next-intl/plugin")("./i18n.ts")
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -10,11 +11,11 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'i.gr-assets.com',
+        protocol: "https",
+        hostname: "i.gr-assets.com",
       },
     ],
   },
 }
 
-module.exports = withContentlayer(nextConfig)
+module.exports = withNextIntl(withContentlayer(nextConfig))
