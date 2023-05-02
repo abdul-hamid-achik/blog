@@ -3,7 +3,7 @@
 import { locales } from "@/i18n"
 import { useRouter } from "next/navigation"
 import { usePathname } from "next-intl/client"
-import { Listbox } from "@headlessui/react"
+import { Listbox, Transition } from "@headlessui/react"
 
 type Locale = "en" | "es" | "ru" | "ar"
 
@@ -34,7 +34,7 @@ function getLocaleFlag(locale: Locale) {
       return "🇸🇾"
   }
 }
-export default function LocaleSelect({ current }: { current: string }) {
+export default function LocaleSelect({ selected }: { selected: string }) {
   const router = useRouter()
   const pathname = usePathname()
   function changeLanguage(locale: Locale) {
@@ -42,25 +42,39 @@ export default function LocaleSelect({ current }: { current: string }) {
   }
 
   return (
-    <Listbox value={current} onChange={changeLanguage}>
-      <Listbox.Button>{`${getLocaleFlag(current as Locale)} ${getLocaleName(
-        current as Locale
-      )}`}</Listbox.Button>
-      <Listbox.Options className="ml-2 px-4 py-2">
-        {locales
-          .filter((locale) => locale !== current)
-          .map((locale) => (
-            <Listbox.Option
-              key={locale}
-              value={locale}
-              className="cursor-pointer px-4 py-2 hover:bg-gray-200 dark:hover:bg-gray-800"
-            >
-              {`${getLocaleFlag(locale as Locale)} ${getLocaleName(
-                locale as Locale
-              )}`}
-            </Listbox.Option>
-          ))}
-      </Listbox.Options>
+    <Listbox value={selected} onChange={changeLanguage}>
+      {({ open }) => (
+        <div className="flex flex-col">
+          <Listbox.Button className="md:text-md text-sm">{`${getLocaleFlag(
+            selected as Locale
+          )} ${getLocaleName(selected as Locale)}`}</Listbox.Button>
+          <Transition
+            show={open}
+            enter="transition duration-100 ease-out"
+            enterFrom="transform scale-95 opacity-0"
+            enterTo="transform scale-100 opacity-100"
+            leave="transition duration-75 ease-out"
+            leaveFrom="transform scale-100 opacity-100"
+            leaveTo="transform scale-95 opacity-0"
+          >
+            <Listbox.Options className="px-2 py-1 md:px-4 md:py-2" static>
+              {locales
+                .filter((locale) => locale !== selected)
+                .map((locale) => (
+                  <Listbox.Option
+                    key={locale}
+                    value={locale}
+                    className="cursor-pointer px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-800 md:px-4 md:py-2"
+                  >
+                    {`${getLocaleFlag(locale as Locale)} ${getLocaleName(
+                      locale as Locale
+                    )}`}
+                  </Listbox.Option>
+                ))}
+            </Listbox.Options>
+          </Transition>
+        </div>
+      )}
     </Listbox>
   )
 }

@@ -42,11 +42,12 @@ export async function generateMetadata({
   }
 }
 
-export async function generateStaticParams(): Promise<PostProps["params"][]> {
-  return allPosts.map((post) => ({
-    slug: post.slugAsParams.split("/"),
-  }))
-}
+// TODO: Enable this back when this works with next-intl
+// export async function generateStaticParams(): Promise<PostProps["params"][]> {
+//   return allPosts.map((post) => ({
+//     slug: post.slugAsParams.split("/"),
+//   }))
+// }
 
 export default async function PostPage({ params }: PostProps) {
   const locale = useLocale()
