@@ -42,8 +42,6 @@ export async function generateMetadata({
     keywords: post.tags?.join(", "),
     twitter: {
       card: "summary_large_image",
-      site: "https://abdulachik.dev",
-      website: "https://abdulachik.dev",
       creator: "@abdulachik",
       title: post.title,
       description: post.description,
