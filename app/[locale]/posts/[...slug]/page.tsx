@@ -40,6 +40,19 @@ export async function generateMetadata({
     title: post.title,
     description: post.description,
     keywords: post.tags?.join(", "),
+    twitter: {
+      card: "summary_large_image",
+      site: "https://abdulachik.dev",
+      creator: "@abdulachik",
+      images: [
+        {
+          url:
+            process.env.NODE_ENV === "production"
+              ? `https://abdulachik.dev/api/og?title=${post.title}`
+              : `http://localhost:3000/api/og?title=${post.title}`,
+        },
+      ],
+    },
     openGraph: {
       title: post.title,
       description: post.description,
