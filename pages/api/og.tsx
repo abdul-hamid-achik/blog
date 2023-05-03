@@ -1,13 +1,15 @@
 // @ts-ignore
 import { ImageResponse } from "@vercel/og"
 
-export const runtime = "edge"
+export const config = {
+  runtime: "edge",
+}
 
-const image = fetch(new URL("./apple-touch-icon.png", import.meta.url)).then(
-  (res) => res.arrayBuffer()
+const image = fetch(new URL("./logo.png", import.meta.url)).then((res) =>
+  res.arrayBuffer()
 )
 
-export default async function GET(request: Request) {
+export default async function handler(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const imageData = await image
