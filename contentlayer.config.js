@@ -41,11 +41,6 @@ const SEO = defineNestedType(() => ({
       type: "string",
     },
 
-    image: {
-      type: "image",
-      required: true,
-    },
-
     description: {
       type: "string",
     },
@@ -63,6 +58,10 @@ export const Page = defineDocumentType(() => ({
     },
     description: {
       type: "string",
+    },
+    image: {
+      type: "image",
+      required: true,
     },
     seo: {
       type: "nested",

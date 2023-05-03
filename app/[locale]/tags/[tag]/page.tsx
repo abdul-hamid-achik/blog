@@ -58,11 +58,11 @@ export default function TagPage({
 }) {
   return (
     <div className="prose dark:prose-invert">
-      <h1 className="my-6">#{tag}</h1>
+      <h2 className="my-6">#{decodeURIComponent(tag)}</h2>
 
       {allPosts
         .filter((post) => post.locale === locale)
-        .filter((post) => post.tags?.includes(tag))
+        .filter((post) => post.tags?.includes(decodeURIComponent(tag)))
         .sort((first, second) => {
           const firstDate = DateTime.fromISO(first.date)
           const secondDate = DateTime.fromISO(second.date)
