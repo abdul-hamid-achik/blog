@@ -59,10 +59,6 @@ export const Page = defineDocumentType(() => ({
     description: {
       type: "string",
     },
-    image: {
-      type: "image",
-      required: true,
-    },
     seo: {
       type: "nested",
       of: SEO,
@@ -86,6 +82,9 @@ export const Post = defineDocumentType(() => ({
     date: {
       type: "date",
       required: true,
+    },
+    image: {
+      type: "string",
     },
     seo: {
       type: "nested",
