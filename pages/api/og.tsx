@@ -14,7 +14,6 @@ export default async function handler(request: Request) {
     const { searchParams } = new URL(request.url)
     const imageData = await image
 
-    // ?title=<title>
     const hasTitle = searchParams.has("title")
     const title = hasTitle
       ? searchParams.get("title")?.slice(0, 100)
@@ -66,6 +65,20 @@ export default async function handler(request: Request) {
             }}
           >
             {title}
+          </div>
+          <div
+            style={{
+              fontSize: 30,
+              fontStyle: "normal",
+              letterSpacing: "-0.025em",
+              color: "white",
+              marginTop: 30,
+              padding: "0 120px",
+              lineHeight: 1.4,
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            By Abdul Hamid
           </div>
         </div>
       ),
