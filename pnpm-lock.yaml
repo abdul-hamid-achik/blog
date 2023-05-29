@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@calcom/embed-react':
-    specifier: ^1.0.12
-    version: 1.0.12(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^1.1.0
+    version: 1.1.0(react-dom@18.2.0)(react@18.2.0)
   '@code-hike/mdx':
     specifier: ^0.8.2
     version: 0.8.2(react@18.2.0)
@@ -105,8 +105,8 @@ packages:
     resolution: {integrity: sha512-AB1m63IaZqqTsqYBMOpSaojoqhotnkwV0MIpkI4ZtZaCIhon8FOg64JA8cNIlO0/BjVewQQ2rk4umqeopv6ZuA==}
     dev: false
 
-  /@calcom/embed-react@1.0.12(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-JQb+WFvD+wMmOZIGSePvh6MHbg36tY2dA0q2LtB8ak2id6isvogrUPh0dSveiFYY0dd/xfPoNaiWwH3B8cmqcw==}
+  /@calcom/embed-react@1.1.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-XYvo3PmhnntgcWILXGvbCGkI+KXfDsaoqT1TR0vbvWqYjJyklltMkR+NOO2RdVMuoxL/H8d3DtJkYxzyqaPsjw==}
     peerDependencies:
       react: ^18.2.0
       react-dom: ^18.2.0
