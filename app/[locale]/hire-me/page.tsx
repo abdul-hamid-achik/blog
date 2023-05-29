@@ -1,8 +1,8 @@
 "use client";
 
 // @ts-ignore
-import Cal, {getCalApi} from "@calcom/embed-react";
-import {useEffect} from "react";
+import Cal, { getCalApi } from "@calcom/embed-react";
+import { useEffect } from "react";
 
 export default function Page() {
     useEffect(()=>{
