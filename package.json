@@ -28,7 +28,7 @@
     "luxon": "^3.3.0",
     "next": "^13.4.4",
     "next-contentlayer": "^0.3.2",
-    "next-intl": "^2.14.0-beta.3",
+    "next-intl": "2.14.0-beta.3",
     "next-themes": "^0.2.1",
     "postcss": "8.4.23",
     "react": "18.2.0",
