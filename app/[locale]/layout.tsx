@@ -1,11 +1,11 @@
-import { Link, useLocale, useTranslations } from "next-intl"
 import "@/app/globals.css"
-import "@code-hike/mdx/dist/index.css"
-import { Inter } from "next/font/google"
-import { ThemeProvider } from "@/components/theme-provider"
 import { Analytics } from "@/components/analytics"
-import { ModeToggle } from "@/components/mode-toggle"
 import LocaleSelect from "@/components/locale"
+import { ModeToggle } from "@/components/mode-toggle"
+import { ThemeProvider } from "@/components/theme-provider"
+import "@code-hike/mdx/dist/index.css"
+import { Link, useLocale, useTranslations } from "next-intl"
+import { Inter } from "next/font/google"
 
 import { notFound } from "next/navigation"
 
