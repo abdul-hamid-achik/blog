@@ -1,9 +1,9 @@
-import { notFound } from "next/navigation"
+import { Mdx } from "@/components/mdx-components"
 import { allPosts } from "contentlayer/generated"
 import { DateTime } from "luxon"
 import { Metadata } from "next"
-import { Mdx } from "@/components/mdx-components"
 import { useLocale } from "next-intl"
+import { notFound } from "next/navigation"
 
 interface PostProps {
   params: {

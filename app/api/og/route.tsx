@@ -1,23 +1,23 @@
+/* eslint-disable @next/next/no-img-element */
 // @ts-ignore
 import { ImageResponse } from "@vercel/og"
+import { allPosts } from "contentlayer/generated"
 
-export const config = {
-  runtime: "edge",
-}
+export const runtime = 'edge'
 
-const image = fetch(new URL("./logo.png", import.meta.url)).then((res) =>
-  res.arrayBuffer()
-)
-
-export default async function handler(request: Request) {
+export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const imageData = await image
 
     const hasTitle = searchParams.has("title")
     const title = hasTitle
-      ? searchParams.get("title")?.slice(0, 100)
-      : "Abdul Hamid's Blog"
+    ? searchParams.get("title")?.slice(0, 100)
+    : "Abdul Hamid's Blog"
+
+    const post = allPosts.find((post) => post.title === searchParams.get("title"))
+    const src = await fetch(new URL("./logo.png", import.meta.url)).then((res) =>
+      res.arrayBuffer()
+    )
 
     return new ImageResponse(
       (
@@ -45,8 +45,8 @@ export default async function handler(request: Request) {
           >
             <img
               // @ts-ignore
-              src={imageData}
-              alt="Abdul Hamid's Blog Logo"
+              src={src}
+              alt={post?.title ? post?.title : "Abdul Hamid's Blog"}
               height={256}
               style={{ margin: "0 30px" }}
               width={256}
@@ -88,9 +88,5 @@ export default async function handler(request: Request) {
       }
     )
   } catch (e: any) {
-    console.log(`${e.message}`)
-    return new Response(`Failed to generate the image`, {
-      status: 500,
-    })
   }
 }
