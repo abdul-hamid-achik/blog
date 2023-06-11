@@ -4,7 +4,8 @@ import LocaleSelect from "@/components/locale"
 import { ModeToggle } from "@/components/mode-toggle"
 import { ThemeProvider } from "@/components/theme-provider"
 import "@code-hike/mdx/dist/index.css"
-import { Link, useLocale, useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
+import Link from "next-intl/link"
 import { Inter } from "next/font/google"
 
 import { notFound } from "next/navigation"
@@ -44,8 +45,7 @@ export default function LocaleLayout({ children, params }: RootLayoutProps) {
                 <ModeToggle />
                 <nav className="ml-auto mr-4 space-x-6 text-sm font-medium">
                   <Link href="/">{t("Home")}</Link>
-                  {/* TODO: enable hire me link once i figure out how to prevent spam */}
-                  {/*<Link href="/hire-me">Hire me</Link>*/}
+                  {/* <Link href="/contact">{t("Contact")}</Link> */}
                   <Link href="/about">{t("About")}</Link>
                 </nav>
                 <LocaleSelect selected={locale} />

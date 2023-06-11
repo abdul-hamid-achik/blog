@@ -1,5 +1,9 @@
-import {defineDocumentType, defineNestedType, makeSource,} from "contentlayer/source-files"
-import {remarkCodeHike} from "@code-hike/mdx"
+import {
+  defineDocumentType,
+  defineNestedType,
+  makeSource,
+} from "contentlayer/source-files"
+import { remarkCodeHike } from "@code-hike/mdx"
 import readingTime from "reading-time"
 // TODO: add this back after fixing `ERR_IMPORT_ASSERTION_TYPE_MISSING`
 // import codeHikeTheme from "shiki/themes/nord.json" assert {type: "json"};

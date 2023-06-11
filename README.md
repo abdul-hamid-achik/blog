@@ -14,7 +14,7 @@ pnpm dev
 pnpm deploy
 ```
 
-## Thanks to 
+## Thanks to
 
 i made this with https://github.com/shadcn/next-contentlayer
 

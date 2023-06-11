@@ -1,7 +1,4 @@
-import {getRequestConfig} from "next-intl/server"
-
-// TODO: Add missing articles for arabic
-// export const locales = ["en", "es", "ru", "ar"]
+import { getRequestConfig } from "next-intl/server"
 
 export const locales = ["en", "es", "ru"]
 

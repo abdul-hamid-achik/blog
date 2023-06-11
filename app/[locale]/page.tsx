@@ -1,16 +1,19 @@
-"use client"
 import { allPosts } from "@/.contentlayer/generated"
-import Link from "next/link"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { DateTime } from "luxon"
-import { Disclosure } from "@headlessui/react"
+import Link from "next/link"
 
-export default function Home({
+export default async function Home({
   params: { locale },
 }: {
   params: { locale: string }
 }) {
   return (
-    <div className="prose dark:prose-invert">
+    <div className="prose dark:prose-invert mt-4">
       {allPosts
         .filter((post) => post.locale === locale)
         .sort((first, second) => {
@@ -33,11 +36,9 @@ export default function Home({
             </div>
             {post.description && <p className="m-0">{post.description}</p>}
             {post.tags && (
-              <Disclosure>
-                <Disclosure.Button className="mt-4 text-sm">
-                  {post.tags.length} tags
-                </Disclosure.Button>
-                <Disclosure.Panel>
+              <Collapsible>
+                <CollapsibleTrigger>{post.tags.length} tags</CollapsibleTrigger>
+                <CollapsibleContent>
                   <div className="my-4 flex flex-wrap">
                     {post.tags.map((tag) => (
                       <Link
@@ -49,8 +50,8 @@ export default function Home({
                       </Link>
                     ))}
                   </div>
-                </Disclosure.Panel>
-              </Disclosure>
+                </CollapsibleContent>
+              </Collapsible>
             )}
             <hr className="my-4" />
           </article>

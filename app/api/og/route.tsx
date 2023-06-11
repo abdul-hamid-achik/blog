@@ -3,7 +3,7 @@
 import { ImageResponse } from "@vercel/og"
 import { allPosts } from "contentlayer/generated"
 
-export const runtime = 'edge'
+export const runtime = "edge"
 
 export async function GET(request: Request) {
   try {
@@ -11,12 +11,14 @@ export async function GET(request: Request) {
 
     const hasTitle = searchParams.has("title")
     const title = hasTitle
-    ? searchParams.get("title")?.slice(0, 100)
-    : "Abdul Hamid's Blog"
+      ? searchParams.get("title")?.slice(0, 100)
+      : "Abdul Hamid's Blog"
 
-    const post = allPosts.find((post) => post.title === searchParams.get("title"))
-    const src = await fetch(new URL("./logo.png", import.meta.url)).then((res) =>
-      res.arrayBuffer()
+    const post = allPosts.find(
+      (post) => post.title === searchParams.get("title")
+    )
+    const src = await fetch(new URL("./logo.png", import.meta.url)).then(
+      (res) => res.arrayBuffer()
     )
 
     return new ImageResponse(
@@ -87,6 +89,5 @@ export async function GET(request: Request) {
         height: 630,
       }
     )
-  } catch (e: any) {
-  }
+  } catch (e: any) {}
 }
