@@ -4,6 +4,7 @@ import { DateTime } from "luxon"
 import { Metadata } from "next"
 import Link from "next/link"
 
+export const dynamic = 'force-dynamic'
 interface TagProps {
   params: {
     tag: string
@@ -53,13 +54,13 @@ export async function generateMetadata({
 }
 
 
-// export async function generateStaticParams(): Promise<TagProps["params"][]> {
-//   const allTags = allPosts.flatMap((post) => post.tags).filter((tag): tag is string => tag !== undefined);
+export async function generateStaticParams(): Promise<TagProps["params"][]> {
+  const allTags = allPosts.flatMap((post) => post.tags).filter((tag): tag is string => tag !== undefined);
 
-//   const uniqueTags = Array.from(new Set(allTags));
+  const uniqueTags = Array.from(new Set(allTags));
 
-//   return uniqueTags.map((tag) => ({ tag }));
-// }
+  return uniqueTags.map((tag) => ({ tag }));
+}
 
 
 export default function TagPage({
