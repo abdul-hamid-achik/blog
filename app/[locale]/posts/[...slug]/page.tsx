@@ -80,6 +80,7 @@ export async function generateMetadata({
 // }
 
 export default async function PostPage({ params }: PostProps) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const locale = useLocale()
   const post = await getPostFromParams(params, locale)
 
@@ -88,20 +89,20 @@ export default async function PostPage({ params }: PostProps) {
   }
 
   return (
-    <article className="prose dark:prose-invert py-6">
-      <h1 className="mb-2 text-xl md:text-4xl">{post.title}</h1>
-      <div className="flex items-center">
-        <p className="text-sm">{DateTime.fromISO(post.date).toRelative()}</p>
-        <span className="mx-2">•</span>
-        <p className="text-sm">{post.readingTime.text}</p>
-      </div>
-      {post.description && (
-        <p className="text-md mt-0 text-slate-700 dark:text-slate-200 md:text-xl">
-          {post.description}
-        </p>
-      )}
-      <hr className="my-4" />
-      <Mdx code={post.body.code} />
-    </article>
+      <article className="prose dark:prose-invert py-6">
+        <h1 className="mb-2 text-xl md:text-4xl">{post.title}</h1>
+        <div className="flex items-center">
+          <p className="text-sm">{DateTime.fromISO(post.date).toRelative()}</p>
+          <span className="mx-2">•</span>
+          <p className="text-sm">{post.readingTime.text}</p>
+        </div>
+        {post.description && (
+          <p className="text-md mt-0 text-slate-700 dark:text-slate-200 md:text-xl">
+            {post.description}
+          </p>
+        )}
+        <hr className="my-4" />
+        <Mdx code={post.body.code} />
+      </article>
   )
 }

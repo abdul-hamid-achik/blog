@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+
 import { usePathname } from "next-intl/client"
 import { useRouter } from "next/navigation"
 
@@ -60,7 +61,7 @@ export default function LocaleSelect({ selected }: { selected: string }) {
             <SelectItem
               key={locale}
               value={locale}
-              className="cursor-pointer px-2 py-1 text-sm hover:bg-gray-200 dark:hover:bg-gray-800 md:px-4 md:py-2"
+              className="cursor-pointer text-sm hover:bg-gray-200 dark:hover:bg-gray-800"
             >
               {`${getLocaleFlag(locale as Locale)} ${getLocaleName(
                 locale as Locale

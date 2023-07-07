@@ -5,9 +5,6 @@ const withNextIntl = require("next-intl/plugin")("./i18n.ts")
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  experimental: {
-    serverActions: true,
-  },
   images: {
     remotePatterns: [
       {
