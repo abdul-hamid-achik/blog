@@ -4,6 +4,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import { getBaseURL } from "@/lib/utils"
 import { DateTime } from "luxon"
 import Link from "next/link"
 
@@ -12,6 +13,8 @@ export default async function Home({
 }: {
   params: { locale: string }
 }) {
+  const baseUrl = getBaseURL()
+
   return (
     <div className="prose dark:prose-invert mt-4">
       {allPosts
@@ -24,7 +27,7 @@ export default async function Home({
         })
         .map((post) => (
           <article key={post._id}>
-            <Link href={`${locale}${post.slug}`}>
+            <Link href={`${baseUrl}/${locale}${post.slug}`}>
               <h2 className="mb-0">{post.title}</h2>
             </Link>
             <div className="flex items-center">
@@ -42,7 +45,7 @@ export default async function Home({
                   <div className="my-4 flex flex-wrap">
                     {post.tags.map((tag) => (
                       <Link
-                        href={`${locale}/tags/${tag}`}
+                        href={`${baseUrl}/${locale}/tags/${tag}`}
                         key={tag}
                         className="mr-2 text-sm"
                       >

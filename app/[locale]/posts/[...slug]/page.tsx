@@ -72,18 +72,16 @@ export async function generateMetadata({
   }
 }
 
-// TODO: Enable this back when this works with next-intl
-// export async function generateStaticParams(): Promise<PostProps["params"][]> {
-//   return allPosts.map((post) => ({
-//     slug: post.slugAsParams.split("/"),
-//   }))
-// }
+export async function generateStaticParams(): Promise<PostProps["params"][]> {
+  return allPosts.map((post) => ({
+    slug: post.slugAsParams.split("/"),
+  }))
+}
 
 export default async function PostPage({ params }: PostProps) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const locale = useLocale()
   const post = await getPostFromParams(params, locale)
-
   if (!post) {
     notFound()
   }

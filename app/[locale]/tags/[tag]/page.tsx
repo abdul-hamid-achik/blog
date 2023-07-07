@@ -1,7 +1,8 @@
 import { allPosts } from "@/.contentlayer/generated"
-import Link from "next/link"
+import { getBaseURL } from "@/lib/utils"
 import { DateTime } from "luxon"
 import { Metadata } from "next"
+import Link from "next/link"
 
 interface TagProps {
   params: {
@@ -51,11 +52,23 @@ export async function generateMetadata({
   }
 }
 
+
+export async function generateStaticParams(): Promise<TagProps["params"][]> {
+  const allTags = allPosts.flatMap((post) => post.tags).filter((tag): tag is string => tag !== undefined);
+
+  const uniqueTags = Array.from(new Set(allTags));
+
+  return uniqueTags.map((tag) => ({ tag }));
+}
+
+
 export default function TagPage({
   params: { locale, tag },
 }: {
   params: { locale: string; tag: string }
 }) {
+  const baseUrl = getBaseURL()
+
   return (
     <div className="prose dark:prose-invert">
       <h2 className="my-6">#{decodeURIComponent(tag)}</h2>
@@ -71,7 +84,7 @@ export default function TagPage({
         })
         .map((post) => (
           <article key={post._id}>
-            <Link href={`${locale}${post.slug}`}>
+            <Link href={`${baseUrl}/${locale}${post.slug}`}>
               <h2 className="mb-0">{post.title}</h2>
             </Link>
             <div className="flex items-center">
@@ -86,7 +99,7 @@ export default function TagPage({
               <div className="mt-4 flex flex-wrap">
                 {post.tags.map((tag) => (
                   <Link
-                    href={`${locale}/tags/${tag}`}
+                    href={`${baseUrl}/${locale}/tags/${tag}`}
                     key={tag}
                     className="mr-2 text-sm"
                   >
