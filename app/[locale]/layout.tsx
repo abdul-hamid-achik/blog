@@ -3,6 +3,7 @@ import { Analytics } from "@/components/analytics"
 import LocaleSelect from "@/components/locale"
 import { ModeToggle } from "@/components/mode-toggle"
 import { ThemeProvider } from "@/components/theme-provider"
+import { getBaseURL } from "@/lib/utils"
 import "@code-hike/mdx/dist/index.css"
 import { useLocale, useTranslations } from "next-intl"
 import Link from "next-intl/link"
@@ -15,6 +16,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata = {
   title: "Abdul Hamid",
   description: "A Lacanian full-stack developer",
+  metadataBase: new URL(getBaseURL())
 }
 
 interface RootLayoutProps {

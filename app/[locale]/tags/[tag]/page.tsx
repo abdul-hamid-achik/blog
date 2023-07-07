@@ -36,6 +36,7 @@ export async function generateMetadata({
   }
 
   return {
+    metadataBase: new URL(getBaseURL()),
     title: params.tag,
     description: `Posts tagged with ${params.tag}`,
     keywords: posts.map((post) => post.tags?.join(", ")).join(", "),

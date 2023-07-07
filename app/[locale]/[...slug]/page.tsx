@@ -1,11 +1,12 @@
-import { notFound } from "next/navigation"
-import { Metadata } from "next"
-import { allPages } from "contentlayer/generated"
-
-import { useLocale } from "next-intl"
-
 import { Mdx } from "@/components/mdx-components"
+import { getBaseURL } from "@/lib/utils"
+import { allPages } from "contentlayer/generated"
+import { Metadata } from "next"
+import { useLocale } from "next-intl"
+import { notFound } from "next/navigation"
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 interface PageProps {
   params: {
     slug: string[]
@@ -38,19 +39,20 @@ export async function generateMetadata({
   }
 
   return {
+    metadataBase: new URL(getBaseURL()),
     title: page.title,
     description: page.description,
   }
 }
 
-// TODO: Enable this back when this works with next-intl
-// export async function generateStaticParams(): Promise<PageProps["params"][]> {
-//   return allPages.map((page) => ({
-//     slug: page.slugAsParams.split("/"),
-//   }))
-// }
+export async function generateStaticParams(): Promise<PageProps["params"][]> {
+  return allPages.map((page) => ({
+    slug: page.slugAsParams.split("/"),
+  }))
+}
 
 export default async function PagePage({ params }: PageProps) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const locale = useLocale()
   const page = await getPageFromParams(params, locale)
 

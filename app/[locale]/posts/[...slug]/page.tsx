@@ -1,4 +1,5 @@
 import { Mdx } from "@/components/mdx-components"
+import { getBaseURL } from "@/lib/utils"
 import { allPosts } from "contentlayer/generated"
 import { DateTime } from "luxon"
 import { Metadata } from "next"
@@ -39,6 +40,7 @@ export async function generateMetadata({
   }
 
   return {
+    metadataBase: new URL(getBaseURL()),
     title: post.title,
     description: post.description,
     keywords: post.tags?.join(", "),
