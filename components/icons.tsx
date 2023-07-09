@@ -7,7 +7,8 @@ import {
   ChevronRight,
   Command,
   CreditCard,
-  Eye, EyeOff,
+  Eye,
+  EyeOff,
   File,
   FileText,
   HelpCircle,
@@ -26,7 +27,7 @@ import {
   Twitter,
   User,
   X,
-  type Icon as LucideIcon
+  type Icon as LucideIcon,
 } from "lucide-react"
 
 export type Icon = LucideIcon

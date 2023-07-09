@@ -8,7 +8,7 @@ import Embed from "./embed"
 const components = {
   Image,
   Embed,
-  Charts
+  Charts,
 }
 
 interface MdxProps {

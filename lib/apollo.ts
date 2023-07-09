@@ -14,5 +14,4 @@ export const client = new ApolloClient({
   uri,
   cache: new InMemoryCache(),
   link,
-  
 })

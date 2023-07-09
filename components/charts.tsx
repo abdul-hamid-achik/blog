@@ -42,9 +42,7 @@ const READING_TIME_DISTRIBUTION_QUERY = gql`
 `
 
 export function PostsOverTime() {
-  const { data } = useQuery(
-    POSTS_OVER_TIME_QUERY
-  )
+  const { data } = useQuery(POSTS_OVER_TIME_QUERY)
 
   return (
     <LineChart
@@ -62,9 +60,7 @@ export function PostsOverTime() {
 }
 
 export function ReadingTimeDistribution() {
-  const { data } = useQuery(
-    READING_TIME_DISTRIBUTION_QUERY
-  )
+  const { data } = useQuery(READING_TIME_DISTRIBUTION_QUERY)
 
   return (
     <BarChart
