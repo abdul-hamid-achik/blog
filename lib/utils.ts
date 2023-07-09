@@ -6,5 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getBaseURL() {
-  return process.env.NODE_ENV === "production" ? "https://abdulachik.dev" : "http://localhost:3000"
+  return process.env.NODE_ENV === "production"
+    ? "https://abdulachik.dev"
+    : "http://localhost:3000"
 }

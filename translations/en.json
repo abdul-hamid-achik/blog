@@ -1,5 +1,11 @@
 {
   "Home": "Home",
   "About": "About",
-  "Contact": "Contact"
+  "Insights": "Insights",
+  "Contact": "Contact",
+  "Uh oh! Not Found": "Uh oh! Not Found",
+  "This blog post could not be found": "This post could not be found",
+  "This tag could not be found": "This tag could not be found",
+  "Page could not be found": "Page could not be found",
+  "Go to the main page": "Go to the main page"
 }

@@ -1,5 +1,11 @@
 {
   "Home": "дом",
   "About": "Обо мне",
-  "Contact": "контакт"
+  "Insights": "взгляды",
+  "Contact": "контакт",
+  "Uh oh! Not Found": "Упс! Не найдено",
+  "This blog post could not be found": "Этот блог не найден",
+  "This tag could not be found": "Этот тег не найден",
+  "Page could not be found": "Страница не найдена",
+  "Go to the main page": "Перейти на главную страницу"
 }

@@ -2,7 +2,8 @@ import "@/app/globals.css"
 import { Analytics } from "@/components/analytics"
 import LocaleSelect from "@/components/locale"
 import { ModeToggle } from "@/components/mode-toggle"
-import { ThemeProvider } from "@/components/theme-provider"
+import ApolloProvider from "@/components/providers/apollo"
+import { ThemeProvider } from "@/components/providers/theme"
 import { getBaseURL } from "@/lib/utils"
 import "@code-hike/mdx/dist/index.css"
 import { useLocale, useTranslations } from "next-intl"
@@ -16,7 +17,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata = {
   title: "Abdul Hamid",
   description: "A Lacanian full-stack developer",
-  metadataBase: new URL(getBaseURL())
+  metadataBase: new URL(getBaseURL()),
 }
 
 interface RootLayoutProps {
@@ -37,27 +38,30 @@ export default function LocaleLayout({ children, params }: RootLayoutProps) {
 
   return (
     <html lang={locale}>
-      <body
-        className={`dark:bg-slate-950 min-h-screen bg-white text-slate-900 antialiased dark:text-slate-50 ${inter.className}`}
-      >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <div className="mx-auto max-w-2xl px-4 py-4 md:py-10">
-            <header>
-              <div className="flex items-center justify-between">
-                <ModeToggle />
-                <nav className="ml-auto mr-4 space-x-6 text-sm font-medium">
-                  <Link href="/">{t("Home")}</Link>
-                  {/* <Link href="/contact">{t("Contact")}</Link> */}
-                  <Link href="/about">{t("About")}</Link>
-                </nav>
-                <LocaleSelect selected={locale} />
+        <body
+          className={`dark:bg-slate-950 min-h-screen bg-white text-slate-900 antialiased dark:text-slate-50 ${inter.className}`}
+        >
+          <ApolloProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <div className="mx-auto max-w-2xl px-4 py-4 md:py-10">
+                <header>
+                  <div className="flex items-center justify-between">
+                    <ModeToggle />
+                    <nav className="ml-auto mr-2 space-x-6 text-sm font-medium">
+                      <Link href="/">{t("Home")}</Link>
+                      {/* <Link href="/contact">{t("Contact")}</Link> */}
+                      <Link href="/insights">{t("Insights")}</Link>
+                      <Link href="/about">{t("About")}</Link>
+                    </nav>
+                    <LocaleSelect selected={locale} />
+                  </div>
+                </header>
+                <main>{children}</main>
               </div>
-            </header>
-            <main>{children}</main>
-          </div>
-          <Analytics />
-        </ThemeProvider>
-      </body>
-    </html>
+              <Analytics />
+            </ThemeProvider>
+          </ApolloProvider>
+        </body>
+      </html>
   )
 }
