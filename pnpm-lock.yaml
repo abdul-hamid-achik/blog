@@ -59,6 +59,9 @@ dependencies:
   graphql-tag:
     specifier: ^2.12.6
     version: 2.12.6(graphql@16.7.1)
+  http-status:
+    specifier: ^1.6.2
+    version: 1.6.2
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
@@ -4055,6 +4058,11 @@ packages:
       setprototypeof: 1.2.0
       statuses: 2.0.1
       toidentifier: 1.0.1
+    dev: false
+
+  /http-status@1.6.2:
+    resolution: {integrity: sha512-oUExvfNckrpTpDazph7kNG8sQi5au3BeTo0idaZFXEhTaJKu7GNJCLHI0rYY2wljm548MSTM+Ljj/c6anqu2zQ==}
+    engines: {node: '>= 0.4.0'}
     dev: false
 
   /human-signals@2.1.0:
