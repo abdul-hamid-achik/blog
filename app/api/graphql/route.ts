@@ -8,6 +8,7 @@ const server = new ApolloServer({
   resolvers,
   typeDefs,
   allowBatchedHttpRequests: true,
+  introspection: true,
 })
 
 const options = {
