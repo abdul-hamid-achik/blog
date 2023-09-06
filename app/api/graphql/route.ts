@@ -1,4 +1,6 @@
 import { ApolloServer } from "@apollo/server"
+import { buildSubgraphSchema } from '@apollo/subgraph'
+import { GraphQLResolverMap } from "@apollo/subgraph/dist/schema-helper"
 import { startServerAndCreateNextHandler } from "@as-integrations/next"
 import status from "http-status"
 import { NextRequest } from "next/server"
@@ -10,8 +12,10 @@ type Context = {
 }
 
 const server = new ApolloServer<Context>({
-  resolvers,
-  typeDefs,
+  schema: buildSubgraphSchema({
+    typeDefs,
+    resolvers: resolvers as GraphQLResolverMap<unknown>
+  }),
   allowBatchedHttpRequests: true,
   introspection: true,
 });

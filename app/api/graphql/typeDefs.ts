@@ -1,6 +1,8 @@
 import gql from "graphql-tag"
 
 export default gql`
+  extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@shareable"])
+
   scalar Date
 
   type Query {
@@ -9,7 +11,7 @@ export default gql`
     readingTimeDistribution: [ReadingTimeDistribution]
   }
 
-  type Post {
+  type Post @key(fields: "_id") {
     title: String
     description: String
     date: Date

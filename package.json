@@ -13,6 +13,7 @@
   "dependencies": {
     "@apollo/client": "^3.8.3",
     "@apollo/server": "^4.9.3",
+    "@apollo/subgraph": "^2.5.4",
     "@as-integrations/next": "^2.0.2",
     "@code-hike/mdx": "^0.8.3",
     "@radix-ui/react-collapsible": "^1.0.3",
