@@ -5,18 +5,26 @@ import { NextRequest } from "next/server"
 import resolvers from "./resolvers"
 import typeDefs from "./typeDefs"
 
-const server = new ApolloServer({
+type Context = {
+  locale: string
+}
+
+const server = new ApolloServer<Context>({
   resolvers,
   typeDefs,
   allowBatchedHttpRequests: true,
   introspection: true,
-})
+});
 
 const options = {
-  context: async (req: NextRequest) => ({ req }),
+  context: async (req: NextRequest) => {
+    const locale = req.headers.get('locale') || 'en';
+
+    return ({ req, locale })
+  },
 }
 
-const handler = startServerAndCreateNextHandler<NextRequest>(server, options)
+const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, options)
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0

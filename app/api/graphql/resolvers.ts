@@ -21,20 +21,26 @@ function categorizeReadingTime(posts: Posts) {
   })
 }
 
+function getPostsForLocale(locale: string) {
+  return allPosts.filter(post => post.locale === locale)
+}
+
 export default {
   Query: {
-    allPosts: () => allPosts,
+    allPosts: (_: any, __: any, { locale }) => getPostsForLocale(locale),
 
-    postsOverTime: () => {
-      const groupedPosts = groupByMonth(allPosts)
+    postsOverTime(_: any, __: any, { locale }) {
+      const posts = getPostsForLocale(locale)
+      const groupedPosts = groupByMonth(posts)
       return map(groupedPosts, (posts, month) => ({
         month,
         count: posts.length,
       }))
     },
 
-    readingTimeDistribution: () => {
-      const distribution = categorizeReadingTime(allPosts)
+    readingTimeDistribution: (_: any, __: any, { locale }: CustomContext) => {
+      const posts = getPostsForLocale(locale)
+      const distribution = categorizeReadingTime(posts)
       return map(distribution, (count, category) => ({
         category,
         count,
