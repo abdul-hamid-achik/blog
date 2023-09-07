@@ -36,7 +36,6 @@ export const revalidate = 0
 export async function OPTIONS(_request: Request) {
   const response = new Response(undefined, { status: status.OK })
   response.headers.set("Access-Control-Allow-Origin", "*")
-  response.headers.set("Access-Control-Allow-Credentials", "true")
   response.headers.set(
     "Access-Control-Allow-Methods",
     "GET,OPTIONS,PATCH,DELETE,POST,PUT"
@@ -51,13 +50,11 @@ export async function OPTIONS(_request: Request) {
 export async function GET(request: NextRequest) {
   const response = await handler(request)
   response.headers.set("Access-Control-Allow-Origin", "*")
-  response.headers.set("Access-Control-Allow-Credentials", "true")
   return response
 }
 
 export async function POST(request: NextRequest) {
   const response = await handler(request)
   response.headers.set("Access-Control-Allow-Origin", "*")
-  response.headers.set("Access-Control-Allow-Credentials", "true")
   return response
 }
