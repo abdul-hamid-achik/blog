@@ -20,7 +20,9 @@ const server = new ApolloServer<Context>({
   allowBatchedHttpRequests: true,
   introspection: true,
   plugins: [
-    ApolloServerPluginInlineTrace(),
+    ApolloServerPluginInlineTrace({
+      includeErrors: { unmodified: true }
+    }),
   ],
 });
 
