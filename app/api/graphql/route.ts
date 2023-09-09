@@ -1,5 +1,9 @@
 import { ApolloServer } from "@apollo/server"
 import { ApolloServerPluginInlineTrace } from '@apollo/server/plugin/inlineTrace'
+import {
+  ApolloServerPluginLandingPageLocalDefault,
+  ApolloServerPluginLandingPageProductionDefault
+} from '@apollo/server/plugin/landingPage/default'
 import { buildSubgraphSchema } from '@apollo/subgraph'
 import { GraphQLResolverMap } from "@apollo/subgraph/dist/schema-helper"
 import { startServerAndCreateNextHandler } from "@as-integrations/next"
@@ -23,6 +27,12 @@ const server = new ApolloServer<Context>({
     ApolloServerPluginInlineTrace({
       includeErrors: { unmodified: true }
     }),
+    process.env.NODE_ENV === 'production'
+    ? ApolloServerPluginLandingPageProductionDefault({
+        graphRef: 'abdulachik-blog@current',
+        footer: false,
+      })
+    : ApolloServerPluginLandingPageLocalDefault({ footer: false }),
   ],
 });
 
