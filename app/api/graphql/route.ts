@@ -1,4 +1,5 @@
 import { ApolloServer } from "@apollo/server"
+import { ApolloServerPluginInlineTrace } from '@apollo/server/plugin/inlineTrace'
 import { buildSubgraphSchema } from '@apollo/subgraph'
 import { GraphQLResolverMap } from "@apollo/subgraph/dist/schema-helper"
 import { startServerAndCreateNextHandler } from "@as-integrations/next"
@@ -18,6 +19,9 @@ const server = new ApolloServer<Context>({
   }),
   allowBatchedHttpRequests: true,
   introspection: true,
+  plugins: [
+    ApolloServerPluginInlineTrace(),
+  ],
 });
 
 const options = {
