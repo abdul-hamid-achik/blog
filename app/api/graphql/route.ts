@@ -1,10 +1,10 @@
 import { ApolloServer } from "@apollo/server"
-import { ApolloServerPluginInlineTrace } from '@apollo/server/plugin/inlineTrace'
+import { ApolloServerPluginInlineTrace } from "@apollo/server/plugin/inlineTrace"
 import {
   ApolloServerPluginLandingPageLocalDefault,
-  ApolloServerPluginLandingPageProductionDefault
-} from '@apollo/server/plugin/landingPage/default'
-import { buildSubgraphSchema } from '@apollo/subgraph'
+  ApolloServerPluginLandingPageProductionDefault,
+} from "@apollo/server/plugin/landingPage/default"
+import { buildSubgraphSchema } from "@apollo/subgraph"
 import { GraphQLResolverMap } from "@apollo/subgraph/dist/schema-helper"
 import { startServerAndCreateNextHandler } from "@as-integrations/next"
 import status from "http-status"
@@ -19,32 +19,35 @@ type Context = {
 const server = new ApolloServer<Context>({
   schema: buildSubgraphSchema({
     typeDefs,
-    resolvers: resolvers as GraphQLResolverMap<unknown>
+    resolvers: resolvers as GraphQLResolverMap<unknown>,
   }),
   allowBatchedHttpRequests: true,
   introspection: true,
   plugins: [
     ApolloServerPluginInlineTrace({
-      includeErrors: { unmodified: true }
+      includeErrors: { unmodified: true },
     }),
-    process.env.NODE_ENV === 'production'
-    ? ApolloServerPluginLandingPageProductionDefault({
-        graphRef: 'abdulachik-blog@current',
-        footer: false,
-      })
-    : ApolloServerPluginLandingPageLocalDefault({ footer: false }),
+    process.env.NODE_ENV === "production"
+      ? ApolloServerPluginLandingPageProductionDefault({
+          graphRef: "abdulachik-blog@current",
+          footer: false,
+        })
+      : ApolloServerPluginLandingPageLocalDefault({ footer: false }),
   ],
-});
+})
 
 const options = {
   context: async (req: NextRequest) => {
-    const locale = req.headers.get('locale') || 'en';
+    const locale = req.headers.get("locale") || "en"
 
-    return ({ req, locale })
+    return { req, locale }
   },
 }
 
-const handler = startServerAndCreateNextHandler<NextRequest, Context>(server, options)
+const handler = startServerAndCreateNextHandler<NextRequest, Context>(
+  server,
+  options
+)
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0

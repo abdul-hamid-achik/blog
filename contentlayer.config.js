@@ -1,11 +1,11 @@
-import { remarkCodeHike } from "@code-hike/mdx";
+import { remarkCodeHike } from "@code-hike/mdx"
 import {
   defineDocumentType,
   defineNestedType,
   makeSource,
-} from "contentlayer/source-files";
-import readingTime from "reading-time";
-import codeHikeTheme from "./contentlayer.theme";
+} from "contentlayer/source-files"
+import readingTime from "reading-time"
+import codeHikeTheme from "./contentlayer.theme"
 
 // TODO: add this back after fixing `ERR_IMPORT_ASSERTION_TYPE_MISSING`
 // import codeHikeTheme from "shiki/themes/nord.json" assert {type: "json"};
@@ -109,5 +109,7 @@ export const Post = defineDocumentType(() => ({
 export default makeSource({
   contentDirPath: "./content",
   documentTypes: [Post, Page],
-  remarkPlugins: [[remarkCodeHike, { theme: codeHikeTheme, lineNumbers: false }]],
+  remarkPlugins: [
+    [remarkCodeHike, { theme: codeHikeTheme, lineNumbers: false }],
+  ],
 })

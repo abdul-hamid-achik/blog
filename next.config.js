@@ -19,7 +19,10 @@ const nextConfig = {
         source: "/api/graphql",
         headers: [
           { key: "Access-Control-Allow-Credentials", value: "true" },
-          { key: "Access-Control-Allow-Origin", value: "https://studio.apollographql.com" },
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "https://studio.apollographql.com",
+          },
           {
             key: "Access-Control-Allow-Methods",
             value: "GET,OPTIONS,PATCH,DELETE,POST,PUT",

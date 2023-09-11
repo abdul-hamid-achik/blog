@@ -25,18 +25,18 @@ function categorizeReadingTime(posts: Posts) {
 }
 
 function getPostsForLocale(locale: string) {
-  return allPosts.filter(post => post.locale === locale)
+  return allPosts.filter((post) => post.locale === locale)
 }
 
 export default {
   Query: {
     allPosts(_root: any, _args: any, context: Context, _info: any) {
-      const {locale} = context
+      const { locale } = context
       return getPostsForLocale(locale)
     },
 
     postsOverTime(_root: any, _args: any, context: Context, _info: any) {
-      const {locale} = context
+      const { locale } = context
       const posts = getPostsForLocale(locale)
       const groupedPosts = groupByMonth(posts)
       return map(groupedPosts, (posts, month) => ({
@@ -45,8 +45,13 @@ export default {
       }))
     },
 
-    readingTimeDistribution(_root: any, _args: any, context: Context, _info: any) {
-      const {locale} = context
+    readingTimeDistribution(
+      _root: any,
+      _args: any,
+      context: Context,
+      _info: any
+    ) {
+      const { locale } = context
       const posts = getPostsForLocale(locale)
       const distribution = categorizeReadingTime(posts)
       return map(distribution, (count, category) => ({
