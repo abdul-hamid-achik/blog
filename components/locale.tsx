@@ -45,7 +45,6 @@ export default function LocaleSelect({ selected }: { selected: string }) {
   const router = useRouter()
   const pathname = usePathname()
   function changeLanguage(locale: Locale) {
-    console.log("changeLanguage", locale)
     router.push(`/${locale}${pathname ? `/${pathname}` : ""}`)
   }
 
