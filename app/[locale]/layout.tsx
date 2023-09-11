@@ -51,6 +51,7 @@ export default function LocaleLayout({ children, params }: RootLayoutProps) {
                     <Link href="/">{t("Home")}</Link>
                     {/* <Link href="/contact">{t("Contact")}</Link> */}
                     <Link href="/insights">{t("Insights")}</Link>
+                    <Link href="/paintings">{t("Paintings")}</Link>
                     <Link href="/about">{t("About")}</Link>
                   </nav>
                   <LocaleSelect selected={locale} />

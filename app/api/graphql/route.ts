@@ -1,16 +1,18 @@
-import { ApolloServer } from "@apollo/server"
-import { ApolloServerPluginInlineTrace } from "@apollo/server/plugin/inlineTrace"
+import { ApolloServer } from "@apollo/server";
+import { ApolloServerPluginUsageReportingDisabled } from '@apollo/server/plugin/disabled';
+import { ApolloServerPluginInlineTrace } from "@apollo/server/plugin/inlineTrace";
 import {
   ApolloServerPluginLandingPageLocalDefault,
   ApolloServerPluginLandingPageProductionDefault,
-} from "@apollo/server/plugin/landingPage/default"
-import { buildSubgraphSchema } from "@apollo/subgraph"
-import { GraphQLResolverMap } from "@apollo/subgraph/dist/schema-helper"
-import { startServerAndCreateNextHandler } from "@as-integrations/next"
-import status from "http-status"
-import { NextRequest } from "next/server"
-import resolvers from "./resolvers"
-import typeDefs from "./typeDefs"
+} from "@apollo/server/plugin/landingPage/default";
+
+import { buildSubgraphSchema } from "@apollo/subgraph";
+import { GraphQLResolverMap } from "@apollo/subgraph/dist/schema-helper";
+import { startServerAndCreateNextHandler } from "@as-integrations/next";
+import status from "http-status";
+import { NextRequest } from "next/server";
+import resolvers from "./resolvers";
+import typeDefs from "./typeDefs";
 
 type Context = {
   locale: string
@@ -24,6 +26,7 @@ const server = new ApolloServer<Context>({
   allowBatchedHttpRequests: true,
   introspection: true,
   plugins: [
+    ApolloServerPluginUsageReportingDisabled(),
     ApolloServerPluginInlineTrace({
       includeErrors: { unmodified: true },
     }),
@@ -32,7 +35,9 @@ const server = new ApolloServer<Context>({
           graphRef: "abdulachik-blog@current",
           footer: false,
         })
-      : ApolloServerPluginLandingPageLocalDefault({ footer: false }),
+      : ApolloServerPluginLandingPageLocalDefault({
+        footer: false
+      }),
   ],
 })
 
@@ -53,16 +58,13 @@ export const dynamic = "force-dynamic"
 export const revalidate = 0
 
 export async function OPTIONS(_request: Request) {
-  const response = new Response(undefined, { status: status.OK })
-  return response
+  return new Response(undefined, { status: status.OK })
 }
 
 export async function GET(request: NextRequest) {
-  const response = await handler(request)
-  return response
+  return await handler(request)
 }
 
 export async function POST(request: NextRequest) {
-  const response = await handler(request)
-  return response
+  return await handler(request)
 }

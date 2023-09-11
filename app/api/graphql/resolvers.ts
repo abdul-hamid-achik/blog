@@ -1,6 +1,13 @@
 /* eslint-disable import/no-anonymous-default-export */
-import { allPosts } from "@/.contentlayer/generated"
-import { countBy, groupBy, map } from "lodash"
+import { allPaintings, allPosts } from "@/.contentlayer/generated";
+import { countBy, groupBy, map } from "lodash";
+
+
+function getPaintingsForLocale(locale: string) {
+  return allPaintings.filter((painting) => painting.locale === locale);
+}
+
+type Paintings = typeof allPaintings;
 
 type Posts = typeof allPosts
 type Context = {
@@ -33,6 +40,11 @@ export default {
     allPosts(_root: any, _args: any, context: Context, _info: any) {
       const { locale } = context
       return getPostsForLocale(locale)
+    },
+
+    allPaintings(_root: any, _args: any, context: Context, _info: any) {
+      const { locale } = context;
+      return getPaintingsForLocale(locale);
     },
 
     postsOverTime(_root: any, _args: any, context: Context, _info: any) {

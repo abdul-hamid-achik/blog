@@ -15,6 +15,47 @@ const getLocale = (path) => {
   return pathArray.length > 2 ? pathArray.slice(-2)[0] : "en"
 }
 
+export const Painting = defineDocumentType(() => ({
+  name: "Painting",
+  filePathPattern: `paintings/**/*.mdx`,
+  contentType: "mdx",
+  fields: {
+    title: {
+      type: "string",
+      required: true,
+    },
+    description: {
+      type: "string",
+    },
+    author: {
+      type: "string",
+    },
+    year: {
+      type: "number"
+    },
+    style: {
+      type: "string"
+    },
+    country: {
+      type: "string"
+    },
+    image: {
+      type: "string",
+    },
+    tags: {
+      type: "list",
+      of: {
+        type: "string",
+      },
+    },
+    seo: {
+      type: "nested",
+      of: SEO,
+    },
+  },
+  computedFields,
+}))
+
 /** @type {import('contentlayer/source-files').ComputedFields} */
 const computedFields = {
   slug: {
@@ -108,6 +149,6 @@ export const Post = defineDocumentType(() => ({
 
 export default makeSource({
   contentDirPath: "./content",
-  documentTypes: [Post, Page],
+  documentTypes: [Post, Page, Painting],
   remarkPlugins: [[remarkCodeHike, { theme: codeHikeTheme, lineNumbers: false }]],
 })
