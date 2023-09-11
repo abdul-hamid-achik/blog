@@ -8,8 +8,7 @@
     "preview": "next build && next start",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier --write .",
-    "publish-graph": "rover subgraph introspect http://localhost:3000/api/graphql | rover subgraph publish abdulachik-blog@current --name blog --schema - --routing-url https://www.abdulachik.dev/api/graphql"
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@apollo/client": "^3.8.3",

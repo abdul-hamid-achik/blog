@@ -4,12 +4,13 @@ on:
 name: Publish GraphQL Schema
 
 jobs:
-  publish:
+  publish-subgraph:
     if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
     env:
       APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
       APOLLO_VCS_COMMIT: ${{ github.sha }}
+      BASE_URL: ${{ github.event.deployment_status.target_url }}
     steps:
       - uses: actions/checkout@v3
       - uses: oven-sh/setup-bun@v1
@@ -17,5 +18,6 @@ jobs:
         run: |
           curl -sSL https://rover.apollo.dev/nix/v0.18.1 | sh
           echo "$HOME/.rover/bin" >> $GITHUB_PATH
-      - run: bun publish-graph
+      - run: |
+          rover subgraph introspect ${{ env.BASE_URL }}/api/graphql | rover subgraph publish abdulachik-blog@current --name blog --schema - --routing-url https://www.abdulachik.dev/api/graphql
 
