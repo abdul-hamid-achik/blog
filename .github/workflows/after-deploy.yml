@@ -7,6 +7,9 @@ jobs:
   publish:
     if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
+    env:
+      APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
+      APOLLO_VCS_COMMIT: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v3
       - uses: oven-sh/setup-bun@v1
