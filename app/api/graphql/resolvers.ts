@@ -1,6 +1,6 @@
 /* eslint-disable import/no-anonymous-default-export */
 import { Page, Painting, Post, allPages, allPaintings, allPosts } from "@/.contentlayer/generated";
-import { client as esClient } from '@/lib/elastic';
+import { vectorStore } from "@/lib/ai";
 import { countBy, groupBy, map } from "lodash";
 
 type Paintings = typeof allPaintings;
@@ -83,27 +83,10 @@ export default {
     },
 
     async search(_root: any, { query }: { query: string }, context: Context, _info: any) {
-      const { locale } = context;
-
-      const response = await esClient.search<Post | Painting | Page>({
-        index: "search-blog",
-        q: query,
-        body: {
-          query: {
-            bool: {
-              filter: [
-                { term: { locale } }
-              ]
-            }
-          }
-        }
-      })
-
-      const results = response.hits.hits.map(hit => hit._source).map(result => ({
-        ...result,
-        _id: result?._raw.sourceFilePath
-      }))
-
+      const content = [...allPaintings, ...allPosts, ...allPages]
+      const foundContent = await vectorStore.similaritySearch(query, 1);
+      const ids = foundContent.map(result => result.metadata._id)
+      const results = content.filter(content => ids.includes(content._id))
 
       return results;
     },

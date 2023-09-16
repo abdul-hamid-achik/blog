@@ -2,7 +2,7 @@
 import { env } from '@/env.mjs';
 import { Client } from '@elastic/elasticsearch';
 
-export const client = new Client({
+export const clientOptions = {
   node: env.ELASTICSEARCH_URL,
   auth: {
       username: env.ELASTICSEARCH_USERNAME,
@@ -15,7 +15,9 @@ export const client = new Client({
   tls: {
     rejectUnauthorized: false
   },
-});
+}
+
+export const client = new Client(clientOptions);
 
 
 client.diagnostic.on('request', (error, event) => {

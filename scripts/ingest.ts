@@ -1,8 +1,8 @@
 import { Page, Painting, Post } from ".contentlayer/generated";
+import { vectorStore } from "@/lib/ai";
 import { client } from '@/lib/elastic';
 import { createKeyFromJson } from "@/lib/utils";
 import fs from 'fs';
-// import 'undici';
 
 type Content = Page[] | Painting[] | Post[]
 type Document = Page | Painting | Post
@@ -19,27 +19,22 @@ async function ingestContent(dataset: unknown[]) {
     return;
   }
 
-  // @ts-ignore
-  const type = dataset[0]?.type?.toLowerCase()
-
-  console.log(`Type of dataset: ${typeof dataset}`);
-  console.log(`Injesting: ${type}`)
   console.log(`Number of documents to index: ${dataset.length}`);
 
   const result = await client.helpers.bulk({
     datasource: dataset,
     pipeline: "ml-inference-inference-search-blog",
     refreshOnCompletion: true,
-    onDocument: ({_id, ...doc}: any) => ([
-      { index: { _index: 'search-blog' }},
-      {...doc, id: createKeyFromJson(doc)}
+    onDocument: ({ _id, ...doc }: any) => ([
+      { index: { _index: 'search-blog' } },
+      { ...doc, id: createKeyFromJson(doc), embedding: null }
     ]),
-    onDrop (doc) {
+    onDrop(doc) {
       console.log(doc)
     }
   });
 
-  console.log(`Result: ${result}`);
+  console.log(`Result: ${JSON.stringify(result, null, 2)}`);
 
   const query = await client.count({ index: 'search-blog' });
 
@@ -69,11 +64,32 @@ async function main() {
   console.log(`Lucene version: ${lucene_version}`);
   console.log(`Tagline: ${tagline}`);
 
-  await client.deleteByQuery({
+  const indexExists = await client.indices.exists({ index: 'search-blog' });
+  if (indexExists) {
+    await client.indices.delete({ index: 'search-blog' });
+  }
+
+  await client.indices.create({
     index: 'search-blog',
     body: {
-      query: {
-        match_all: {}
+      settings: {
+        index: {
+          mapping: {
+            total_fields: {
+              limit: 5000
+            }
+          }
+        }
+      },
+      mappings: {
+        properties: {
+          embedding: {
+            type: "dense_vector",
+            dims: 1536,
+            index: true,
+            similarity: "cosine"
+          },
+        }
       }
     }
   });
@@ -86,10 +102,17 @@ async function main() {
     paintings: allPaintings
   } = JSON.parse(data)
   const results = await Promise.allSettled([
-    ingestContent(allPosts),
-    ingestContent(allPages),
-    ingestContent(allPaintings),
+    // ingestContent(allPosts),
+    // ingestContent(allPages),
+    // ingestContent(allPaintings),
+    vectorStore.addDocuments([...allPages, ...allPosts, ...allPaintings].map(({body, ...c}) => ({
+      pageContent: body.raw,
+      metadata: {
+        ...c
+      }
+    })))
   ]);
+
 
   results.forEach((result, i) => {
     if (result.status === 'rejected') {
