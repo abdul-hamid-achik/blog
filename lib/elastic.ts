@@ -31,6 +31,6 @@ client.diagnostic.on('response', (error, {body,request, ...event}) => {
   if (error) {
     console.error(`Response error: ${error.message}`);
   } else {
-    console.error(event);
+    console.log(`${event?.meta.request.params.method} ${event?.meta.request.params.path} ${event.statusCode}`);
   }
 });
