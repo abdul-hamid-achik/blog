@@ -22,3 +22,13 @@ jobs:
         run: |
           rover subgraph introspect ${{ env.BASE_URL }}/api/graphql | rover subgraph publish abdulachik-blog@current --name blog --schema - --routing-url https://www.abdulachik.dev/api/graphql
 
+  reingest-elasticsearch-content:
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: oven-sh/setup-bun@v1
+      - run: bunx vercel env pull -t ${{ env.VERCEL_TOKEN }}
+      - run: bun run elastic
