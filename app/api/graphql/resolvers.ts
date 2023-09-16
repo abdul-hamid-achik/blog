@@ -1,6 +1,7 @@
 /* eslint-disable import/no-anonymous-default-export */
 import { Page, Painting, Post, allPages, allPaintings, allPosts } from "@/.contentlayer/generated";
-import { vectorStore } from "@/lib/ai";
+import { openai as model, vectorStore } from "@/lib/ai";
+import { VectorDBQAChain } from "langchain/chains";
 import { countBy, groupBy, map } from "lodash";
 
 type Paintings = typeof allPaintings;
@@ -38,6 +39,11 @@ function getPostsForLocale(locale: string) {
 
 function getPagesForLocale(locale: string) {
   return allPages.filter((page) => page.locale === locale)
+}
+
+function getContent(ids: string[]) {
+  const everything = [...allPages, ...allPaintings, ...allPosts]
+  return everything.filter(something => ids.includes(something._id))
 }
 
 export default {
@@ -83,14 +89,26 @@ export default {
     },
 
     async search(_root: any, { query }: { query: string }, context: Context, _info: any) {
-      const content = [...allPaintings, ...allPosts, ...allPages]
       const foundContent = await vectorStore.similaritySearch(query, 1);
       const ids = foundContent.map(result => result.metadata._id)
-      const results = content.filter(content => ids.includes(content._id))
+      return  getContent(ids);
+    },
 
-      return results;
+    async ask(_root: any, { question }: { question: string }, context: Context, _info: any) {
+      const chain = VectorDBQAChain.fromLLM(model, vectorStore, {
+        k: 1,
+        returnSourceDocuments: true,
+      });
+      const response = await chain.call({ query: question });
+      const ids = response.sourceDocuments.map((doc: any) => doc.metadata._id);
+      const relatedContent = getContent(ids)
+      return {
+        answer: response.text,
+        relatedContent
+      };
     },
   },
+
   SearchResult: {
     __resolveType(obj: Post | Painting | Page | any) {
       if (!obj?.type) return null

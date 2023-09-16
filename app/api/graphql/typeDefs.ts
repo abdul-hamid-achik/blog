@@ -30,11 +30,22 @@ export default gql`
 
     "Performs a semantic search across posts, pages, and paintings in my blog"
     search(query: String!): [SearchResult]
+
+    "Performs a VectorDBQAChain on my content and returns relevant results"
+    ask(question: String!): QA
   }
 
 
   "Union type for search results"
   union SearchResult = Post | Painting | Page
+
+  """
+  The QA type is the return of a VectorDBQAChain
+  """
+  type QA {
+    answer: String
+    relatedContent: [SearchResult]
+  }
 
   """
   The Page type, containing all relevant attributes
