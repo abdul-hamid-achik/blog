@@ -28,7 +28,7 @@ async function ingestContent(dataset: unknown[]) {
 
   const result = await client.helpers.bulk({
     datasource: dataset,
-    pipeline: "ent-search-generic-ingestion",
+    pipeline: "ml-inference-inference-search-blog",
     refreshOnCompletion: true,
     onDocument: ({_id, ...doc}: any) => ([
       { index: { _index: 'search-blog' }},

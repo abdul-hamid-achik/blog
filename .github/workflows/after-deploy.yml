@@ -36,5 +36,6 @@ jobs:
         run: bunx vercel env pull --yes --environment=production -t ${{ env.VERCEL_TOKEN }} .env
       - name: reingesting content in elastic search
         run: |
+          bun install
           bun run build
           bun run elastic
