@@ -27,10 +27,10 @@ client.diagnostic.on('request', (error, event) => {
 });
 
 // @ts-ignore
-client.diagnostic.on('response', (error, {body, ...event}) => {
+client.diagnostic.on('response', (error, {body,request, ...event}) => {
   if (error) {
     console.error(`Response error: ${error.message}`);
   } else {
-    console.error(JSON.stringify(event, null, 2));
+    console.error(event);
   }
 });

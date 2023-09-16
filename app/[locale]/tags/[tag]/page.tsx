@@ -27,6 +27,7 @@ async function getPostsFromParams(
 
   return posts
 }
+
 export async function generateMetadata({
   params,
 }: TagProps): Promise<Metadata> {

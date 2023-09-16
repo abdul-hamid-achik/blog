@@ -50,8 +50,8 @@ export default function LocaleLayout({ children, params }: RootLayoutProps) {
                   <nav className="ml-auto mr-2 space-x-6 text-sm font-medium">
                     <Link href="/">{t("Home")}</Link>
                     {/* <Link href="/contact">{t("Contact")}</Link> */}
-                    <Link href="/insights">{t("Insights")}</Link>
-                    <Link href="/paintings">{t("Paintings")}</Link>
+                    {/* <Link href="/insights">{t("Insights")}</Link> */}
+                    {/* <Link href="/paintings">{t("Paintings")}</Link> */}
                     <Link href="/about">{t("About")}</Link>
                   </nav>
                   <LocaleSelect selected={locale} />

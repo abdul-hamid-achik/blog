@@ -19,8 +19,9 @@ async function getPaintingFromParams(
   locale: string = "en"
 ) {
   const slug = params?.slug?.join("/")
+
   const painting = allPaintings.find(
-    (painting) => painting.slugAsParams === slug && painting.locale === locale
+    (painting) => painting.slug.includes(decodeURIComponent(slug)) && painting.locale === locale
   )
 
   if (!painting) {

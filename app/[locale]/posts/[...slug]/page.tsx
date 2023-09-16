@@ -21,7 +21,7 @@ async function getPostFromParams(
 ) {
   const slug = params?.slug?.join("/")
   const post = allPosts.find(
-    (post) => post.slugAsParams === slug && post.locale === locale
+    (post) => post.slug.includes(decodeURIComponent(slug)) && post.locale === locale
   )
 
   if (!post) {

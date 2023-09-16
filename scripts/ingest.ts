@@ -1,5 +1,6 @@
 import { Page, Painting, Post } from ".contentlayer/generated";
 import { client } from '@/lib/elastic';
+import { createKeyFromJson } from "@/lib/utils";
 import fs from 'fs';
 // import 'undici';
 
@@ -29,7 +30,10 @@ async function ingestContent(dataset: unknown[]) {
     datasource: dataset,
     pipeline: "ent-search-generic-ingestion",
     refreshOnCompletion: true,
-    onDocument: ({_id, ...doc}: any) => ([{ index: { _index: 'search-blog' }}, doc]),
+    onDocument: ({_id, ...doc}: any) => ([
+      { index: { _index: 'search-blog' }},
+      {...doc, id: createKeyFromJson(doc)}
+    ]),
     onDrop (doc) {
       console.log(doc)
     }
@@ -37,17 +41,16 @@ async function ingestContent(dataset: unknown[]) {
 
   console.log(`Result: ${result}`);
 
+  const query = await client.count({ index: 'search-blog' });
 
-  const count = await client.count({ index: 'search-blog' });
-
-  console.log(`Number of documents in index: ${count.count}`);
+  console.log(`Number of documents in index: ${query.count}`);
 
   const searchResult = await client.search({
     index: 'search-blog',
     q: 'Dostoyevsky'
   });
 
-  console.log(searchResult.hits.hits)
+  console.log(`Found ${searchResult.hits.hits.length} results`)
 }
 
 
@@ -65,6 +68,15 @@ async function main() {
   console.log(`Build date: ${build_date}`);
   console.log(`Lucene version: ${lucene_version}`);
   console.log(`Tagline: ${tagline}`);
+
+  await client.deleteByQuery({
+    index: 'search-blog',
+    body: {
+      query: {
+        match_all: {}
+      }
+    }
+  });
 
   const data = fs.readFileSync('./dist/dataset.json', 'utf-8') as any
 
