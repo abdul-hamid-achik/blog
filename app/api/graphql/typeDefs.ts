@@ -13,11 +13,14 @@ export default gql`
   The main query object for fetching data
   """
   type Query {
-    "Fetches all available posts"
+    "Fetches all available posts in the blog"
     allPosts: [Post]
 
-    "Fetches all paintings in the catalog"
+    "Fetches all paintings in the blog"
     allPaintings: [Painting]
+
+    "Fetches all available pages in the blog"
+    allPages: [Page]
 
     "Provides post counts categorized by time"
     postsOverTime: [PostsOverTime]
@@ -31,7 +34,21 @@ export default gql`
 
 
   "Union type for search results"
-  union SearchResult = Post | Painting
+  union SearchResult = Post | Painting | Page
+
+  """
+  The Page type, containing all relevant attributes
+  """
+  type Page @key(fields: "_id") {
+    title: String
+    description: String
+    _id: String
+    _raw: Raw
+    type: String
+    slug: String
+    slugAsParams: String
+    locale: String
+  }
 
   """
   The Post type, containing all relevant attributes

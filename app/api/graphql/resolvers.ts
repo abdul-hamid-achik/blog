@@ -1,19 +1,15 @@
 /* eslint-disable import/no-anonymous-default-export */
-import { Page, Painting, Post, allPaintings, allPosts } from "@/.contentlayer/generated";
+import { Page, Painting, Post, allPages, allPaintings, allPosts } from "@/.contentlayer/generated";
 import { client as esClient } from '@/lib/elastic';
 import { countBy, groupBy, map } from "lodash";
 
 type Paintings = typeof allPaintings;
-
 type Posts = typeof allPosts
+type Pages = typeof allPages
+
 type Context = {
   locale: string
 }
-
-function getPaintingsForLocale(locale: string) {
-  return allPaintings.filter((painting) => painting.locale === locale);
-}
-
 
 function groupByMonth(posts: Posts) {
   return groupBy(posts, (post) => {
@@ -32,8 +28,16 @@ function categorizeReadingTime(posts: Posts) {
   })
 }
 
+function getPaintingsForLocale(locale: string) {
+  return allPaintings.filter((painting) => painting.locale === locale);
+}
+
 function getPostsForLocale(locale: string) {
   return allPosts.filter((post) => post.locale === locale)
+}
+
+function getPagesForLocale(locale: string) {
+  return allPages.filter((page) => page.locale === locale)
 }
 
 export default {
@@ -46,6 +50,11 @@ export default {
     allPaintings(_root: any, _args: any, context: Context, _info: any) {
       const { locale } = context;
       return getPaintingsForLocale(locale);
+    },
+
+    allPages(_root: any, _args: any, context: Context, _info: any) {
+      const { locale } = context
+      return getPagesForLocale(locale)
     },
 
     postsOverTime(_root: any, _args: any, context: Context, _info: any) {
@@ -78,19 +87,29 @@ export default {
 
       const response = await esClient.search<Post | Painting | Page>({
         index: "search-blog",
-        q: query
+        q: query,
+        body: {
+          query: {
+            bool: {
+              filter: [
+                { term: { locale } }
+              ]
+            }
+          }
+        }
       })
 
-      const results = response.hits.hits.map(hit => hit._source).filter(result => result?.type !== 'Page').map(result => ({
+      const results = response.hits.hits.map(hit => hit._source).map(result => ({
         ...result,
         _id: result?._raw.sourceFilePath
       }))
+
 
       return results;
     },
   },
   SearchResult: {
-    __resolveType(obj: Post | Painting | any) {
+    __resolveType(obj: Post | Painting | Page | any) {
       if (!obj?.type) return null
 
       return obj.type;

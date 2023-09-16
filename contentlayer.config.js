@@ -15,6 +15,45 @@ const getLocale = (path) => {
   return pathArray.length > 2 ? pathArray.slice(-2)[0] : "en"
 }
 
+
+/** @type {import('contentlayer/source-files').ComputedFields} */
+const computedFields = {
+  slug: {
+    type: "string",
+    resolve: (doc) =>
+      `/${doc._raw.flattenedPath.replace(/\.(ru|ar|es)(\.mdx)?$/, "")}`,
+  },
+  slugAsParams: {
+    type: "string",
+    resolve: (doc) =>
+      doc._raw.flattenedPath
+        .split("/")
+        .slice(1)
+        .join("/")
+        .replace(/\.(ru|ar|es)(\.mdx)?$/, ""),
+  },
+  readingTime: { type: "json", resolve: (doc) => readingTime(doc.body.raw) },
+  locale: {
+    type: "string",
+    resolve: (doc) => {
+      return getLocale(doc._raw.sourceFilePath)
+    },
+  },
+}
+
+const SEO = defineNestedType(() => ({
+  name: "SEO",
+  fields: {
+    title: {
+      type: "string",
+    },
+
+    description: {
+      type: "string",
+    },
+  },
+}))
+
 export const Painting = defineDocumentType(() => ({
   name: "Painting",
   filePathPattern: `paintings/**/*.mdx`,
@@ -54,44 +93,6 @@ export const Painting = defineDocumentType(() => ({
     },
   },
   computedFields,
-}))
-
-/** @type {import('contentlayer/source-files').ComputedFields} */
-const computedFields = {
-  slug: {
-    type: "string",
-    resolve: (doc) =>
-      `/${doc._raw.flattenedPath.replace(/\.(ru|ar|es)(\.mdx)?$/, "")}`,
-  },
-  slugAsParams: {
-    type: "string",
-    resolve: (doc) =>
-      doc._raw.flattenedPath
-        .split("/")
-        .slice(1)
-        .join("/")
-        .replace(/\.(ru|ar|es)(\.mdx)?$/, ""),
-  },
-  readingTime: { type: "json", resolve: (doc) => readingTime(doc.body.raw) },
-  locale: {
-    type: "string",
-    resolve: (doc) => {
-      return getLocale(doc._raw.sourceFilePath)
-    },
-  },
-}
-
-const SEO = defineNestedType(() => ({
-  name: "SEO",
-  fields: {
-    title: {
-      type: "string",
-    },
-
-    description: {
-      type: "string",
-    },
-  },
 }))
 
 export const Page = defineDocumentType(() => ({
