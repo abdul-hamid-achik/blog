@@ -26,11 +26,10 @@ client.diagnostic.on('request', (error, event) => {
   }
 });
 
-// @ts-ignore
-client.diagnostic.on('response', (error, {body,request, ...event}) => {
+client.diagnostic.on('response', (error, event) => {
   if (error) {
     console.error(`Response error: ${error.message}`);
   } else {
-    console.log(`${event?.meta.request.params.method} ${event?.meta.request.params.path} ${event.statusCode}`);
+    console.log(`${event?.meta.request.params.method} ${event?.meta.request.params.path} ${event?.statusCode}`);
   }
 });
