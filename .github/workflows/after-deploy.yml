@@ -30,5 +30,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: oven-sh/setup-bun@v1
-      - run: bunx vercel env pull -t ${{ env.VERCEL_TOKEN }}
+      - run: bunx vercel env pull -t ${{ env.VERCEL_TOKEN }} --yes .env
       - run: bun run elastic
