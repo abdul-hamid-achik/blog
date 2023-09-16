@@ -27,12 +27,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v3
       - uses: oven-sh/setup-bun@v1
       - name: setup vercel and secrets
-        run: |
-          bunx vercel link --yes -t ${{ env.VERCEL_TOKEN }}
-          bunx vercel env pull -t ${{ env.VERCEL_TOKEN }} --yes .env
+        run: bunx vercel env pull --yes --environment=production -t ${{ env.VERCEL_TOKEN }} .env
       - name: reingesting content in elastic search
         run: bun run elastic
