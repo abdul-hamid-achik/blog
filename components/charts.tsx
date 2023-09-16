@@ -1,6 +1,7 @@
 "use client"
 
 import { gql, useQuery } from "@apollo/client"
+import { useTheme } from "next-themes"
 import {
   Bar,
   BarChart,
@@ -42,7 +43,10 @@ const READING_TIME_DISTRIBUTION_QUERY = gql`
 `
 
 export function PostsOverTime() {
-  const { data } = useQuery(POSTS_OVER_TIME_QUERY)
+  const { data, error } = useQuery(POSTS_OVER_TIME_QUERY)
+  const { theme: mode } = useTheme()
+
+  if (error) return error.message
 
   return (
     <LineChart
@@ -54,13 +58,24 @@ export function PostsOverTime() {
       <XAxis dataKey="month" />
       <YAxis />
       <Tooltip />
-      <Line type="monotone" dataKey="count" stroke="#8884d8" />
+      <Line type="monotone" dataKey="count" style={
+                    {
+                      fill: "var(--theme-primary)",
+                      opacity: 1,
+                      "--theme-primary": `hsl(${
+                        mode === "dark" ? "210 40% 98%" : "222.2 47.4% 11.2%"
+                      })`,
+                    } as React.CSSProperties
+                  } />
     </LineChart>
   )
 }
 
 export function ReadingTimeDistribution() {
-  const { data } = useQuery(READING_TIME_DISTRIBUTION_QUERY)
+  const { data, error } = useQuery(READING_TIME_DISTRIBUTION_QUERY)
+  const { theme: mode } = useTheme()
+
+  if (error) return error.message
 
   return (
     <BarChart
@@ -73,8 +88,16 @@ export function ReadingTimeDistribution() {
       <XAxis dataKey="category" />
       <YAxis />
       <Tooltip />
-      <Legend />
-      <Bar dataKey="count" fill="#8884d8" />
+      <Legend  />
+      <Bar dataKey="count" style={
+                    {
+                      fill: "var(--theme-primary)",
+                      opacity: 1,
+                      "--theme-primary": `hsl(${
+                        mode === "dark" ? "210 40% 98%" : "222.2 47.4% 11.2%"
+                      })`,
+                    } as React.CSSProperties
+                  } />
     </BarChart>
   )
 }

@@ -29,11 +29,11 @@ export default async function Page({
             <div className="flex items-center">
               <p className="text-sm">{painting.author}</p>
               <span className="mx-2 my-0">•</span>
+              <p className="text-sm">{painting.country}</p>
+              <span className="mx-2 my-0">•</span>
               <p className="text-sm">
                 {painting.year}
               </p>
-              <span className="mx-2 my-0">•</span>
-              <p className="text-sm">{painting.country}</p>
               <span className="mx-2 my-0">•</span>
               <p className="text-sm">{painting.readingTime.text}</p>
             </div>

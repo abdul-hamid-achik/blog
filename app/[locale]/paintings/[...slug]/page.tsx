@@ -94,6 +94,10 @@ export default async function PostPage({ params }: PaintingProps) {
     <article className="prose dark:prose-invert py-6">
       <h1 className="mb-2 text-xl md:text-4xl">{painting.title}</h1>
       <div className="flex items-center">
+        <p className="text-sm">{painting.author}</p>
+        <span className="mx-2">•</span>
+        <p className="text-sm">{painting.country}</p>
+        <span className="mx-2">•</span>
         <p className="text-sm">{painting.year}</p>
         <span className="mx-2">•</span>
         <p className="text-sm">{painting.readingTime.text}</p>

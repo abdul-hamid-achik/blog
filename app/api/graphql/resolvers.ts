@@ -1,11 +1,7 @@
 /* eslint-disable import/no-anonymous-default-export */
-import { allPaintings, allPosts } from "@/.contentlayer/generated";
+import { Page, Painting, Post, allPaintings, allPosts } from "@/.contentlayer/generated";
+import { client as esClient } from '@/lib/elastic';
 import { countBy, groupBy, map } from "lodash";
-
-
-function getPaintingsForLocale(locale: string) {
-  return allPaintings.filter((painting) => painting.locale === locale);
-}
 
 type Paintings = typeof allPaintings;
 
@@ -13,6 +9,11 @@ type Posts = typeof allPosts
 type Context = {
   locale: string
 }
+
+function getPaintingsForLocale(locale: string) {
+  return allPaintings.filter((painting) => painting.locale === locale);
+}
+
 
 function groupByMonth(posts: Posts) {
   return groupBy(posts, (post) => {
@@ -70,6 +71,29 @@ export default {
         category,
         count,
       }))
+    },
+
+    async search(_root: any, { query }: { query: string }, context: Context, _info: any) {
+      const { locale } = context;
+
+      const response = await esClient.search<Post | Painting | Page>({
+        index: "search-blog",
+        q: query
+      })
+
+      const results = response.hits.hits.map(hit => hit._source).filter(result => result?.type !== 'Page').map(result => ({
+        ...result,
+        _id: result?._raw.sourceFilePath
+      }))
+
+      return results;
+    },
+  },
+  SearchResult: {
+    __resolveType(obj: Post | Painting | any) {
+      if (!obj?.type) return null
+
+      return obj.type;
     },
   },
 }

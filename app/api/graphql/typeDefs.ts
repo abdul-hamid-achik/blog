@@ -24,7 +24,14 @@ export default gql`
 
     "Provides the distribution of reading time across various posts"
     readingTimeDistribution: [ReadingTimeDistribution]
+
+    "Performs a semantic search across posts, pages, and paintings in my blog"
+    search(query: String!): [SearchResult]
   }
+
+
+  "Union type for search results"
+  union SearchResult = Post | Painting
 
   """
   The Post type, containing all relevant attributes

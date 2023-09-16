@@ -1,5 +1,9 @@
-const { withContentlayer } = require("next-contentlayer")
-const withNextIntl = require("next-intl/plugin")("./i18n.ts")
+import "./env.mjs"
+
+import { withContentlayer } from "next-contentlayer"
+import withNextIntlPlugin from "next-intl/plugin"
+
+const withNextIntl = withNextIntlPlugin("./i18n.ts")
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -38,4 +42,4 @@ const nextConfig = {
   },
 }
 
-module.exports = withNextIntl(withContentlayer(nextConfig))
+export default withNextIntl(withContentlayer(nextConfig))
