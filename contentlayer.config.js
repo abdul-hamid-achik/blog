@@ -107,6 +107,12 @@ export const Page = defineDocumentType(() => ({
     description: {
       type: "string",
     },
+    tags: {
+      type: "list",
+      of: {
+        type: "string",
+      },
+    },
     seo: {
       type: "nested",
       of: SEO,

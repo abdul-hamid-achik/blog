@@ -7,6 +7,7 @@ import { client } from "./elastic";
 export const openai = new OpenAI({
   modelName: "gpt-4",
   openAIApiKey: env.OPEN_AI_API_KEY,
+  temperature: 0.9
 });
 
 export const embeddings = new OpenAIEmbeddings({
@@ -16,5 +17,5 @@ export const embeddings = new OpenAIEmbeddings({
 
 export const vectorStore = new ElasticVectorSearch(embeddings, {
   client,
-  indexName: "search-blog"
+  indexName: "search-blog",
 });

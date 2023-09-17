@@ -93,22 +93,23 @@ export default {
       const ids = foundContent.map(result => result.metadata._id)
       const results = getContent(ids)
       const count = results.length
-
       return {
         results,
         count
       };
     },
 
-    async answer(root: any, { question, k = 3 }, context: Context, info: GraphQLResolveInfo) {
+    async answer(root, { question, k = 3 }, context: Context, info: GraphQLResolveInfo) {
       const chain = VectorDBQAChain.fromLLM(model, vectorStore, {
         k: k!,
         returnSourceDocuments: true,
+        verbose: true,
       });
       const response = await chain.call({ query: question });
       const ids = response.sourceDocuments.map((doc: any) => doc.metadata._id);
       const results = getContent(ids)
       const count = results.length
+
       return {
         question,
         answer: response.text,
