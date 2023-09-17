@@ -1,6 +1,7 @@
-/* eslint-disable import/no-anonymous-default-export */
-import { Page, Painting, Post, allPages, allPaintings, allPosts } from "@/.contentlayer/generated";
+import { allPages, allPaintings, allPosts } from "@/.contentlayer/generated";
+import { Content, Resolvers } from "@/.generated/graphql";
 import { openai as model, vectorStore } from "@/lib/ai";
+import { GraphQLResolveInfo } from 'graphql';
 import { VectorDBQAChain } from "langchain/chains";
 import { countBy, groupBy, map } from "lodash";
 
@@ -41,30 +42,40 @@ function getPagesForLocale(locale: string) {
   return allPages.filter((page) => page.locale === locale)
 }
 
-function getContent(ids: string[]) {
-  const everything = [...allPages, ...allPaintings, ...allPosts];
+function getContent(ids?: string[], type?: Content['type'], locale?: string) {
+  const everything = [
+    { type: 'page', items: allPages },
+    { type: 'painting', items: allPaintings },
+    { type: 'post', items: allPosts }
+  ].filter(something => type ? something.type === type : true)
+   .flatMap(something => something.items as any)
+   .filter(something => locale ? something.locale === locale : true);
+
   const contentById = new Map(everything.map(item => [item._id, item]));
+
+  if (!ids || ids.length === 0) return Object.values(contentById);
+
   return ids.map(id => contentById.get(id));
 }
 
 export default {
   Query: {
-    allPosts(_root: any, _args: any, context: Context, _info: any) {
+    allPosts(root, args, context, info: GraphQLResolveInfo) {
       const { locale } = context
-      return getPostsForLocale(locale)
+      return getContent([], 'Post', locale)
     },
 
-    allPaintings(_root: any, _args: any, context: Context, _info: any) {
+    allPaintings(root, args, context: Context, info: GraphQLResolveInfo) {
       const { locale } = context;
-      return getPaintingsForLocale(locale);
+      return getContent([], 'Paint', locale)
     },
 
-    allPages(_root: any, _args: any, context: Context, _info: any) {
+    allPages(root, args, context: Context, info: GraphQLResolveInfo) {
       const { locale } = context
-      return getPagesForLocale(locale)
+      return getContent([], 'Page', locale)
     },
 
-    postsOverTime(_root: any, _args: any, context: Context, _info: any) {
+    postsOverTime(root, args, context: Context, info: GraphQLResolveInfo) {
       const { locale } = context
       const posts = getPostsForLocale(locale)
       const groupedPosts = groupByMonth(posts)
@@ -75,10 +86,10 @@ export default {
     },
 
     readingTimeDistribution(
-      _root: any,
-      _args: any,
+      root,
+      args,
       context: Context,
-      _info: any
+      info: GraphQLResolveInfo
     ) {
       const { locale } = context
       const posts = getPostsForLocale(locale)
@@ -89,8 +100,8 @@ export default {
       }))
     },
 
-    async search(_root: any, { query, k = 3 }: { query: string; k: number; }, context: Context, _info: any) {
-      const foundContent = await vectorStore.similaritySearch(query, k);
+    async search(root, { query, k = 3 }, context: Context, info: GraphQLResolveInfo) {
+      const foundContent = await vectorStore.similaritySearch(query, k!);
       const ids = foundContent.map(result => result.metadata._id)
       const results = getContent(ids)
       const count = results.length
@@ -101,9 +112,9 @@ export default {
       };
     },
 
-    async answer(_root: any, { question, k = 3 }: { question: string; k: number }, context: Context, _info: any) {
+    async answer(root: any, { question, k = 3 }, context: Context, info: GraphQLResolveInfo) {
       const chain = VectorDBQAChain.fromLLM(model, vectorStore, {
-        k,
+        k: k!,
         returnSourceDocuments: true,
       });
       const response = await chain.call({ query: question });
@@ -119,11 +130,12 @@ export default {
     },
   },
 
-  SearchResult: {
-    __resolveType(obj: Post | Painting | Page | any) {
-      if (!obj?.type) return null
-
-      return obj.type;
+  Content: {
+    __resolveType(obj) {
+      if (obj?.type === 'Page' || obj?.type === 'Post' || obj?.type === 'Painting') {
+        return obj.type;
+      }
+      return null;
     },
   },
-}
+} satisfies Resolvers<Context>

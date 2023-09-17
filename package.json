@@ -11,7 +11,9 @@
     "format": "bun run prettier --write .",
     "export": "bun run ./scripts/export.ts",
     "ingest": "bunx tsx ./scripts/ingest.ts",
-    "elastic": "bun run export && bun run ingest"
+    "elastic": "bun run export && bun run ingest",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "postinstall": "bun run codegen"
   },
   "dependencies": {
     "@apollo/client": "^3.8.3",
@@ -58,6 +60,10 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/introspection": "^4.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-resolvers": "^4.0.1",
     "@tailwindcss/typography": "^0.5.10",
     "@types/lodash": "^4.14.198",
     "@types/luxon": "^3.3.2",
