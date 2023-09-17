@@ -42,8 +42,9 @@ function getPagesForLocale(locale: string) {
 }
 
 function getContent(ids: string[]) {
-  const everything = [...allPages, ...allPaintings, ...allPosts]
-  return everything.filter(something => ids.includes(something._id))
+  const everything = [...allPages, ...allPaintings, ...allPosts];
+  const contentById = new Map(everything.map(item => [item._id, item]));
+  return ids.map(id => contentById.get(id));
 }
 
 export default {
@@ -88,23 +89,32 @@ export default {
       }))
     },
 
-    async search(_root: any, { query }: { query: string }, context: Context, _info: any) {
-      const foundContent = await vectorStore.similaritySearch(query, 1);
+    async search(_root: any, { query, k = 3 }: { query: string; k: number; }, context: Context, _info: any) {
+      const foundContent = await vectorStore.similaritySearch(query, k);
       const ids = foundContent.map(result => result.metadata._id)
-      return  getContent(ids);
+      const results = getContent(ids)
+      const count = results.length
+
+      return {
+        results,
+        count
+      };
     },
 
-    async ask(_root: any, { question }: { question: string }, context: Context, _info: any) {
+    async answer(_root: any, { question, k = 3 }: { question: string; k: number }, context: Context, _info: any) {
       const chain = VectorDBQAChain.fromLLM(model, vectorStore, {
-        k: 1,
+        k,
         returnSourceDocuments: true,
       });
       const response = await chain.call({ query: question });
       const ids = response.sourceDocuments.map((doc: any) => doc.metadata._id);
-      const relatedContent = getContent(ids)
+      const results = getContent(ids)
+      const count = results.length
       return {
+        question,
         answer: response.text,
-        relatedContent
+        results,
+        count
       };
     },
   },

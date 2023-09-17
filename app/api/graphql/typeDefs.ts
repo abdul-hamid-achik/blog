@@ -29,22 +29,29 @@ export default gql`
     readingTimeDistribution: [ReadingTimeDistribution]
 
     "Performs a semantic search across posts, pages, and paintings in my blog"
-    search(query: String!): [SearchResult]
+    search(query: String!, k: Int): SearchResult
 
     "Performs a VectorDBQAChain on my content and returns relevant results"
-    ask(question: String!): QA
+    answer(question: String!, k: Int): QA
   }
 
 
-  "Union type for search results"
-  union SearchResult = Post | Painting | Page
+  "A general type of all my content"
+  union Content = Post | Painting | Page
+
+  type SearchResult {
+    results: [Content]
+    count: Int
+  }
 
   """
   The QA type is the return of a VectorDBQAChain
   """
   type QA {
+    question: String
     answer: String
-    relatedContent: [SearchResult]
+    results: [Content]
+    count: Int
   }
 
   """
