@@ -30,18 +30,6 @@ function categorizeReadingTime(posts: Posts) {
   })
 }
 
-function getPaintingsForLocale(locale: string) {
-  return allPaintings.filter((painting) => painting.locale === locale);
-}
-
-function getPostsForLocale(locale: string) {
-  return allPosts.filter((post) => post.locale === locale)
-}
-
-function getPagesForLocale(locale: string) {
-  return allPages.filter((page) => page.locale === locale)
-}
-
 function getContent(ids?: string[], type?: Content['type'], locale?: string) {
   const everything = [
     { type: 'page', items: allPages },
