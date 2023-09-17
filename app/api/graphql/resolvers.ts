@@ -65,7 +65,7 @@ export default {
 
     postsOverTime(root, args, context: Context, info: GraphQLResolveInfo) {
       const { locale } = context
-      const posts = getPostsForLocale(locale)
+      const posts = getContent([], "Post", locale)
       const groupedPosts = groupByMonth(posts)
       return map(groupedPosts, (posts, month) => ({
         month,
@@ -80,7 +80,7 @@ export default {
       info: GraphQLResolveInfo
     ) {
       const { locale } = context
-      const posts = getPostsForLocale(locale)
+      const posts = getContent([], "Post", locale)
       const distribution = categorizeReadingTime(posts)
       return map(distribution, (count, category) => ({
         category,

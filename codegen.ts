@@ -3,7 +3,7 @@ import type { CodegenConfig } from '@graphql-codegen/cli';
 
 const config: CodegenConfig = {
   overwrite: true,
-  schema: process.env.GRAPHQL_CODEGEN_SCHEMA_URL || "https://www.abdulachik.dev/api/graphql",
+  schema: './app/api/graphql/typeDefs.ts',
   generates: {
     ".generated/graphql.ts": {
       plugins: ["typescript", "typescript-resolvers"]
