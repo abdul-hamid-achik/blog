@@ -7,13 +7,13 @@ type Content = Page[] | Painting[] | Post[]
 type Document = Page | Painting | Post
 
 function createPageContent(doc: Document) {
-  const fields = [doc.title, doc.description, ...(doc.tags || [])];
+  const fields = [doc.title, doc.description, ...(doc.tags || []), doc.body.raw];
 
   if (doc.type === 'Painting') {
     fields.push(doc.author, doc.style, doc.country);
   }
 
-  return fields.filter(field => field).join(' ');
+  return fields.filter(field => field).join('\n');
 }
 
 async function main() {
