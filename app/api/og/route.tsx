@@ -1,5 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-// @ts-ignore
 import { ImageResponse } from "@vercel/og"
 import { allPosts } from "contentlayer/generated"
 
@@ -46,8 +45,7 @@ export async function GET(request: Request) {
             }}
           >
             <img
-              // @ts-ignore
-              src={src}
+              src={src as any}
               alt={post?.title ? post?.title : "Abdul Hamid's Blog"}
               height={256}
               style={{ margin: "0 30px" }}
@@ -89,5 +87,7 @@ export async function GET(request: Request) {
         height: 630,
       }
     )
-  } catch (e: any) {}
+  } catch (e: any) {
+    return new Response()
+  }
 }
