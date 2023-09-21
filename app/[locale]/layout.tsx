@@ -41,27 +41,29 @@ export default function LocaleLayout({ children, params }: RootLayoutProps) {
       <body
         className={`dark:bg-slate-950 min-h-screen bg-white text-slate-900 antialiased dark:text-slate-50 ${inter.className}`}
       >
-        <ApolloProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="mx-auto max-w-2xl px-4 py-4 md:py-10">
-              <header>
-                <div className="flex items-center justify-between">
-                  <ModeToggle />
-                  <nav className="ml-auto mr-2 space-x-6 text-sm font-medium">
-                    <Link href="/">{t("Home")}</Link>
-                    {/* <Link href="/contact">{t("Contact")}</Link> */}
-                    {/* <Link href="/insights">{t("Insights")}</Link> */}
-                    {/* <Link href="/paintings">{t("Paintings")}</Link> */}
-                    <Link href="/about">{t("About")}</Link>
-                  </nav>
-                  <LocaleSelect selected={locale} />
-                </div>
-              </header>
-              <main>{children}</main>
-            </div>
-            <Analytics />
-          </ThemeProvider>
-        </ApolloProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div className="mx-auto max-w-2xl px-4 py-4 md:py-10">
+            <header>
+              <div className="flex items-center justify-between">
+                <ModeToggle />
+                <nav className="ml-auto mr-2 space-x-6 text-sm font-medium">
+                  <Link href="/">{t("Home")}</Link>
+                  {/* <Link href="/contact">{t("Contact")}</Link> */}
+                  {/* <Link href="/insights">{t("Insights")}</Link> */}
+                  {/* <Link href="/paintings">{t("Paintings")}</Link> */}
+                  <Link href="/about">{t("About")}</Link>
+                </nav>
+                <LocaleSelect selected={locale} />
+              </div>
+            </header>
+            <main>
+              <ApolloProvider>
+                {children}
+              </ApolloProvider>
+            </main>
+          </div>
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   )

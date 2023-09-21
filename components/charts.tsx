@@ -1,5 +1,3 @@
-"use client"
-
 import { gql, useQuery } from "@apollo/client";
 import { useTheme } from "next-themes";
 import {
@@ -48,7 +46,7 @@ export function PostsOverTime() {
   const { data, error } = useQuery(POSTS_OVER_TIME_QUERY)
   const { theme: mode } = useTheme()
 
-  if (error) return <>error.message</>
+  if (error) return <>{error.message}</>
 
   return (
     <LineChart
@@ -77,7 +75,7 @@ export function ReadingTimeDistribution() {
   const { data, error } = useQuery(READING_TIME_DISTRIBUTION_QUERY)
   const { theme: mode } = useTheme()
 
-  if (error) return <>error.message</>
+  if (error) return <>{error.message}</>
 
   return (
     <BarChart

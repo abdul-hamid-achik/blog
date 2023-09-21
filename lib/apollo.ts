@@ -26,6 +26,7 @@ const link = localeLink.concat(
 )
 
 export const client = new ApolloClient({
+  ssrMode: true,
   uri,
   cache: new InMemoryCache(),
   link,

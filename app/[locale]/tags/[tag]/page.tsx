@@ -4,8 +4,6 @@ import { DateTime } from "luxon"
 import { Metadata } from "next"
 import Link from "next/link"
 
-export const dynamic = "force-dynamic"
-export const revalidate = 0
 
 interface TagProps {
   params: {
