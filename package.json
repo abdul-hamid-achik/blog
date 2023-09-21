@@ -12,7 +12,7 @@
     "export": "pnpm run ./scripts/export.ts",
     "ingest": "tsx ./scripts/ingest.ts",
     "elastic": "pnpm run export && pnpm run ingest",
-    "codegen": "graphql-codegen --config codegen.mjs",
+    "codegen": "pnpm graphql-codegen --config codegen.mjs",
     "postinstall": "pnpm run codegen"
   },
   "dependencies": {
