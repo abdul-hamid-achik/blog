@@ -48,11 +48,11 @@ export async function generateMetadata({
       images: posts.map((post) => ({
         url:
           process.env.NODE_ENV === "production"
-            ? `https://abdulachik.dev/api/og?title=${post.title}`
+            ? `https://www.abdulachik.dev/api/og?title=${post.title}`
             : `http://localhost:3000/api/og?title=${post.title}`,
       })),
       authors: ["Abdul Hamid Achik"],
-      url: `https://abdulachik.dev/tags/${params.tag}`,
+      url: `https://www.abdulachik.dev/tags/${params.tag}`,
     },
   }
 }

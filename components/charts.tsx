@@ -43,6 +43,7 @@ const READING_TIME_DISTRIBUTION_QUERY = gql`
 `
 
 export function PostsOverTime() {
+  'use client'
   const { data, error } = useQuery(POSTS_OVER_TIME_QUERY)
   const { theme: mode } = useTheme()
 
@@ -72,6 +73,7 @@ export function PostsOverTime() {
 }
 
 export function ReadingTimeDistribution() {
+  'use client'
   const { data, error } = useQuery(READING_TIME_DISTRIBUTION_QUERY)
   const { theme: mode } = useTheme()
 

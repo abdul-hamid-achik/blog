@@ -54,7 +54,7 @@ export async function generateMetadata({
         {
           url:
             process.env.NODE_ENV === "production"
-              ? `https://abdulachik.dev/api/og?title=${painting.title}`
+              ? `https://www.abdulachik.dev/api/og?title=${painting.title}`
               : `http://localhost:3000/api/og?title=${painting.title}`,
         },
       ],
@@ -67,12 +67,12 @@ export async function generateMetadata({
         {
           url:
             process.env.NODE_ENV === "production"
-              ? `https://abdulachik.dev/api/og?title=${painting.title}`
+              ? `https://www.abdulachik.dev/api/og?title=${painting.title}`
               : `http://localhost:3000/api/og?title=${painting.title}`,
         },
       ],
       authors: ["Abdul Hamid Achik"],
-      url: `https://abdulachik.dev/paintings/${painting.slugAsParams}`,
+      url: `https://www.abdulachik.dev/paintings/${painting.slugAsParams}`,
     },
   }
 }
@@ -104,7 +104,7 @@ export default async function PostPage({ params }: PaintingProps) {
         <p className="text-sm">{painting.readingTime.text}</p>
       </div>
       {painting.description && (
-        <p className="text-md mt-0 text-slate-700 dark:text-slate-200 md:text-xl">
+        <p className="text-sm mt-0 text-slate-700 dark:text-slate-200 md:text-md">
           {painting.description}
         </p>
       )}

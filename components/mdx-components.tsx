@@ -3,14 +3,19 @@
 import { useMDXComponent } from "next-contentlayer/hooks"
 import Link from 'next-intl/link'
 import Image from "next/image"
+import { Tweet } from 'react-tweet'
 import * as Charts from "./charts"
 import Embed from "./embed"
 
+
 const components = {
-  Image,
-  Embed,
   Charts,
-  Link
+  Embed,
+  Image,
+  Link,
+  Tweet: ({id}: {id: string}) => <div className="flex w-full justify-center">
+    <Tweet id={id}/>
+  </div>
 }
 
 interface MdxProps {

@@ -54,7 +54,7 @@ export async function generateMetadata({
         {
           url:
             process.env.NODE_ENV === "production"
-              ? `https://abdulachik.dev/api/og?title=${post.title}`
+              ? `https://www.abdulachik.dev/api/og?title=${post.title}`
               : `http://localhost:3000/api/og?title=${post.title}`,
         },
       ],
@@ -67,12 +67,12 @@ export async function generateMetadata({
         {
           url:
             process.env.NODE_ENV === "production"
-              ? `https://abdulachik.dev/api/og?title=${post.title}`
+              ? `https://www.abdulachik.dev/api/og?title=${post.title}`
               : `http://localhost:3000/api/og?title=${post.title}`,
         },
       ],
       authors: ["Abdul Hamid Achik"],
-      url: `https://abdulachik.dev/posts/${post.slugAsParams}`,
+      url: `https://www.abdulachik.dev/posts/${post.slugAsParams}`,
     },
   }
 }
