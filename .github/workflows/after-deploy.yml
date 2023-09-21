@@ -13,7 +13,6 @@ jobs:
       BASE_URL: ${{ github.event.deployment_status.target_url }}
     steps:
       - uses: actions/checkout@v3
-      - uses: oven-sh/setup-bun@v1
       - name: Install Rover
         run: |
           curl -sSL https://rover.apollo.dev/nix/v0.18.1 | sh
@@ -31,12 +30,14 @@ jobs:
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v3
-      - uses: oven-sh/setup-bun@v1
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
       - name: setup vercel and secrets
-        run: bunx vercel env pull --yes --environment=production -t ${{ env.VERCEL_TOKEN }} .env
+        run: pnpm dlx vercel env pull --yes --environment=production -t ${{ env.VERCEL_TOKEN }} .env
       - name: reingesting content in elastic search
         run: |
           mkdir -p dist
-          bun install
-          bun run build
-          bun run elastic
+          pnpm install
+          pnpm run build
+          pnpm run elastic
