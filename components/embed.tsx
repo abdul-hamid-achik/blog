@@ -1,7 +1,6 @@
 "use client"
 import React, { useEffect, useRef } from "react"
 import ReactDOMServer from "react-dom/server"
-
 type EmbedProps = {
   children: React.ReactNode
 }

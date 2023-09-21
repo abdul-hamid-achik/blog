@@ -4,12 +4,15 @@ import { useMDXComponent } from "next-contentlayer/hooks"
 import Link from 'next-intl/link'
 import Image from "next/image"
 import { Tweet } from 'react-tweet'
-import * as Charts from "./charts"
+import {
+  PostsOverTime, ReadingTimeDistribution
+} from "./charts"
 import Embed from "./embed"
 
 
 const components = {
-  Charts,
+  PostsOverTimeChart: PostsOverTime,
+  ReadingTimeDistributionChart: ReadingTimeDistribution,
   Embed,
   Image,
   Link,

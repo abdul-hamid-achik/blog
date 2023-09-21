@@ -4,14 +4,12 @@ import { openai as model, vectorStore } from "@/lib/ai";
 import { GraphQLResolveInfo } from 'graphql';
 import { VectorDBQAChain } from "langchain/chains";
 import { countBy, groupBy, map } from "lodash";
+import type { Context } from './context.ts';
 
 type Paintings = typeof allPaintings;
 type Posts = typeof allPosts
 type Pages = typeof allPages
 
-type Context = {
-  locale: string
-}
 
 function groupByMonth(posts: Posts) {
   return groupBy(posts, (post) => {
@@ -46,7 +44,7 @@ function getContent(ids?: string[], type?: Content['type'], locale?: string) {
   return ids.map(id => contentById.get(id));
 }
 
-export default {
+const resolvers: Resolvers = {
   Query: {
     allPosts(root, args, context, info: GraphQLResolveInfo) {
       const { locale } = context
@@ -127,4 +125,6 @@ export default {
       return null;
     },
   },
-} satisfies Resolvers<Context>
+}
+
+export default resolvers

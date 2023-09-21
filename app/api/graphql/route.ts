@@ -11,18 +11,17 @@ import { GraphQLResolverMap } from "@apollo/subgraph/dist/schema-helper";
 import { startServerAndCreateNextHandler } from "@as-integrations/next";
 import status from "http-status";
 import { NextRequest } from "next/server";
+import type { Context } from './context';
 import resolvers from "./resolvers";
 import typeDefs from "./typeDefs";
 
-type Context = {
-  locale: string
-}
+const schema = buildSubgraphSchema({
+  typeDefs,
+  resolvers: resolvers as GraphQLResolverMap<unknown>
+})
 
 const server = new ApolloServer<Context>({
-  schema: buildSubgraphSchema({
-    typeDefs,
-    resolvers: resolvers as GraphQLResolverMap<unknown>,
-  }),
+  schema,
   allowBatchedHttpRequests: true,
   introspection: true,
   plugins: [
@@ -32,7 +31,7 @@ const server = new ApolloServer<Context>({
     }),
     process.env.NODE_ENV === "production"
       ? ApolloServerPluginLandingPageProductionDefault({
-          graphRef: "abdulachik-blog@current",
+          graphRef: `abdulachik-blog@current`,
           footer: false,
         })
       : ApolloServerPluginLandingPageLocalDefault({

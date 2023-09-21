@@ -1,7 +1,7 @@
 "use client"
 
-import { gql, useQuery } from "@apollo/client"
-import { useTheme } from "next-themes"
+import { gql, useQuery } from "@apollo/client";
+import { useTheme } from "next-themes";
 import {
   Bar,
   BarChart,
@@ -12,7 +12,9 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts"
+} from "recharts";
+
+
 
 interface PostsOverTime {
   month: string
@@ -43,11 +45,10 @@ const READING_TIME_DISTRIBUTION_QUERY = gql`
 `
 
 export function PostsOverTime() {
-  'use client'
   const { data, error } = useQuery(POSTS_OVER_TIME_QUERY)
   const { theme: mode } = useTheme()
 
-  if (error) return error.message
+  if (error) return <>error.message</>
 
   return (
     <LineChart
@@ -73,11 +74,10 @@ export function PostsOverTime() {
 }
 
 export function ReadingTimeDistribution() {
-  'use client'
   const { data, error } = useQuery(READING_TIME_DISTRIBUTION_QUERY)
   const { theme: mode } = useTheme()
 
-  if (error) return error.message
+  if (error) return <>error.message</>
 
   return (
     <BarChart
