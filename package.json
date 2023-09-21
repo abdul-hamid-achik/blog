@@ -9,7 +9,7 @@
     "start": "pnpm start",
     "lint": "next lint",
     "format": "pnpm run prettier --write .",
-    "export": "pnpm run ./scripts/export.ts",
+    "export": "tsx ./scripts/export.ts",
     "ingest": "tsx ./scripts/ingest.ts",
     "elastic": "pnpm run export && pnpm run ingest",
     "codegen": "graphql-codegen --config codegen.mjs",
