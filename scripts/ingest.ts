@@ -3,7 +3,7 @@ import { vectorStore } from "@/lib/ai";
 
 
 function createPageContent(doc: any) {
-  const fields = [doc.title, doc.description, ...(doc.tags || []), doc.body.raw];
+  const fields = [doc.type, doc.title, doc.description, ...(doc.tags || []), doc.body.raw];
 
   if (doc.type === 'Painting') {
     fields.push(doc.author, doc.style, doc.country);
@@ -24,7 +24,6 @@ async function main() {
     })
   )
 
-  const contents = documents.map(document => document.pageContent)
   const items = await vectorStore.addDocuments(documents)
   console.log(`Done ${items.length}`)
 }
