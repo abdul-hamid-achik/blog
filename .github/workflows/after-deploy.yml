@@ -20,24 +20,3 @@ jobs:
       - name: Running Rover introspect and publish
         run: |
           rover subgraph introspect ${{ env.BASE_URL }}/api/graphql | rover subgraph publish abdulachik-blog@current --name blog --schema - --routing-url https://www.abdulachik.dev/api/graphql
-
-  reingest-elasticsearch-content:
-    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
-    runs-on: ubuntu-latest
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - name: setup vercel and secrets
-        run: pnpm dlx vercel env pull --yes --environment=production -t ${{ env.VERCEL_TOKEN }} .env
-      - name: reingesting content in elastic search
-        run: |
-          mkdir -p dist
-          pnpm install
-          pnpm run build
-          pnpm run elastic

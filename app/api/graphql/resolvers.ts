@@ -1,4 +1,4 @@
-import { allPages, allPaintings, allPosts } from "@/.contentlayer/generated";
+import { allDocuments, allPages, allPaintings, allPosts } from "@/.contentlayer/generated";
 import { Content, Resolvers } from "@/.generated/graphql";
 import { openai as model, vectorStore } from "@/lib/ai";
 import { GraphQLResolveInfo } from 'graphql';
@@ -29,13 +29,9 @@ function categorizeReadingTime(posts: Posts) {
 }
 
 function getContent(ids?: string[], type?: Content['type'], locale?: string) {
-  const everything = [
-    { type: 'page', items: allPages },
-    { type: 'painting', items: allPaintings },
-    { type: 'post', items: allPosts }
-  ].filter(something => type ? something.type === type : true)
-   .flatMap(something => something.items as any)
-   .filter(something => locale ? something.locale === locale : true);
+  const everything = allDocuments
+    .filter(document => type ? document.type === type : true)
+    .filter(document => locale ? document.locale === locale : true);
 
   const contentById = new Map(everything.map(item => [item._id, item]));
 

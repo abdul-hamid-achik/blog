@@ -32,6 +32,6 @@
     ".next/types/**/*.ts",
     ".contentlayer/generated",
     "scripts/ingest.ts"
-, "codegen.mjs"  ],
+, "codegen.mjs", "scripts/export.mjs"  ],
   "exclude": ["node_modules"]
 }
