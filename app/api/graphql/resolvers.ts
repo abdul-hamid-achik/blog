@@ -1,6 +1,7 @@
 import { allDocuments, allPages, allPaintings, allPosts } from "@/.contentlayer/generated";
 import { Content, Resolvers } from "@/.generated/graphql";
 import { openai as model, vectorStore } from "@/lib/ai";
+import { Document } from "contentlayer/core";
 import { GraphQLResolveInfo } from 'graphql';
 import { VectorDBQAChain } from "langchain/chains";
 import { countBy, groupBy, map } from "lodash";
@@ -29,15 +30,21 @@ function categorizeReadingTime(posts: Posts) {
 }
 
 function getContent(ids?: string[], type?: Content['type'], locale?: string) {
-  const everything = allDocuments
-    .filter(document => type ? document.type === type : true)
-    .filter(document => locale ? document.locale === locale : true);
+  let everything = allDocuments;
 
-  const contentById = new Map(everything.map(item => [item._id, item]));
+  if (type) {
+    everything = everything.filter(document => document.type === type);
+  }
 
-  if (!ids || ids.length === 0) return Object.values(contentById);
+  if (locale) {
+    everything = everything.filter(document => document.locale === locale);
+  }
 
-  return ids.map(id => contentById.get(id));
+  if (!ids || ids.length === 0) {
+    return everything;
+  }
+
+  return everything.filter(item => ids.includes(item._id));
 }
 
 const resolvers: Resolvers = {
@@ -60,7 +67,7 @@ const resolvers: Resolvers = {
     postsOverTime(root, args, context: Context, info: GraphQLResolveInfo) {
       const { locale } = context
       const posts = getContent([], "Post", locale)
-      const groupedPosts = groupByMonth(posts)
+      const groupedPosts = groupByMonth(posts as Posts)
       return map(groupedPosts, (posts, month) => ({
         month,
         count: posts.length,
@@ -75,16 +82,16 @@ const resolvers: Resolvers = {
     ) {
       const { locale } = context
       const posts = getContent([], "Post", locale)
-      const distribution = categorizeReadingTime(posts)
+      const distribution = categorizeReadingTime(posts as Posts)
       return map(distribution, (count, category) => ({
         category,
         count,
       }))
     },
 
-    async search(root, { query, k = 3 }, context: Context, info: GraphQLResolveInfo) {
+    async search(root, { query, k = 5 }, context: Context, info: GraphQLResolveInfo) {
       const foundContent = await vectorStore.similaritySearch(query, k!);
-      const ids = foundContent.map(result => result.metadata._id)
+      const ids = [...new Set(foundContent.map(result => result.metadata._id))] as string[];
       const results = getContent(ids)
       const count = results.length
       return {
@@ -93,14 +100,14 @@ const resolvers: Resolvers = {
       };
     },
 
-    async answer(root, { question, k = 3 }, context: Context, info: GraphQLResolveInfo) {
+    async answer(root, { question, k = 5 }, context: Context, info: GraphQLResolveInfo) {
       const chain = VectorDBQAChain.fromLLM(model, vectorStore, {
         k: k!,
         returnSourceDocuments: true,
         verbose: true,
       });
       const response = await chain.call({ query: question });
-      const ids = response.sourceDocuments.map((doc: any) => doc.metadata._id);
+      const ids = [...new Set(response.sourceDocuments.map((doc: Document) => doc.metadata._id as string))] as string[];
       const results = getContent(ids)
       const count = results.length
 

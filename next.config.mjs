@@ -15,6 +15,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "i.gr-assets.com",
       },
+      ...(process.env.NODE_ENV !== 'production' ? [{
+        protocol: "http",
+        hostname: "localhost",
+      }] : []),
     ],
   },
   async headers() {
