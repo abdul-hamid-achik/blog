@@ -50,7 +50,7 @@ export default function LocaleLayout({ children, params }: RootLayoutProps) {
                   <ModeToggle />
                   <p className="text-sm text-muted-foreground mx-2">
                     Press{" "}
-                    <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                    <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 mr-2">
                       <span className="text-xs">⌘</span>k
                     </kbd>
                     to search

@@ -6,14 +6,14 @@ import {
   ApolloServerPluginLandingPageProductionDefault,
 } from "@apollo/server/plugin/landingPage/default";
 
-import { env } from "@/env.mjs";
+// import { env } from "@/env.mjs";
 import { buildSubgraphSchema } from "@apollo/subgraph";
 import { GraphQLResolverMap } from "@apollo/subgraph/dist/schema-helper";
-import { KeyvAdapter } from '@apollo/utils.keyvadapter';
+// import { KeyvAdapter } from '@apollo/utils.keyvadapter';
 import { startServerAndCreateNextHandler } from "@as-integrations/next";
-import KeyvRedis from '@keyv/redis';
+// import KeyvRedis from '@keyv/redis';
 import status from "http-status";
-import Keyv from 'keyv';
+// import Keyv from 'keyv';
 import { NextRequest } from "next/server";
 import type { Context } from './context';
 import resolvers from "./resolvers";
@@ -24,9 +24,9 @@ const schema = buildSubgraphSchema({
   resolvers: resolvers as GraphQLResolverMap<unknown>
 })
 
-const store = new KeyvRedis(env.KV_URL)
-const keyv = new Keyv({ store,  namespace: 'api' })
-const cache = new KeyvAdapter(keyv)
+// const store = new KeyvRedis(env.KV_URL)
+// const keyv = new Keyv({ store,  namespace: 'api' })
+// const cache = new KeyvAdapter(keyv)
 
 const server = new ApolloServer<Context>({
   schema,
