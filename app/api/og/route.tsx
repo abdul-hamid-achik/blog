@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from "@vercel/og"
-import { allPosts } from "contentlayer/generated"
+import { allDocuments } from "contentlayer/generated"
 
 export const runtime = "edge"
 
@@ -13,8 +13,8 @@ export async function GET(request: Request) {
       ? searchParams.get("title")?.slice(0, 100)
       : "Abdul Hamid's Blog"
 
-    const post = allPosts.find(
-      (post) => post.title === searchParams.get("title")
+    const document = allDocuments.find(
+      (document) => document.title === searchParams.get("title")
     )
     const src = await fetch(new URL("./logo.png", import.meta.url)).then(
       (res) => res.arrayBuffer()
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
           >
             <img
               src={src as any}
-              alt={post?.title ? post?.title : "Abdul Hamid's Blog"}
+              alt={document?.title ? document?.title : "Abdul Hamid's Blog"}
               height={256}
               style={{ margin: "0 30px" }}
               width={256}
@@ -88,6 +88,7 @@ export async function GET(request: Request) {
       }
     )
   } catch (e: any) {
-    return new Response()
+    console.error(e)
+    return new Response(undefined)
   }
 }
