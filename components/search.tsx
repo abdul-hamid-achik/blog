@@ -2,7 +2,7 @@
 
 import { Content } from "@/.generated/graphql";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { CommandDialog, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { getBaseURL } from "@/lib/utils";
 import { gql, useQuery } from "@apollo/client";
 import { useRouter as useLocalizedRouter } from "next-intl/client";
@@ -66,6 +66,8 @@ export function Search() {
     };
   }, []);
 
+  const isFetched = !loading && !error && data?.search?.results?.length > 0  && debouncedSearchTerm !== "";
+
   return (
     <CommandDialog open={isOpen} onOpenChange={setIsOpen}>
       <CommandInput
@@ -79,27 +81,29 @@ export function Search() {
             <Skeleton className="h-20" />
           </CommandEmpty>
         ) : error ? (
+          <Alert variant="destructive">{error.message}</Alert>
+        ) : isFetched ? (
+          <CommandGroup heading="Results">
+            {data?.search?.results?.map((result: Content, key: number) => (
+              <CommandItem onSelect={() => router.push(`${getBaseURL()}/${result.slug}`)} key={key} className="h-20">
+                <AspectRatio ratio={4 / 3}>
+                  <Image
+                    src={('image' in result && result.image) ? result.image : `${getBaseURL()}/api/og?title=${result.title}`}
+                    alt={result.title!}
+                    width={200}
+                    height={150}
+                  />
+                </AspectRatio>
+                <span>{result.title}</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        ) :
           <CommandEmpty>
-            <Alert variant="destructive">{error.message}</Alert>
+            No results found
           </CommandEmpty>
-        ) : data?.search?.count === 0 ? (
-          <CommandEmpty>
-            <Alert>No results found</Alert>
-          </CommandEmpty>
-        ) : data?.search?.results?.map((result: Content) => (
-          <CommandItem onSelect={() => router.push(`${getBaseURL()}/${result.slug}`)} key={result._id}>
-            <AspectRatio ratio={4 / 3}>
-              <Image
-                src={('image' in result && result.image) ? result.image : `${getBaseURL()}/api/og?title=${result.title}`}
-                alt={result.title!}
-                width={200}
-                height={150}
-                objectFit="cover"
-              />
-            </AspectRatio>
-            {result.title}
-          </CommandItem>
-        ))}
+
+        }
       </CommandList>
     </CommandDialog>
   )
