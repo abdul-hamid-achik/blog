@@ -3,5 +3,5 @@
   "editor.wrappingIndent": "same",
   "editor.wordWrapColumn": 100,
   "typescript.enablePromptUseWorkspaceTsdk": true,
-  "editor.formatOnSave": false
+  "editor.formatOnSave": true,
 }

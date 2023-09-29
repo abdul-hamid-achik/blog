@@ -15,10 +15,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "i.gr-assets.com",
       },
-      ...(process.env.NODE_ENV !== 'production' ? [{
-        protocol: "http",
-        hostname: "localhost",
-      }] : []),
+      ...(process.env.NODE_ENV !== "production"
+        ? [
+            {
+              protocol: "http",
+              hostname: "localhost",
+            },
+          ]
+        : []),
     ],
   },
   async headers() {
@@ -43,6 +47,13 @@ const nextConfig = {
         ],
       },
     ]
+  },
+  webpack: (
+    config,
+    { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }
+  ) => {
+    config.plugins.push(new webpack.ContextReplacementPlugin(/keyv/))
+    return config
   },
 }
 

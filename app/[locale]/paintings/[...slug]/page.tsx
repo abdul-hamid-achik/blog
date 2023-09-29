@@ -2,7 +2,6 @@ import { Mdx } from "@/components/mdx-components"
 import { getBaseURL } from "@/lib/utils"
 import { allPaintings } from "contentlayer/generated"
 import { Metadata } from "next"
-import { useLocale } from "next-intl"
 import { notFound } from "next/navigation"
 
 export const dynamic = "force-dynamic"
@@ -11,6 +10,7 @@ export const revalidate = 0
 interface PaintingProps {
   params: {
     slug: string[]
+    locale: string
   }
 }
 
@@ -80,13 +80,14 @@ export async function generateMetadata({
 export async function generateStaticParams(): Promise<PaintingProps["params"][]> {
   return allPaintings.map((painting) => ({
     slug: painting.slugAsParams.split("/"),
+    locale: painting.locale
   }))
 }
 
 export default async function PostPage({ params }: PaintingProps) {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const locale = useLocale()
+  const { locale } = params
   const painting = await getPaintingFromParams(params, locale)
+
   if (!painting) {
     notFound()
   }

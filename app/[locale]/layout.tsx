@@ -6,9 +6,9 @@ import ApolloProvider from "@/components/providers/apollo"
 import { ThemeProvider } from "@/components/providers/theme"
 import { Search } from "@/components/search"
 import { getBaseURL } from "@/lib/utils"
+import { Link } from "@/navigation"
 import "@code-hike/mdx/dist/index.css"
 import { useLocale, useTranslations } from "next-intl"
-import Link from "next-intl/link"
 import { Inter } from "next/font/google"
 
 import { notFound } from "next/navigation"
@@ -48,7 +48,7 @@ export default function LocaleLayout({ children, params }: RootLayoutProps) {
               <header>
                 <div className="flex items-center justify-between">
                   <ModeToggle />
-                  <p className="text-sm text-muted-foreground mx-2">
+                  <p className="text-sm text-muted-foreground mx-4">
                     Press{" "}
                     <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 mr-2">
                       <span className="text-xs">⌘</span>k

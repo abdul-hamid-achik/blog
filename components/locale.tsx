@@ -8,7 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-import { usePathname } from "next-intl/client"
+import { usePathname } from "@/navigation"
 import { useRouter } from "next/navigation"
 
 const locales = ["en", "es", "ru"]
@@ -50,7 +50,7 @@ export default function LocaleSelect({ selected }: { selected: string }) {
 
   return (
     <Select value={selected} onValueChange={changeLanguage}>
-      <div className="flex flex-col">
+      <div className="flex flex-col ml-2">
         <SelectTrigger className="md:text-sm text-xs">
           <SelectValue placeholder="Select a language" />
         </SelectTrigger>

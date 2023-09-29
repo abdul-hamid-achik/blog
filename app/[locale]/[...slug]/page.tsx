@@ -2,7 +2,6 @@ import { Mdx } from "@/components/mdx-components"
 import { getBaseURL } from "@/lib/utils"
 import { allPages } from "contentlayer/generated"
 import { Metadata } from "next"
-import { useLocale } from "next-intl"
 import { notFound } from "next/navigation"
 
 export const dynamic = "force-dynamic"
@@ -10,6 +9,7 @@ export const revalidate = 0
 
 interface PageProps {
   params: {
+    locale: string;
     slug: string[]
   }
 }
@@ -49,12 +49,12 @@ export async function generateMetadata({
 export async function generateStaticParams(): Promise<PageProps["params"][]> {
   return allPages.map((page) => ({
     slug: page.slugAsParams.split("/"),
+    locale: page.locale
   }))
 }
 
 export default async function PagePage({ params }: PageProps) {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const locale = useLocale()
+  const { locale } = params
   const page = await getPageFromParams(params, locale)
 
   if (!page) {

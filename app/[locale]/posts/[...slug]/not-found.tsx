@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl"
 export default function NotFound() {
   const t = useTranslations()
   return (
-    <EmptyPlaceholder className="mx-auto max-w-[800px]">
+    <EmptyPlaceholder className="mx-auto max-w-[800px] my-4">
       <EmptyPlaceholder.Icon name="warning" />
       <EmptyPlaceholder.Title>{t("Uh oh! Not Found")}</EmptyPlaceholder.Title>
       <EmptyPlaceholder.Description>

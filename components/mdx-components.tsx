@@ -1,7 +1,7 @@
 "use client"
 
+import { Link } from "@/navigation"
 import { useMDXComponent } from "next-contentlayer/hooks"
-import Link from 'next-intl/link'
 import Image from "next/image"
 import { Tweet } from 'react-tweet'
 import {
@@ -16,8 +16,8 @@ const components = {
   Embed,
   Image,
   Link,
-  Tweet: ({id}: {id: string}) => <div className="flex w-full justify-center">
-    <Tweet id={id}/>
+  Tweet: ({ id }: { id: string }) => <div className="flex w-full justify-center">
+    <Tweet id={id} />
   </div>
 }
 

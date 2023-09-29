@@ -90,10 +90,15 @@ const resolvers: Resolvers = {
     },
 
     async search(root, { query, k = 5 }, context: Context, info: GraphQLResolveInfo) {
+      console.log(`search query: ${query}, k: ${k}`);
       const foundContent = await vectorStore.similaritySearch(query, k!);
+      console.log(`found content: ${JSON.stringify(foundContent)}`);
       const ids = [...new Set(foundContent.map(result => result.metadata._id))] as string[];
+      console.log(`ids: ${JSON.stringify(ids)}`);
       const results = getContent(ids)
+      console.log(`results: ${JSON.stringify(results)}`);
       const count = results.length
+      console.log(`count: ${count}`);
       return {
         results,
         count

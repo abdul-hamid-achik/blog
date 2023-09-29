@@ -4,8 +4,8 @@ import { Content } from "@/.generated/graphql";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { getBaseURL } from "@/lib/utils";
+import { useRouter as useLocalizedRouter } from "@/navigation";
 import { gql, useQuery } from "@apollo/client";
-import { useRouter as useLocalizedRouter } from "next-intl/client";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useDebounce } from 'use-debounce';
@@ -66,7 +66,7 @@ export function Search() {
     };
   }, []);
 
-  const isFetched = !loading && !error && data?.search?.results?.length > 0  && debouncedSearchTerm !== "";
+  const isFetched = !loading && !error && data?.search?.results?.length > 0 && debouncedSearchTerm !== "";
 
   return (
     <CommandDialog open={isOpen} onOpenChange={setIsOpen}>
