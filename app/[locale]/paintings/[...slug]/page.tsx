@@ -1,11 +1,10 @@
 import { Mdx } from "@/components/mdx-components"
 import { getBaseURL } from "@/lib/utils"
+import { locales } from "@/navigation"
 import { allPaintings } from "contentlayer/generated"
 import { Metadata } from "next"
+import { unstable_setRequestLocale } from "next-intl/server"
 import { notFound } from "next/navigation"
-
-export const dynamic = "force-dynamic"
-export const revalidate = 0
 
 interface PaintingProps {
   params: {
@@ -86,6 +85,14 @@ export async function generateStaticParams(): Promise<PaintingProps["params"][]>
 
 export default async function PostPage({ params }: PaintingProps) {
   const { locale } = params
+
+  const isValidLocale = locales.some((cur) => cur === locale);
+
+  if (!isValidLocale) notFound();
+
+  unstable_setRequestLocale(locale);
+
+
   const painting = await getPaintingFromParams(params, locale)
 
   if (!painting) {

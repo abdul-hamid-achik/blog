@@ -1,17 +1,16 @@
 import { Mdx } from "@/components/mdx-components"
 import { getBaseURL } from "@/lib/utils"
+import { locales } from "@/navigation"
 import { allPosts } from "contentlayer/generated"
 import { DateTime } from "luxon"
 import { Metadata } from "next"
-import { useLocale } from "next-intl"
+import { unstable_setRequestLocale } from "next-intl/server"
 import { notFound } from "next/navigation"
-
-export const dynamic = "force-dynamic"
-export const revalidate = 0
 
 interface PostProps {
   params: {
     slug: string[]
+    locale: string
   }
 }
 
@@ -34,6 +33,7 @@ async function getPostFromParams(
 export async function generateMetadata({
   params,
 }: PostProps): Promise<Metadata> {
+
   const post = await getPostFromParams(params)
 
   if (!post) {
@@ -80,12 +80,18 @@ export async function generateMetadata({
 export async function generateStaticParams(): Promise<PostProps["params"][]> {
   return allPosts.map((post) => ({
     slug: post.slugAsParams.split("/"),
+    locale: post.locale
   }))
 }
 
 export default async function PostPage({ params }: PostProps) {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const locale = useLocale()
+  const { locale } = params
+  const isValidLocale = locales.some((cur) => cur === locale);
+
+  if (!isValidLocale) notFound();
+
+  unstable_setRequestLocale(locale);
+
   const post = await getPostFromParams(params, locale)
   if (!post) {
     notFound()

@@ -1,15 +1,16 @@
 import { allPosts } from "@/.contentlayer/generated"
 import { getBaseURL } from "@/lib/utils"
+import { locales } from "@/navigation"
 import { DateTime } from "luxon"
 import { Metadata } from "next"
+import { unstable_setRequestLocale } from "next-intl/server"
 import Link from "next/link"
-
-export const dynamic = "force-dynamic"
-export const revalidate = 0
+import { notFound } from "next/navigation"
 
 interface TagProps {
   params: {
     tag: string
+    locale: string
   }
 }
 
@@ -58,13 +59,21 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams(): Promise<TagProps["params"][]> {
-  const allTags = allPosts
-    .flatMap((post) => post.tags)
-    .filter((tag): tag is string => tag !== undefined)
+  const localeTagCache = allPosts.reduce((cache, post) => {
+    if (post.locale && post.tags) {
+      if (!cache[post.locale]) {
+        cache[post.locale] = [];
+      }
 
-  const uniqueTags = Array.from(new Set(allTags))
+      cache[post.locale].push(...post.tags);
+    }
 
-  return uniqueTags.map((tag) => ({ tag }))
+    return cache;
+  }, {} as Record<string, string[]>);
+
+  return Object.entries(localeTagCache).flatMap(([locale, tags]) =>
+    tags.map(tag => ({ locale, tag: encodeURIComponent(tag) }))
+  );
 }
 
 export default function TagPage({
@@ -72,15 +81,22 @@ export default function TagPage({
 }: {
   params: { locale: string; tag: string }
 }) {
+  const isValidLocale = locales.some((cur) => cur === locale);
+
+  if (!isValidLocale) notFound();
+
+  unstable_setRequestLocale(locale);
+
   const baseUrl = getBaseURL()
+  const posts = allPosts.filter((post) => post.tags?.includes(decodeURIComponent(tag)) && post.locale === locale)
+
+  if (posts.length === 0) notFound()
 
   return (
     <div className="prose dark:prose-invert">
       <h2 className="my-6">#{decodeURIComponent(tag)}</h2>
 
-      {allPosts
-        .filter((post) => post.locale === locale)
-        .filter((post) => post.tags?.includes(decodeURIComponent(tag)))
+      {posts
         .sort((first, second) => {
           const firstDate = DateTime.fromISO(first.date)
           const secondDate = DateTime.fromISO(second.date)

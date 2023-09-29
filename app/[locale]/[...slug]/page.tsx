@@ -1,11 +1,10 @@
-import { Mdx } from "@/components/mdx-components"
-import { getBaseURL } from "@/lib/utils"
-import { allPages } from "contentlayer/generated"
-import { Metadata } from "next"
-import { notFound } from "next/navigation"
-
-export const dynamic = "force-dynamic"
-export const revalidate = 0
+import { Mdx } from "@/components/mdx-components";
+import { getBaseURL } from "@/lib/utils";
+import { locales } from "@/navigation";
+import { allPages } from "contentlayer/generated";
+import { Metadata } from "next";
+import { unstable_setRequestLocale } from 'next-intl/server';
+import { notFound } from "next/navigation";
 
 interface PageProps {
   params: {
@@ -55,6 +54,12 @@ export async function generateStaticParams(): Promise<PageProps["params"][]> {
 
 export default async function PagePage({ params }: PageProps) {
   const { locale } = params
+  const isValidLocale = locales.some((cur) => cur === locale);
+
+  if (!isValidLocale) notFound();
+
+  unstable_setRequestLocale(locale);
+
   const page = await getPageFromParams(params, locale)
 
   if (!page) {

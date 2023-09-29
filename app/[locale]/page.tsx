@@ -5,17 +5,23 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { getBaseURL } from "@/lib/utils"
+import { locales } from "@/navigation"
 import { DateTime } from "luxon"
+import { unstable_setRequestLocale } from "next-intl/server"
 import Link from "next/link"
-
-export const dynamic = "force-dynamic"
-export const revalidate = 0
+import { notFound } from "next/navigation"
 
 export default async function Page({
   params: { locale },
 }: {
   params: { locale: string }
 }) {
+  const isValidLocale = locales.some((cur) => cur === locale);
+
+  if (!isValidLocale) notFound();
+
+  unstable_setRequestLocale(locale);
+
   const baseUrl = getBaseURL()
 
   return (
@@ -48,7 +54,7 @@ export default async function Page({
                   <div className="my-4 flex flex-wrap">
                     {post.tags.map((tag) => (
                       <Link
-                        href={`${baseUrl}/${locale}/tags/${tag}`}
+                        href={`${baseUrl}/${locale}/tags/${encodeURIComponent(tag)}`}
                         key={tag}
                         className="mr-2 text-sm"
                       >
