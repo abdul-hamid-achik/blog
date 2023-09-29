@@ -3,6 +3,7 @@ import { Analytics } from "@/components/analytics"
 import LocaleSelect from "@/components/locale"
 import { ModeToggle } from "@/components/mode-toggle"
 import ApolloProvider from "@/components/providers/apollo"
+import { IntlProvider } from "@/components/providers/intl"
 import { ThemeProvider } from "@/components/providers/theme"
 import { Search } from "@/components/search"
 import { getBaseURL } from "@/lib/utils"
@@ -43,33 +44,35 @@ export default function LocaleLayout({ children, params }: RootLayoutProps) {
         className={`dark:bg-slate-950 min-h-screen bg-white text-slate-900 antialiased dark:text-slate-50 ${inter.className}`}
       >
         <ApolloProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="mx-auto max-w-2xl px-4 py-4 md:py-10">
-              <header>
-                <div className="flex items-center justify-between">
-                  <ModeToggle />
-                  <p className="text-sm text-muted-foreground mx-4">
-                    Press{" "}
-                    <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 mr-2">
-                      <span className="text-xs">⌘</span>k
-                    </kbd>
-                    to search
-                  </p>
-                  <nav className="ml-auto mr-2 space-x-6 text-sm font-medium">
-                    <Link href="/">{t("Home")}</Link>
-                    {/* <Link href="/contact">{t("Contact")}</Link> */}
-                    {/* <Link href="/insights">{t("Insights")}</Link> */}
-                    {/* <Link href="/paintings">{t("Paintings")}</Link> */}
-                    <Link href="/about">{t("About")}</Link>
-                  </nav>
-                  <LocaleSelect selected={locale} />
-                </div>
-              </header>
-              <main>{children}</main>
-            </div>
-            <Search />
-            <Analytics />
-          </ThemeProvider>
+          <IntlProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <div className="mx-auto max-w-2xl px-4 py-4 md:py-10">
+                <header>
+                  <div className="flex items-center justify-between">
+                    <ModeToggle />
+                    <p className="text-sm text-muted-foreground mx-4 md:block hidden">
+                      Press{" "}
+                      <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 mr-2">
+                        <span className="text-xs">⌘</span>k
+                      </kbd>
+                      to search
+                    </p>
+                    <nav className="ml-auto mr-2 space-x-6 text-sm font-medium">
+                      <Link href="/">{t("Home")}</Link>
+                      {/* <Link href="/contact">{t("Contact")}</Link> */}
+                      <Link href="/insights">{t("Insights")}</Link>
+                      {/* <Link href="/paintings">{t("Paintings")}</Link> */}
+                      <Link href="/about">{t("About")}</Link>
+                    </nav>
+                    <LocaleSelect selected={locale} />
+                  </div>
+                </header>
+                <main>{children}</main>
+              </div>
+              <Search />
+              <Analytics />
+            </ThemeProvider>
+          </IntlProvider>
         </ApolloProvider>
       </body>
     </html>
