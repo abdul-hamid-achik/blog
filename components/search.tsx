@@ -2,13 +2,13 @@
 
 import { Content } from "@/.generated/graphql";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command";
 import { getBaseURL } from "@/lib/utils";
 import { useRouter as useLocalizedRouter } from "@/navigation";
 import { gql, useQuery } from "@apollo/client";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDebounce } from 'use-debounce';
 import { Alert } from "./ui/alert";
 import { Skeleton } from "./ui/skeleton";
@@ -69,6 +69,9 @@ export function Search() {
     skip: !debouncedSearchTerm,
   });
 
+  const results = useMemo(() => data?.search?.results || [], [data?.search?.results]);
+  const count = useMemo(() => data?.search?.count || 0, [data?.search?.count]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
@@ -91,6 +94,7 @@ export function Search() {
         onInput={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
       />
       <CommandList>
+        {loading}
         {loading && (
           <CommandEmpty>
             <Skeleton className="h-20" />
@@ -99,31 +103,43 @@ export function Search() {
         {error && (
           <Alert variant="destructive">{error.message}</Alert>
         )}
-        {data?.search?.results?.length === 0 && (
+        {results.length === 0 && (
           <CommandEmpty>
-            {t('No results were found but don\'t worry its not your fault')}
+            {t('No results were found but dont worry its not your fault')}
           </CommandEmpty>
         )}
-        {data?.search?.results?.length > 0 && (
-          Object.entries(groupByType(data.search.results)).map(([group, items]) => (
+        {results.length > 0 && (
+          Object.entries(groupByType(results)).map(([group, items], groupIndex) => (<React.Fragment key={groupIndex}>
             <CommandGroup key={group} heading={group}>
-              {items.map((item: Content) => (
-                <CommandItem key={item._id} onSelect={() => router.push(`${getBaseURL()}/${item.slug}`)}>
-                  <AspectRatio ratio={1}>
-                    <Image
-                      src={('image' in item && item.image) ? item.image : `${getBaseURL()}/api/og?title=${item.title}`}
-                      alt={item.title!}
-                      width={200}
-                      height={150}
-                    />
-                  </AspectRatio>
-                  <span>{item.title}</span>
+              {items.map((item: Content, itemIndex) => (
+                <CommandItem key={`${groupIndex}-${itemIndex}`} onSelect={() => router.push(`${getBaseURL()}/${item.slug}`)}>
+                  <div className="flex items-center">
+                    <AspectRatio ratio={4 / 3} className="mr-2">
+                      <Image
+                        src={('image' in item && item.image) ? item.image : `${getBaseURL()}/api/og?title=${item.title}`}
+                        alt={item.title!}
+                        width={Math.round(50 * (4 / 3))}
+                        height={50}
+                        style={
+                          {
+                            width: "auto",
+                            height: "auto"
+                          }
+                        }
+                      />
+                    </AspectRatio>
+                    <span className="text-sm text-muted-foreground mx-4 md:block hidden">{item.title}</span>
+                  </div>
                 </CommandItem>
               ))}
             </CommandGroup>
+            <CommandSeparator />
+          </React.Fragment>
           ))
         )}
       </CommandList>
     </CommandDialog>
   )
 };
+
+
