@@ -94,14 +94,15 @@ export function Search() {
         onInput={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
       />
       <CommandList>
-        {loading}
         {loading && (
           <CommandEmpty>
             <Skeleton className="h-20" />
           </CommandEmpty>
         )}
         {error && (
-          <Alert variant="destructive">{error.message}</Alert>
+          <CommandEmpty>
+            <Alert variant="destructive">{error.message}</Alert>
+          </CommandEmpty>
         )}
         {results.length === 0 && (
           <CommandEmpty>
