@@ -1,15 +1,19 @@
 ---
 title: Perspectivas
+description: Esta página proporciona perspectivas sobre el contenido del blog. Incluye gráficos que visualizan el número de publicaciones a lo largo del tiempo y la distribución de los tiempos de lectura de todas las publicaciones.
 ---
 
-# Publicaciones sobre el tiempo
+# Publicaciones a lo largo del tiempo
 
-Este grafico muestra la cantidad de publicaciones que se han realizado en el tiempo.
+Este gráfico muestra el número de publicaciones publicadas a lo largo del tiempo. Los datos se obtienen utilizando una consulta GraphQL definida en `components/charts.tsx` que recupera el campo `postsOverTime` del servidor GraphQL. Cada punto de datos representa un mes y el número de publicaciones publicadas en ese mes.
 
 <PostsOverTimeChart />
 
-# Distribución de lectura
+# Distribución del tiempo de lectura
 
-Este grafico muestra la distribución de lectura de las publicaciones.
+Este gráfico muestra la distribución de los tiempos de lectura de todas las publicaciones. Los datos se obtienen utilizando una consulta GraphQL definida en `components/charts.tsx` que recupera el campo `readingTimeDistribution` del servidor GraphQL. Cada punto de datos representa una categoría de tiempo de lectura (por ejemplo, "1-2 minutos", "2-3 minutos", etc.) y el número de publicaciones que caen en esa categoría.
 
 <ReadingTimeDistributionChart />
+
+El esquema del servidor GraphQL se define en `/api/graphql`. Los tipos `PostsOverTime` y `ReadingTimeDistribution` son parte de este esquema. `PostsOverTime` tiene dos campos: `month` (una cadena que representa el mes) y `count` (un entero que representa el número de publicaciones). `ReadingTimeDistribution` también tiene dos campos: `category` (una cadena que representa la categoría de tiempo de lectura) y `count` (un entero que representa el número de publicaciones en esa categoría).
+

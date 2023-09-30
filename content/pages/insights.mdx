@@ -1,15 +1,18 @@
 ---
 title: Insights
+description: This page provides insights into the content of the blog. It includes charts that visualize the number of posts over time and the distribution of reading times for all posts.
 ---
 
 # Posts over time
 
-This chart shows the number of posts published over time.
+This chart shows the number of posts published over time. The data is fetched using a GraphQL query defined in `components/charts.tsx` which retrieves the `postsOverTime` field from the GraphQL server. Each data point represents a month and the number of posts published in that month.
 
 <PostsOverTimeChart />
 
 # Reading time distribution
 
-This chart shows the distribution of reading times for all posts.
+This chart shows the distribution of reading times for all posts. The data is fetched using a GraphQL query defined in `components/charts.tsx` which retrieves the `readingTimeDistribution` field from the GraphQL server. Each data point represents a category of reading time (e.g., "1-2 minutes", "2-3 minutes", etc.) and the number of posts that fall into that category.
 
 <ReadingTimeDistributionChart />
+
+The GraphQL server's schema is defined in `/api/graphql`. The `PostsOverTime` and `ReadingTimeDistribution` types are part of this schema. `PostsOverTime` has two fields: `month` (a string representing the month) and `count` (an integer representing the number of posts). `ReadingTimeDistribution` also has two fields: `category` (a string representing the reading time category) and `count` (an integer representing the number of posts in that category).
