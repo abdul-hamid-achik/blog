@@ -9,6 +9,7 @@ import getMessages from '@/i18n'
 import { getBaseURL } from "@/lib/utils"
 import { locales } from "@/navigation"
 import "@code-hike/mdx/dist/index.css"
+import { AbstractIntlMessages } from "next-intl"
 import { Inter } from "next/font/google"
 import { notFound } from "next/navigation"
 
@@ -35,12 +36,9 @@ export function generateStaticParams() {
 export default async function LocaleLayout({ children, params }: RootLayoutProps) {
   const { locale } = params
 
-  let messages
-  try {
-    messages = await getMessages(params);
-  } catch (error) {
-    notFound()
-  }
+  const messages = await (getMessages(params) as Promise<{
+    messages: AbstractIntlMessages
+  }>).catch(() => notFound()).then(requestConfig => requestConfig?.messages)
 
   return (
     <html lang={locale}>
@@ -51,10 +49,10 @@ export default async function LocaleLayout({ children, params }: RootLayoutProps
           <IntlProvider locale={locale} messages={messages}>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
               <div className="mx-auto max-w-2xl px-4 py-4 md:py-10">
-                <Navbar locale={locale} />
+                <Navbar />
+                <Search />
                 <main>{children}</main>
               </div>
-              <Search />
               <Analytics />
             </ThemeProvider>
           </IntlProvider>

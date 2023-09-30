@@ -1,6 +1,8 @@
-import { NextIntlClientProvider } from 'next-intl';
+import { AbstractIntlMessages, NextIntlClientProvider, } from 'next-intl';
 
-export function IntlProvider({ children, ...props }: { children: React.ReactNode; locale: string; messages: any }) {
+interface Props { children: React.ReactNode; locale: string; messages: AbstractIntlMessages }
+
+export function IntlProvider({ children, ...props }: Props) {
   return <NextIntlClientProvider {...props}>{children}</NextIntlClientProvider>
 }
 

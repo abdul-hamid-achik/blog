@@ -1,10 +1,11 @@
 import { Link } from "@/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import LocaleSelect from "./locale";
 import { ModeToggle } from "./mode-toggle";
 
-const Navbar = ({ locale }: { locale: string }) => {
+const Navbar = () => {
   const t = useTranslations();
+  const locale = useLocale()
 
   return (
     <header>

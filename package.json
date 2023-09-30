@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "concurrently --raw \"bun run docker:up\" \"next dev\"",
+    "docker:up": "docker compose up",
     "build": "next build",
     "preview": "next build && next start",
-    "start": "pnpm start",
+    "start": "next start",
     "lint": "next lint",
-    "format": "pnpm run prettier --write .",
+    "format": "bun run prettier --write .",
     "ingest": "bun run ./scripts/ingest.ts",
     "codegen": "graphql-codegen --config codegen.mjs",
-    "postinstall": "pnpm run codegen"
+    "postinstall": "bun run codegen"
   },
   "dependencies": {
     "@apollo/client": "^3.8.4",
@@ -38,6 +39,7 @@
     "class-variance-authority": "^0.6.1",
     "clsx": "^1.2.1",
     "cmdk": "^0.2.0",
+    "concurrently": "^8.2.1",
     "contentlayer": "^0.3.4",
     "encoding": "^0.1.13",
     "graphql": "^16.8.1",
