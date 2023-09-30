@@ -7,27 +7,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const postsSitemap = allPosts.map(post => ({
     url: `${baseUrl}/${post.locale}${post.slug}`,
     lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
+    changeFrequency: 'always' as const,
+    priority: 1.0,
   }));
 
   const pagesSitemap = allPages.map(page => ({
     url: `${baseUrl}/${page.locale}${page.slug}`,
     lastModified: new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.8,
+    changeFrequency: 'always' as const,
+    priority: 1.0,
   }));
 
   const paintingsSitemap = allPaintings.map(painting => ({
     url: `${baseUrl}/${painting.locale}${painting.slug}`,
     lastModified: new Date(),
-    changeFrequency: "weekly" as const,
-    priority: 0.8
+    changeFrequency: "always" as const,
+    priority: 1.0
   }))
 
   return [
-   ...pagesSitemap,
-   ...postsSitemap,
-   ...paintingsSitemap
+    ...pagesSitemap,
+    ...postsSitemap,
+    ...paintingsSitemap
   ]
 }
