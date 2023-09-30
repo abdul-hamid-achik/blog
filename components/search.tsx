@@ -23,22 +23,38 @@ const SEARCH_QUERY = gql`
           title
           image
           slug
+          __typename
         }
         ... on Painting {
           _id
           title
           image
           slug
+          __typename
         }
         ... on Page {
           _id
           title
           slug
+          __typename
         }
       }
     }
   }
 `;
+
+function groupByType(results: Content[]) {
+  return results.reduce((groups: { [key: string]: Content[] }, result) => {
+    const group = result.__typename;
+    if (group) {
+      if (!groups[group]) {
+        groups[group] = [];
+      }
+      groups[group].push(result);
+    }
+    return groups;
+  }, {});
+}
 
 export function Search() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -89,21 +105,23 @@ export function Search() {
           </CommandEmpty>
         )}
         {data?.search?.results?.length > 0 && (
-          <CommandGroup heading="Resultados">
-            {data?.search?.results?.map((result: Content) => (
-              <CommandItem key={result._id} onSelect={() => router.push(`${getBaseURL()}/${result.slugAsParams}`)}>
-                <AspectRatio ratio={1}>
-                  <Image
-                    src={('image' in result && result.image) ? result.image : `${getBaseURL()}/api/og?title=${result.title}`}
-                    alt={result.title!}
-                    width={200}
-                    height={150}
-                  />
-                </AspectRatio>
-                <span>{result.title}</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          Object.entries(groupByType(data.search.results)).map(([group, items]) => (
+            <CommandGroup key={group} heading={group}>
+              {items.map((item: Content) => (
+                <CommandItem key={item._id} onSelect={() => router.push(`${getBaseURL()}/${item.slug}`)}>
+                  <AspectRatio ratio={1}>
+                    <Image
+                      src={('image' in item && item.image) ? item.image : `${getBaseURL()}/api/og?title=${item.title}`}
+                      alt={item.title!}
+                      width={200}
+                      height={150}
+                    />
+                  </AspectRatio>
+                  <span>{item.title}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ))
         )}
       </CommandList>
     </CommandDialog>

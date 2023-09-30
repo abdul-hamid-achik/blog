@@ -24,7 +24,10 @@ const schema = buildSubgraphSchema({
   resolvers: resolvers as GraphQLResolverMap<unknown>
 })
 
-const store = new KeyvRedis(env.KV_URL)
+// The store is being created here to connect to the Redis database. 
+// If the URL includes 'vercel-storage', it means we are in a production environment and we need to use 'rediss://' instead of 'redis://'.
+// Otherwise, we use the local URL as it is.
+const store = new KeyvRedis(env.KV_URL.includes('vercel-storage') ? env.KV_URL.replace('redis://', 'rediss://') : env.KV_URL);
 const keyv = new Keyv({ store, namespace: 'api' })
 const cache = new KeyvAdapter(keyv)
 

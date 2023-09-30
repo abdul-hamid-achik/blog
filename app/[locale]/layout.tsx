@@ -1,17 +1,15 @@
 import "@/app/globals.css"
 import { Analytics } from "@/components/analytics"
-import LocaleSelect from "@/components/locale"
-import { ModeToggle } from "@/components/mode-toggle"
+import Navbar from "@/components/navbar"
 import ApolloProvider from "@/components/providers/apollo"
 import { IntlProvider } from "@/components/providers/intl"
 import { ThemeProvider } from "@/components/providers/theme"
 import { Search } from "@/components/search"
+import getMessages from '@/i18n'
 import { getBaseURL } from "@/lib/utils"
-import { Link } from "@/navigation"
+import { locales } from "@/navigation"
 import "@code-hike/mdx/dist/index.css"
-import { useLocale, useTranslations } from "next-intl"
 import { Inter } from "next/font/google"
-
 import { notFound } from "next/navigation"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -29,12 +27,18 @@ interface RootLayoutProps {
   }
 }
 
-export default function LocaleLayout({ children, params }: RootLayoutProps) {
-  const locale = useLocale()
-  const t = useTranslations()
 
-  // Show a 404 error if the user requests an unknown locale
-  if (params.locale !== locale) {
+export function generateStaticParams() {
+  return locales.map((locale) => { locale })
+}
+
+export default async function LocaleLayout({ children, params }: RootLayoutProps) {
+  const { locale } = params
+
+  let messages
+  try {
+    messages = await getMessages(params);
+  } catch (error) {
     notFound()
   }
 
@@ -44,29 +48,10 @@ export default function LocaleLayout({ children, params }: RootLayoutProps) {
         className={`dark:bg-slate-950 min-h-screen bg-white text-slate-900 antialiased dark:text-slate-50 ${inter.className}`}
       >
         <ApolloProvider>
-          <IntlProvider>
+          <IntlProvider locale={locale} messages={messages}>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
               <div className="mx-auto max-w-2xl px-4 py-4 md:py-10">
-                <header>
-                  <div className="flex items-center justify-between">
-                    <ModeToggle />
-                    <p className="text-sm text-muted-foreground mx-4 md:block hidden">
-                      Press{" "}
-                      <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 mr-2">
-                        <span className="text-xs">⌘</span>k
-                      </kbd>
-                      to search
-                    </p>
-                    <nav className="ml-auto mr-2 space-x-6 text-sm font-medium">
-                      <Link href="/">{t("Home")}</Link>
-                      {/* <Link href="/contact">{t("Contact")}</Link> */}
-                      <Link href="/insights">{t("Insights")}</Link>
-                      {/* <Link href="/paintings">{t("Paintings")}</Link> */}
-                      <Link href="/about">{t("About")}</Link>
-                    </nav>
-                    <LocaleSelect selected={locale} />
-                  </div>
-                </header>
+                <Navbar locale={locale} />
                 <main>{children}</main>
               </div>
               <Search />
