@@ -49,7 +49,7 @@ const CommandItemComponent = ({ document, handleSelect }: { document: DocumentTy
   <CommandItem key={document._id} onSelect={handleSelect(document)} value={document._id!}>
     <div className="flex items-center w-full">
       <Image
-        src={('image' in document && document.image) ? document.image : `${getBaseURL()}/api/og?title=${document.title}`}
+        src={('image' in document && document.image) ? document.image : `${getBaseURL()}/api/og?title=${encodeURIComponent(document.title!)}`}
         alt={document.title!}
         width={64}
         height={Math.round(64 * (3 / 4))}
