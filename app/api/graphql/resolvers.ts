@@ -49,17 +49,17 @@ function getContent(ids?: string[], type?: Content['type'], locale?: string) {
 
 const resolvers: Resolvers = {
   Query: {
-    allPosts(root, args, context, info: GraphQLResolveInfo) {
+    posts(root, args, context, info: GraphQLResolveInfo) {
       const { locale } = context
       return getContent([], 'Post', locale)
     },
 
-    allPaintings(root, args, context: Context, info: GraphQLResolveInfo) {
+    paintings(root, args, context: Context, info: GraphQLResolveInfo) {
       const { locale } = context;
       return getContent([], 'Paint', locale)
     },
 
-    allPages(root, args, context: Context, info: GraphQLResolveInfo) {
+    pages(root, args, context: Context, info: GraphQLResolveInfo) {
       const { locale } = context
       return getContent([], 'Page', locale)
     },

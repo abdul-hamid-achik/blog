@@ -14,13 +14,13 @@ The main query object for fetching data
 """
 type Query {
   "Fetches all available posts in the blog"
-  allPosts: [Post]
+  posts: [Post]
 
   "Fetches all paintings in the blog"
-  allPaintings: [Painting]
+  paintings: [Painting]
 
   "Fetches all available pages in the blog"
-  allPages: [Page]
+  pages: [Page]
 
   "Provides post counts categorized by time"
   postsOverTime: [PostsOverTime]
