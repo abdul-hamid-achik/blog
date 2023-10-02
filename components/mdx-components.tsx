@@ -5,12 +5,15 @@ import { useMDXComponent } from "next-contentlayer/hooks"
 import Image from "next/image"
 import { Tweet } from 'react-tweet'
 import {
-  PostsOverTime, ReadingTimeDistribution
+  PostsOverTime, ReadingTimeDistribution, TopArtists, TopTags, TopTracks
 } from "./charts"
 import Embed from "./embed"
 
 
 const components = {
+  TopArtistsChart: TopArtists,
+  TopTagsChart: TopTags,
+  TopTracksChart: TopTracks,
   PostsOverTimeChart: PostsOverTime,
   ReadingTimeDistributionChart: ReadingTimeDistribution,
   Embed,
