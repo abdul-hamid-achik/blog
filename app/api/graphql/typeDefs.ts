@@ -22,6 +22,9 @@ type Query {
   "Fetches all available pages in the blog"
   pages: [Page]
 
+  "Fetches all content in the blog"
+  content: [Content]
+
   "Provides post counts categorized by time"
   postsOverTime: [PostsOverTime]
 

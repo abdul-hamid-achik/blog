@@ -64,6 +64,11 @@ const resolvers: Resolvers = {
       return getContent([], 'Page', locale)
     },
 
+    content(root, args, context: Context, info: GraphQLResolveInfo) {
+      const { locale } = context
+      return getContent([], undefined, locale)
+    },
+
     postsOverTime(root, args, context: Context, info: GraphQLResolveInfo) {
       const { locale } = context
       const posts = getContent([], "Post", locale)
