@@ -12,7 +12,10 @@ export const env = createEnv({
     KV_REST_API_READ_ONLY_TOKEN: z.string(),
     PINECONE_API_KEY: z.string(),
     PINECONE_ENVIRONMENT: z.string(),
-    PINECONE_INDEX: z.string()
+    PINECONE_INDEX: z.string(),
+    LASTFM_API_KEY: z.string(),
+    LASTFM_API_SECRET: z.string(),
+    LASTFM_USERNAME: z.string()
   },
   client: {},
   runtimeEnv: {
@@ -25,7 +28,9 @@ export const env = createEnv({
     KV_REST_API_READ_ONLY_TOKEN: process.env.KV_REST_API_READ_ONLY_TOKEN,
     PINECONE_API_KEY: process.env.PINECONE_API_KEY,
     PINECONE_ENVIRONMENT: process.env.PINECONE_ENVIRONMENT,
-    PINECONE_INDEX: process.env.PINECONE_INDEX
+    PINECONE_INDEX: process.env.PINECONE_INDEX,
+    LASTFM_API_KEY: process.env.LASTFM_API_KEY,
+    LASTFM_API_SECRET: process.env.LASTFM_API_SECRET,
+    LASTFM_USERNAME: process.env.LASTFM_USERNAME
   },
-
 });

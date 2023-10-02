@@ -36,6 +36,15 @@ type Query {
 
   "Performs a VectorDBQAChain on my content and returns relevant results"
   answer(question: String!, k: Int): QA
+
+  "Fetches the top artists from the LastFM API"
+  topArtists: [Artist]
+
+  "Fetches the top tags from the LastFM API"
+  topTags: [Tag]
+
+  "Fetches the top tracks from the LastFM API"
+  topTracks: [Track]
 }
 
 
@@ -177,6 +186,74 @@ type ReadingTimeDistribution {
 
   "Number of posts in the category"
   count: Int
+}
+
+"""
+Artist type represents an artist with their rank, name, total scrobbles, and URL of their page
+"""
+type Artist {
+  "Rank of the artist based on some criteria"
+  rank: Int
+
+  "Name of the artist"
+  name: String
+
+  "Total number of times the artist's tracks have been played"
+  scrobbles: Int
+
+  "URL of the artist's page on the platform"
+  url: String
+}
+
+
+"""
+Track type represents a track with its rank, name, stats, artist, and URL of its page
+"""
+type Track {
+  "Rank of the track based on some criteria"
+  rank: Int
+
+  "Name of the track"
+  name: String
+
+  "Statistics related to the track, including duration and user play count"
+  stats: TrackStats
+
+  "Artist who performed the track"
+  artist: TrackArtist
+
+  "URL of the track's page on the platform"
+  url: String
+}
+
+type TrackStats {
+  "Duration of the track in seconds"
+  duration: Int
+
+  "Number of times the track has been played by the user"
+  userPlayCount: Int
+}
+
+type TrackArtist {
+  "Name of the artist who performed the track"
+  name: String
+
+  "URL of the artist's page on the platform"
+  url: String
+}
+
+"""
+Tag type represents a tag with its name, count, and URL of its page
+"""
+type Tag {
+  "Name of the tag"
+  name: String
+
+  "Number of times the tag has been used"
+  count: Int
+
+  "URL of the tag's page on the platform"
+  url: String
 }
 `
 

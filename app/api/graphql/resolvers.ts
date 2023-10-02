@@ -1,6 +1,8 @@
 import { allDocuments, allPages, allPaintings, allPosts } from "@/.contentlayer/generated";
 import { Content, Resolvers } from "@/.generated/graphql";
+import { env } from "@/env.mjs";
 import { openai as model, vectorStore } from "@/lib/ai";
+import { lastfm } from "@/lib/lastfm";
 import { Document } from "contentlayer/core";
 import { GraphQLResolveInfo } from 'graphql';
 import { VectorDBQAChain } from "langchain/chains";
@@ -122,6 +124,37 @@ const resolvers: Resolvers = {
         results,
         count
       };
+    },
+
+    async topArtists() {
+      return await lastfm.user.getTopArtists({ username: env.LASTFM_USERNAME })
+        .then(response => response.artists.map(artist => ({
+          rank: artist.rank,
+          name: artist.name,
+          scrobbles: artist.scrobbles,
+          url: artist.url,
+        })));
+    },
+
+    async topTracks() {
+      return await lastfm.user.getTopTracks({ username: env.LASTFM_USERNAME })
+        .then(response => response.tracks.map(track => ({
+          rank: track.rank,
+          name: track.name,
+          stats: {
+            duration: track.stats.duration,
+            userPlayCount: track.stats.userPlayCount,
+          },
+          artist: {
+            name: track.artist.name,
+            url: track.artist.url,
+          },
+          url: track.url,
+        })));
+    },
+
+    async topTags() {
+      return await lastfm.user.getTopTags({ username: env.LASTFM_USERNAME }).then(response => response.tags);
     },
   },
 
