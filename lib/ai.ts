@@ -1,8 +1,8 @@
 import { env } from "@/env.mjs";
+import { isProduction } from "@/lib/utils";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { OpenAI } from "langchain/llms/openai";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
-import { Index } from "./pinecone";
+import { PGVectorStore } from "langchain/vectorstores/pgvector";
 
 export const openai = new OpenAI({
   modelName: "gpt-4",
@@ -14,8 +14,21 @@ export const embeddings = new OpenAIEmbeddings({
   openAIApiKey: env.OPEN_AI_API_KEY
 });
 
-export const vectorStore = new PineconeStore(embeddings, {
-  pineconeIndex: Index as any,
-  maxRetries: 1,
-  maxConcurrency: 1
+
+export const vectorStore = await PGVectorStore.initialize(embeddings, {
+  postgresConnectionOptions: {
+    host: env.POSTGRES_HOST,
+    database: env.POSTGRES_DATABASE,
+    user: env.POSTGRES_USER,
+    password: env.POSTGRES_PASSWORD,
+    ssl: isProduction
+  },
+  tableName: "documents",
+  columns: {
+    idColumnName: "id",
+    vectorColumnName: "embedding",
+    contentColumnName: "content",
+    metadataColumnName: "metadata",
+  },
+  verbose: !isProduction
 });

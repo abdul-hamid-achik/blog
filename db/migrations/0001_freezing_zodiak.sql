@@ -1,0 +1,1 @@
+ALTER TABLE "documents" ALTER COLUMN "metadata" SET DATA TYPE jsonb;

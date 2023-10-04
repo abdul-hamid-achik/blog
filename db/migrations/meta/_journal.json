@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1696394638108,
+      "tag": "0000_low_speed",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1696430861662,
+      "tag": "0001_freezing_zodiak",
+      "breakpoints": true
+    }
+  ]
+}

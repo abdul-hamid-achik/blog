@@ -26,3 +26,5 @@ export function transformKeyToJson(key: string) {
   const str = hash.digest('hex');
   return JSON.parse(str);
 }
+
+export const isProduction = process.env.NODE_ENV === 'production'

@@ -1,5 +1,5 @@
-import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod";
+import { createEnv } from "@t3-oss/env-nextjs"
+import { z } from "zod"
 
 export const env = createEnv({
   server: {
@@ -15,7 +15,15 @@ export const env = createEnv({
     PINECONE_INDEX: z.string(),
     LASTFM_API_KEY: z.string(),
     LASTFM_API_SECRET: z.string(),
-    LASTFM_USERNAME: z.string()
+    LASTFM_USERNAME: z.string(),
+    POSTGRES_URL: z.string(),
+    POSTGRES_URL_NON_POOLING: z.string(),
+    POSTGRES_PRISMA_URL: z.string(),
+    POSTGRES_USER: z.string(),
+    POSTGRES_PASSWORD: z.string(),
+    POSTGRES_HOST: z.string(),
+    POSTGRES_DATABASE: z.string(),
+    EDGE_CONFIG: z.string().optional(),
   },
   client: {},
   runtimeEnv: {
@@ -31,6 +39,14 @@ export const env = createEnv({
     PINECONE_INDEX: process.env.PINECONE_INDEX,
     LASTFM_API_KEY: process.env.LASTFM_API_KEY,
     LASTFM_API_SECRET: process.env.LASTFM_API_SECRET,
-    LASTFM_USERNAME: process.env.LASTFM_USERNAME
+    LASTFM_USERNAME: process.env.LASTFM_USERNAME,
+    POSTGRES_URL: process.env.POSTGRES_URL,
+    POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING,
+    POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL,
+    POSTGRES_USER: process.env.POSTGRES_USER,
+    POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD,
+    POSTGRES_HOST: process.env.POSTGRES_HOST,
+    POSTGRES_DATABASE: process.env.POSTGRES_DATABASE,
+    EDGE_CONFIG: process.env.EDGE_CONFIG,
   },
-});
+})
