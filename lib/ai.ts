@@ -30,7 +30,7 @@ export const vectorStore = await PGVectorStore.initialize(embeddings, {
     database: env.POSTGRES_DATABASE,
     user: env.POSTGRES_USER,
     password: env.POSTGRES_PASSWORD,
-    // ssl: isProduction
+    ssl: isProduction
   },
   tableName: "documents",
   columns: {
