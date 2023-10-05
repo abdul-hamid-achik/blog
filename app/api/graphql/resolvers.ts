@@ -5,9 +5,12 @@ import { openai as model, vectorStore } from "@/lib/ai";
 import { lastfm } from "@/lib/lastfm";
 import { Document } from "contentlayer/core";
 import { GraphQLResolveInfo } from 'graphql';
-import { VectorDBQAChain } from "langchain/chains";
+import { ConversationalRetrievalQAChain, VectorDBQAChain } from "langchain/chains";
+import { BufferMemory } from "langchain/memory";
+import { UpstashRedisChatMessageHistory } from "langchain/stores/message/upstash_redis";
 import { countBy, groupBy, map } from "lodash";
-import type { Context } from './context.ts';
+import { v4 as uuid } from 'uuid';
+import type { Context } from './context';
 
 type Paintings = typeof allPaintings;
 type Posts = typeof allPosts
@@ -50,6 +53,38 @@ function getContent(ids?: string[], type?: Content['type'], locale?: string) {
 }
 
 const resolvers: Resolvers = {
+  Mutation: {
+    async chat(root, { input }, context: Context, info: GraphQLResolveInfo) {
+      const { history, message } = input
+      const upstashRedisConfig = {
+        url: env.KV_REST_API_URL,
+        token: env.KV_REST_API_TOKEN
+      };
+
+      const chatHistoryConfig = {
+        sessionId: uuid(),
+        sessionTTL: 300,
+        config: upstashRedisConfig,
+      };
+
+      const memory = new BufferMemory({
+        chatHistory: new UpstashRedisChatMessageHistory(chatHistoryConfig),
+      });
+
+      const chain = ConversationalRetrievalQAChain.fromLLM(model, vectorStore.asRetriever(), {
+        memory,
+        verbose: true,
+        returnSourceDocuments: true
+      });
+
+      const response = await chain.call({ chat_history: history, question: message });
+
+      return {
+        message: response.text,
+        history: [...history, message, response.text],
+      };
+    }
+  },
   Query: {
     posts(root, args, context, info: GraphQLResolveInfo) {
       const { locale } = context
@@ -109,7 +144,6 @@ const resolvers: Resolvers = {
 
     async answer(root, { question, k = 5 }, context: Context, info: GraphQLResolveInfo) {
       const chain = VectorDBQAChain.fromLLM(model, vectorStore, {
-        k: k!,
         returnSourceDocuments: true,
         verbose: true,
       });

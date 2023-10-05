@@ -47,6 +47,19 @@ type Query {
   topTracks: [Track]
 }
 
+type Mutation {
+  chat(input: ChatInput!): ChatOutput
+}
+
+input ChatInput {
+  history: [String!]!
+  message: String!
+}
+
+type ChatOutput {
+  message: String
+  history: [String!]!
+}
 
 "A general type of all my content"
 union Content = Post | Painting | Page
