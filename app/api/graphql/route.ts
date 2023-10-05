@@ -24,7 +24,7 @@ const schema = buildSubgraphSchema({
   resolvers: resolvers as GraphQLResolverMap<unknown>
 })
 
-// The store is being created here to connect to the Redis database. 
+// The store is being created here to connect to the Redis database.
 // If the URL includes 'vercel-storage', it means we are in a production environment and we need to use 'rediss://' instead of 'redis://'.
 // Otherwise, we use the local URL as it is.
 const store = new KeyvRedis(env.KV_URL.includes('vercel-storage') ? env.KV_URL.replace('redis://', 'rediss://') : env.KV_URL);
@@ -50,7 +50,7 @@ const server = new ApolloServer<Context>({
         footer: false
       }),
   ],
-})
+}) as any
 
 const options = {
   context: async (req: NextRequest) => {

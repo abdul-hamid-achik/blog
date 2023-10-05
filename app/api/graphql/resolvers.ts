@@ -1,21 +1,69 @@
 import { allDocuments, allPages, allPaintings, allPosts } from "@/.contentlayer/generated";
 import { Content, Resolvers } from "@/.generated/graphql";
 import { env } from "@/env.mjs";
-import { openai as model, vectorStore } from "@/lib/ai";
+import { chatModel, openai as model, vectorStore } from "@/lib/ai";
 import { lastfm } from "@/lib/lastfm";
 import { Document } from "contentlayer/core";
 import { GraphQLResolveInfo } from 'graphql';
+import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import { ConversationalRetrievalQAChain, VectorDBQAChain } from "langchain/chains";
 import { BufferMemory } from "langchain/memory";
 import { UpstashRedisChatMessageHistory } from "langchain/stores/message/upstash_redis";
+import { ChainTool } from "langchain/tools";
 import { countBy, groupBy, map } from "lodash";
 import { v4 as uuid } from 'uuid';
 import type { Context } from './context';
+
+
 
 type Paintings = typeof allPaintings;
 type Posts = typeof allPosts
 type Pages = typeof allPages
 
+const upstashRedisConfig = {
+  url: env.KV_REST_API_URL,
+  token: env.KV_REST_API_TOKEN
+};
+
+const chatHistoryConfig = {
+  sessionId: uuid(),
+  sessionTTL: 300,
+  config: upstashRedisConfig,
+};
+
+const memory = new BufferMemory({
+  chatHistory: new UpstashRedisChatMessageHistory(chatHistoryConfig),
+});
+
+const conversationalChain = ConversationalRetrievalQAChain.fromLLM(model, vectorStore.asRetriever(), {
+  memory,
+  verbose: true,
+  returnSourceDocuments: true
+});
+
+const vectorDBChain = VectorDBQAChain.fromLLM(model, vectorStore, {
+  returnSourceDocuments: true,
+  verbose: true,
+});
+
+const conversationalTool = new ChainTool({
+  name: "ConversationalTool",
+  description: "This is a conversational tool",
+  chain: conversationalChain
+});
+
+const vectorDBTool = new ChainTool({
+  name: "VectorDBTool",
+  description: "This is a vector DB tool",
+  chain: vectorDBChain,
+});
+
+const tools = [conversationalTool, vectorDBTool];
+
+const executor = await initializeAgentExecutorWithOptions(tools, chatModel, {
+  agentType: "openai-functions",
+  verbose: true,
+});
 
 function groupByMonth(posts: Posts) {
   return groupBy(posts, (post) => {
@@ -56,32 +104,14 @@ const resolvers: Resolvers = {
   Mutation: {
     async chat(root, { input }, context: Context, info: GraphQLResolveInfo) {
       const { history, message } = input
-      const upstashRedisConfig = {
-        url: env.KV_REST_API_URL,
-        token: env.KV_REST_API_TOKEN
-      };
-
-      const chatHistoryConfig = {
-        sessionId: uuid(),
-        sessionTTL: 300,
-        config: upstashRedisConfig,
-      };
-
-      const memory = new BufferMemory({
-        chatHistory: new UpstashRedisChatMessageHistory(chatHistoryConfig),
-      });
-
-      const chain = ConversationalRetrievalQAChain.fromLLM(model, vectorStore.asRetriever(), {
-        memory,
-        verbose: true,
-        returnSourceDocuments: true
-      });
-
-      const response = await chain.call({ chat_history: history, question: message });
+      console.log(message)
+      const result = await executor.run(message);
+      const responseMessage = result;
+      const updatedHistory = [...history, message, responseMessage];
 
       return {
-        message: response.text,
-        history: [...history, message, response.text],
+        message: responseMessage,
+        history: updatedHistory,
       };
     }
   },
@@ -143,11 +173,7 @@ const resolvers: Resolvers = {
     },
 
     async answer(root, { question, k = 5 }, context: Context, info: GraphQLResolveInfo) {
-      const chain = VectorDBQAChain.fromLLM(model, vectorStore, {
-        returnSourceDocuments: true,
-        verbose: true,
-      });
-      const response = await chain.call({ query: question });
+      const response = await vectorDBChain.call({ query: question });
       const ids = [...new Set(response.sourceDocuments.map((doc: Document) => doc.metadata._id as string))] as string[];
       const results = getContent(ids)
       const count = results.length
