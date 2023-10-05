@@ -16,17 +16,18 @@ export const config = {
 
 export default async function middleware(request: NextRequest) {
   const ip = request.ip ?? '127.0.0.1';
+  const locale = request.headers.get('locale') ?? 'en';
   const { success, pending, limit, reset, remaining } = await ratelimit.limit(
     ip
   );
 
   if (!success) {
-    return NextResponse.redirect(new URL('/blocked', request.url));
+    return NextResponse.redirect(new URL(`/${locale}/blocked`, request.url));
   }
 
   const nextIntlMiddleware = createMiddleware({
     locales,
-    defaultLocale: "en",
+    defaultLocale: "en"
   });
 
   // @TODO: fix this when types pass correctly
