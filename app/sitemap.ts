@@ -12,7 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   const pagesSitemap = allPages.map(page => ({
-    url: `${baseUrl}/${page.locale}${page.slug}`,
+    url: `${baseUrl}/${page.locale}${page.slug.replace('/pages', '')}`,
     lastModified: new Date(),
     changeFrequency: 'always' as const,
     priority: 1.0,
