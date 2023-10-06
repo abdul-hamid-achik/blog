@@ -18,6 +18,7 @@ import { NextRequest } from "next/server";
 import type { Context } from './context';
 import resolvers from "./resolvers";
 import typeDefs from "./typeDefs";
+import { isProduction } from '@/lib/utils';
 
 const schema = buildSubgraphSchema({
   typeDefs,
@@ -41,7 +42,7 @@ const server = new ApolloServer<Context>({
     ApolloServerPluginInlineTrace({
       includeErrors: { unmodified: true },
     }),
-    process.env.NODE_ENV === "production"
+    isProduction
       ? ApolloServerPluginLandingPageProductionDefault({
         graphRef: `abdulachik-blog@current`,
         footer: false,

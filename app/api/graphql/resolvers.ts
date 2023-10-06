@@ -5,6 +5,7 @@ import { chatModel, openai as model, vectorStore } from "@/lib/ai";
 import { lastfm } from "@/lib/lastfm";
 import { Document } from "contentlayer/core";
 import { GraphQLResolveInfo } from 'graphql';
+import { HumanMessage, SystemMessage } from 'langchain/schema';
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import { ConversationalRetrievalQAChain, VectorDBQAChain } from "langchain/chains";
 import { BufferMemory } from "langchain/memory";
@@ -47,14 +48,14 @@ const vectorDBChain = VectorDBQAChain.fromLLM(model, vectorStore, {
 });
 
 const conversationalTool = new ChainTool({
-  name: "ConversationalTool",
-  description: "This is a conversational tool",
+  name: "Conversation",
+  description: "This is a conversational tool you can use to remember what has been said so far",
   chain: conversationalChain
 });
 
 const vectorDBTool = new ChainTool({
-  name: "VectorDBTool",
-  description: "This is a vector DB tool",
+  name: "Blog",
+  description: "This is a db of the blog",
   chain: vectorDBChain,
 });
 
@@ -104,9 +105,14 @@ const resolvers: Resolvers = {
   Mutation: {
     async chat(root, { input }, context: Context, info: GraphQLResolveInfo) {
       const { history, message } = input
-      console.log(message)
-      const result = await executor.run(message);
-      const responseMessage = result;
+      const result = await executor.call({
+        input: message,
+        messages: [
+          new HumanMessage(message),
+          ...history.map(msg => new SystemMessage(msg))
+        ]
+      });
+      const responseMessage = result.output;
       const updatedHistory = [...history, message, responseMessage];
 
       return {

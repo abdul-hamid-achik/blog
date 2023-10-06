@@ -4,4 +4,6 @@
   "editor.wordWrapColumn": 100,
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "editor.formatOnSave": true,
+  "i18n-ally.localesPaths": ["translations/*"],
+  "i18n-ally.keystyle": "nested"
 }
