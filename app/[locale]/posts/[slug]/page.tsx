@@ -1,4 +1,5 @@
 import { Mdx } from "@/components/mdx-components"
+import { getPost } from "@/lib/data"
 import { getBaseURL } from "@/lib/utils"
 import { locales } from "@/navigation"
 import { allPosts } from "contentlayer/generated"
@@ -9,32 +10,16 @@ import { notFound } from "next/navigation"
 
 interface PostProps {
   params: {
-    slug: string[]
+    slug: string
     locale: string
   }
-}
-
-async function getPostFromParams(
-  params: PostProps["params"],
-  locale: string = "en"
-) {
-  const slug = params?.slug?.join("/")
-  const post = allPosts.find(
-    (post) => post.slug.includes(decodeURIComponent(slug)) && post.locale === locale
-  )
-
-  if (!post) {
-    return null
-  }
-
-  return post
 }
 
 export async function generateMetadata({
   params,
 }: PostProps): Promise<Metadata> {
 
-  const post = await getPostFromParams(params)
+  const post = getPost({ slug: decodeURIComponent(params.slug), locale: params.locale })
 
   if (!post) {
     return {}
@@ -79,7 +64,7 @@ export async function generateMetadata({
 
 export async function generateStaticParams(): Promise<PostProps["params"][]> {
   return allPosts.map((post) => ({
-    slug: post.slugAsParams.split("/"),
+    slug: post.slugAsParams,
     locale: post.locale
   }))
 }
@@ -92,7 +77,8 @@ export default async function PostPage({ params }: PostProps) {
 
   unstable_setRequestLocale(locale);
 
-  const post = await getPostFromParams(params, locale)
+  const post = getPost({ slug: decodeURIComponent(params.slug), locale: params.locale })
+
   if (!post) {
     notFound()
   }

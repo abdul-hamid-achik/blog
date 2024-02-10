@@ -1,4 +1,5 @@
 import { allPosts } from "@/.contentlayer/generated"
+import { getPosts } from "@/lib/data"
 import { getBaseURL } from "@/lib/utils"
 import { locales } from "@/navigation"
 import { DateTime } from "luxon"
@@ -14,25 +15,14 @@ interface TagProps {
   }
 }
 
-async function getPostsFromParams(
-  params: TagProps["params"],
-  locale: string = "en"
-) {
-  const posts = allPosts.filter(
-    (post) => post.tags?.includes(params.tag) && post.locale === locale
-  )
-
-  if (posts.length === 0 && !posts) {
-    return null
-  }
-
-  return posts
-}
 
 export async function generateMetadata({
   params,
 }: TagProps): Promise<Metadata> {
-  const posts = await getPostsFromParams(params)
+  const posts = getPosts({
+    tag: params.tag,
+    locale: params.locale
+  })
 
   if (!posts) {
     return {}
@@ -88,7 +78,10 @@ export default function TagPage({
   unstable_setRequestLocale(locale);
 
   const baseUrl = getBaseURL()
-  const posts = allPosts.filter((post) => post.tags?.includes(decodeURIComponent(tag)) && post.locale === locale)
+  const posts = getPosts({
+    tag: decodeURIComponent(tag),
+    locale
+  }) ?? []
 
   if (posts.length === 0) notFound()
 

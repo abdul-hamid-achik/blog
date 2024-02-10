@@ -1,4 +1,5 @@
 import { Mdx } from "@/components/mdx-components"
+import { getPainting } from "@/lib/data"
 import { getBaseURL } from "@/lib/utils"
 import { locales } from "@/navigation"
 import { allPaintings } from "contentlayer/generated"
@@ -8,32 +9,18 @@ import { notFound } from "next/navigation"
 
 interface PaintingProps {
   params: {
-    slug: string[]
+    slug: string
     locale: string
   }
-}
-
-async function getPaintingFromParams(
-  params: PaintingProps["params"],
-  locale: string = "en"
-) {
-  const slug = params?.slug?.join("/")
-
-  const painting = allPaintings.find(
-    (painting) => painting.slug.includes(decodeURIComponent(slug)) && painting.locale === locale
-  )
-
-  if (!painting) {
-    return null
-  }
-
-  return painting
 }
 
 export async function generateMetadata({
   params,
 }: PaintingProps): Promise<Metadata> {
-  const painting = await getPaintingFromParams(params)
+  const painting = getPainting({
+    slug: decodeURIComponent(params?.slug),
+    locale: params?.locale,
+  })
 
   if (!painting) {
     return {}
@@ -78,7 +65,7 @@ export async function generateMetadata({
 
 export async function generateStaticParams(): Promise<PaintingProps["params"][]> {
   return allPaintings.map((painting) => ({
-    slug: painting.slugAsParams.split("/"),
+    slug: painting.slugAsParams,
     locale: painting.locale
   }))
 }
@@ -92,8 +79,10 @@ export default async function PostPage({ params }: PaintingProps) {
 
   unstable_setRequestLocale(locale);
 
-
-  const painting = await getPaintingFromParams(params, locale)
+  const painting = getPainting({
+    slug: decodeURIComponent(params.slug),
+    locale: params.locale,
+  })
 
   if (!painting) {
     notFound()

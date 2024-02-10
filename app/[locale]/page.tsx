@@ -1,9 +1,9 @@
-import { allPosts } from "@/.contentlayer/generated"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
+import { getPosts } from "@/lib/data"
 import { getBaseURL } from "@/lib/utils"
 import { locales } from "@/navigation"
 import { DateTime } from "luxon"
@@ -24,10 +24,11 @@ export default async function Page({
 
   const baseUrl = getBaseURL()
 
+  const posts = getPosts({ locale: locale, public: true }) ?? []
+
   return (
     <div className="prose dark:prose-invert mt-4">
-      {allPosts
-        .filter((post) => post.locale === locale)
+      {posts
         .sort((first, second) => {
           const firstDate = DateTime.fromISO(first.date)
           const secondDate = DateTime.fromISO(second.date)

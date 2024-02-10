@@ -1,4 +1,5 @@
 import { Mdx } from "@/components/mdx-components";
+import { getPage } from "@/lib/data";
 import { getBaseURL } from "@/lib/utils";
 import { locales } from "@/navigation";
 import { allPages } from "contentlayer/generated";
@@ -9,30 +10,14 @@ import { notFound } from "next/navigation";
 interface PageProps {
   params: {
     locale: string;
-    slug: string[]
+    slug: string
   }
-}
-
-async function getPageFromParams(
-  params: PageProps["params"],
-  locale: string = "en"
-) {
-  const slug = params?.slug?.join("/")
-  const page = allPages.find(
-    (page) => page.slugAsParams === slug && page.locale === locale
-  )
-
-  if (!page) {
-    return null
-  }
-
-  return page
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const page = await getPageFromParams(params)
+  const page = getPage({ slug: decodeURIComponent(params.slug), locale: params.locale })
 
   if (!page) {
     return {}
@@ -47,7 +32,7 @@ export async function generateMetadata({
 
 export async function generateStaticParams(): Promise<PageProps["params"][]> {
   return allPages.map((page) => ({
-    slug: page.slugAsParams.split("/"),
+    slug: page.slugAsParams,
     locale: page.locale
   }))
 }
@@ -60,7 +45,7 @@ export default async function PagePage({ params }: PageProps) {
 
   unstable_setRequestLocale(locale);
 
-  const page = await getPageFromParams(params, locale)
+  const page = getPage({ slug: decodeURIComponent(params.slug), locale: params.locale })
 
   if (!page) {
     notFound()

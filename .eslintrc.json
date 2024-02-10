@@ -1,3 +1,16 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "no-async-promise-executor": "error",
+    "require-await": "error",
+    "promise/no-callback-in-promise": "error",
+    "promise/no-promise-in-callback": "error",
+    "promise/no-nesting": "warn",
+    "promise/no-new-statics": "error",
+    "promise/no-return-in-finally": "warn",
+    "promise/valid-params": "warn"
+  },
+  "plugins": [
+    "promise"
+  ]
 }

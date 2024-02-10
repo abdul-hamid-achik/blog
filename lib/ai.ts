@@ -33,6 +33,7 @@ export const vectorStore = await PGVectorStore.initialize(embeddings, {
     ssl: isProduction
   },
   tableName: "documents",
+  
   columns: {
     idColumnName: "id",
     vectorColumnName: "embedding",

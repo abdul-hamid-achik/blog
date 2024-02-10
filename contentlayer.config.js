@@ -1,11 +1,11 @@
-import { remarkCodeHike } from "@code-hike/mdx";
+import { remarkCodeHike } from "@code-hike/mdx"
 import {
   defineDocumentType,
   defineNestedType,
   makeSource,
-} from "contentlayer/source-files";
-import readingTime from "reading-time";
-import codeHikeTheme from "./contentlayer.theme";
+} from "contentlayer/source-files"
+import readingTime from "reading-time"
+import codeHikeTheme from "./contentlayer.theme"
 
 // TODO: add this back after fixing `ERR_IMPORT_ASSERTION_TYPE_MISSING`
 // import codeHikeTheme from "shiki/themes/nord.json" assert {type: "json"};
@@ -14,7 +14,6 @@ const getLocale = (path) => {
   const pathArray = path.split(".")
   return pathArray.length > 2 ? pathArray.slice(-2)[0] : "en"
 }
-
 
 /** @type {import('contentlayer/source-files').ComputedFields} */
 const computedFields = {
@@ -70,13 +69,13 @@ export const Painting = defineDocumentType(() => ({
       type: "string",
     },
     year: {
-      type: "number"
+      type: "number",
     },
     style: {
-      type: "string"
+      type: "string",
     },
     country: {
-      type: "string"
+      type: "string",
     },
     image: {
       type: "string",
@@ -150,6 +149,11 @@ export const Post = defineDocumentType(() => ({
         type: "string",
       },
     },
+    public: {
+      type: "boolean",
+      required: false,
+      default: true,
+    },
   },
   computedFields,
 }))
@@ -157,5 +161,7 @@ export const Post = defineDocumentType(() => ({
 export default makeSource({
   contentDirPath: "./content",
   documentTypes: [Post, Page, Painting],
-  remarkPlugins: [[remarkCodeHike, { theme: codeHikeTheme, lineNumbers: false }]],
+  remarkPlugins: [
+    [remarkCodeHike, { theme: codeHikeTheme, lineNumbers: false }],
+  ],
 })
