@@ -1,25 +1,20 @@
-import { allDocuments, allPages, allPaintings, allPosts } from "@/.contentlayer/generated";
-import { Content, Resolvers } from "@/.generated/graphql";
+import { Resolvers } from "@/.generated/graphql";
 import { env } from "@/env.mjs";
 import { chatModel, openai as model, vectorStore } from "@/lib/ai";
+import { Posts, getPage, getContent } from "@/lib/data";
 import { lastfm } from "@/lib/lastfm";
 import { Document } from "contentlayer/core";
 import { GraphQLResolveInfo } from 'graphql';
-import { HumanMessage, SystemMessage } from 'langchain/schema';
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import { ConversationalRetrievalQAChain, VectorDBQAChain } from "langchain/chains";
 import { BufferMemory } from "langchain/memory";
+import { HumanMessage, SystemMessage } from 'langchain/schema';
 import { UpstashRedisChatMessageHistory } from "langchain/stores/message/upstash_redis";
 import { ChainTool } from "langchain/tools";
 import { countBy, groupBy, map } from "lodash";
 import { v4 as uuid } from 'uuid';
 import type { Context } from './context';
 
-
-
-type Paintings = typeof allPaintings;
-type Posts = typeof allPosts
-type Pages = typeof allPages
 
 const upstashRedisConfig = {
   url: env.KV_REST_API_URL,
@@ -81,24 +76,6 @@ function categorizeReadingTime(posts: Posts) {
     if (time < 10) return "5-10 minutes"
     return "10+ minutes"
   })
-}
-
-function getContent(ids?: string[], type?: Content['type'], locale?: string) {
-  let everything = allDocuments;
-
-  if (type) {
-    everything = everything.filter(document => document.type === type);
-  }
-
-  if (locale) {
-    everything = everything.filter(document => document.locale === locale);
-  }
-
-  if (!ids || ids.length === 0) {
-    return everything;
-  }
-
-  return everything.filter(item => ids.includes(item._id));
 }
 
 const resolvers: Resolvers = {
@@ -179,10 +156,12 @@ const resolvers: Resolvers = {
     },
 
     async answer(root, { question, k = 5 }, context: Context, info: GraphQLResolveInfo) {
-      const response = await vectorDBChain.call({ query: question });
+      const aboutPage = getPage({ slug: "about", locale: context.locale });
+      const response = await conversationalChain.call({ question, chat_history: [] });
       const ids = [...new Set(response.sourceDocuments.map((doc: Document) => doc.metadata._id as string))] as string[];
       const results = getContent(ids)
       const count = results.length
+
 
       return {
         question,

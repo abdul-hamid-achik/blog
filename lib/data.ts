@@ -1,5 +1,12 @@
-import { allPages, allPaintings, allPosts } from "@/.contentlayer/generated";
+import { allDocuments, allPages as pages, allPaintings as paintings, allPosts as posts } from "@/.contentlayer/generated";
 
+
+type Paintings = typeof paintings;
+type Posts = typeof posts
+type Pages = typeof pages;
+type Content = typeof allDocuments
+
+export type { Content, Pages, Paintings, Posts };
 export interface BaseParams {
   slug?: string;
   locale?: string;
@@ -26,7 +33,7 @@ export interface PageParams extends BaseParams { }
 export function getPost(params: BaseParams) {
   const { slug, locale } = params;
 
-  const post = allPosts.find(
+  const post = posts.find(
     (post) => post.slug.includes(slug ?? "") && post.locale === (locale ?? "en")
   )
 
@@ -40,7 +47,7 @@ export function getPost(params: BaseParams) {
 export function getPosts(params?: PostParams) {
   const { slug, tag, locale, title, description, date, public: isPublic } = params ?? {};
 
-  const posts = allPosts.filter(post => {
+  const filteredPosts = posts.filter(post => {
     const matchesSlug = slug ? post.slug.includes(slug) : true;
     const matchesTag = tag ? post.tags?.includes(tag) : true;
     const matchesLocale = locale ? post.locale === locale : true;
@@ -51,17 +58,17 @@ export function getPosts(params?: PostParams) {
     return matchesSlug && matchesTag && matchesLocale && matchesTitle && matchesDescription && matchesDate && matchesPublic;
   })
 
-  if (posts.length === 0) {
+  if (filteredPosts.length === 0) {
     return null
   }
 
-  return posts
+  return filteredPosts
 }
 
 export function getPainting(params: BaseParams) {
   const { slug, locale } = params;
 
-  const painting = allPaintings.find(
+  const painting = paintings.find(
     (painting) => painting.slug.includes(slug ?? "") && painting.locale === (locale ?? "en")
   )
 
@@ -75,7 +82,7 @@ export function getPainting(params: BaseParams) {
 export function getPaintings(params?: PaintingParams) {
   const { slug, tag, locale, title, author, year, style, country } = params ?? {};
 
-  const paintings = allPaintings.filter(painting => {
+  const filteredPaintings = paintings.filter(painting => {
     const matchesSlug = slug ? painting.slug.includes(slug) : true;
     const matchesTag = tag ? painting.tags?.includes(tag) : true;
     const matchesLocale = locale ? painting.locale === locale : true;
@@ -87,17 +94,17 @@ export function getPaintings(params?: PaintingParams) {
     return matchesSlug && matchesTag && matchesLocale && matchesTitle && matchesAuthor && matchesYear && matchesStyle && matchesCountry;
   })
 
-  if (paintings.length === 0) {
+  if (filteredPaintings.length === 0) {
     return null
   }
 
-  return paintings
+  return filteredPaintings
 }
 
 export function getPage(params?: PageParams) {
   const { slug, locale } = params ?? {};
 
-  const page = allPages.find(page => {
+  const page = pages.find(page => {
     const matchesSlug = slug ? page.slug.includes(slug) : true;
     const matchesLocale = locale ? page.locale === locale : true;
     return matchesSlug && matchesLocale;
@@ -110,4 +117,22 @@ export function getPage(params?: PageParams) {
   return page
 }
 
+
+export function getContent(ids?: string[], type?: string, locale?: string) {
+  let everything = allDocuments;
+
+  if (type) {
+    everything = everything.filter(document => document.type === type);
+  }
+
+  if (locale) {
+    everything = everything.filter(document => document.locale === locale);
+  }
+
+  if (!ids || ids.length === 0) {
+    return everything;
+  }
+
+  return everything.filter(item => ids.includes(item._id));
+}
 
