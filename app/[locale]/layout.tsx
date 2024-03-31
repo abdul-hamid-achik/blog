@@ -12,6 +12,7 @@ import "@code-hike/mdx/dist/index.css"
 import { AbstractIntlMessages } from "next-intl"
 import { Inter } from "next/font/google"
 import { notFound } from "next/navigation"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -54,6 +55,7 @@ export default async function LocaleLayout({ children, params }: RootLayoutProps
                 <main>{children}</main>
               </div>
               <Analytics />
+              <SpeedInsights />
             </ThemeProvider>
           </IntlProvider>
         </ApolloProvider>
