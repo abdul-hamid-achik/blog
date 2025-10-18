@@ -66,11 +66,8 @@ export function ChartTooltipContent({ active, payload, label }: any) {
     )
 }
 
-export function ChartLegend({
-    content,
-    ...props
-}: React.ComponentProps<typeof RechartsLegend>) {
-    return <RechartsLegend content={content} {...props} />
+export function ChartLegend(props: Omit<React.ComponentProps<typeof RechartsLegend>, 'ref'>) {
+    return <RechartsLegend {...props} />
 }
 
 export function ChartLegendContent({ payload }: any) {
