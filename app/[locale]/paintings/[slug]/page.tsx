@@ -64,12 +64,14 @@ export async function generateMetadata({
   }
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   return allPaintings.map((painting) => ({
     slug: painting.slugAsParams,
     locale: painting.locale
   }))
 }
+
+export const dynamicParams = false
 
 export default async function PostPage({ params }: PaintingProps) {
   const { slug, locale } = await params

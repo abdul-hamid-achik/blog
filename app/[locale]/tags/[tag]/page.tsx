@@ -49,7 +49,7 @@ export async function generateMetadata({
   }
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   const localeTagCache = allPosts.reduce((cache, post) => {
     if (post.locale && post.tags) {
       if (!cache[post.locale]) {
@@ -66,6 +66,8 @@ export function generateStaticParams() {
     tags.map(tag => ({ locale, tag: encodeURIComponent(tag) }))
   );
 }
+
+export const dynamicParams = false
 
 export default async function TagPage({
   params,

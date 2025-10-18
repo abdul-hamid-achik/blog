@@ -31,12 +31,14 @@ export async function generateMetadata({
   }
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   return allPages.map((page) => ({
     slug: page.slugAsParams,
     locale: page.locale
   }))
 }
+
+export const dynamicParams = false
 
 export default async function PagePage({ params }: PageProps) {
   const { slug, locale } = await params

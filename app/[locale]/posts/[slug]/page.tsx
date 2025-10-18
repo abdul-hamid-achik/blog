@@ -62,12 +62,14 @@ export async function generateMetadata({
   }
 }
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   return allPosts.map((post) => ({
     slug: post.slugAsParams,
     locale: post.locale
   }))
 }
+
+export const dynamicParams = false
 
 export default async function PostPage({ params }: PostProps) {
   const { slug, locale } = await params
