@@ -2,24 +2,25 @@ import { Mdx } from "@/components/mdx-components"
 import { getPainting } from "@/lib/data"
 import { getBaseURL } from "@/lib/utils"
 import { locales } from "@/navigation"
-import { allPaintings } from "contentlayer2/generated"
+import { allPaintings } from "content-collections"
 import { Metadata } from "next"
 import { unstable_setRequestLocale } from "next-intl/server"
 import { notFound } from "next/navigation"
 
 interface PaintingProps {
-  params: {
+  params: Promise<{
     slug: string
     locale: string
-  }
+  }>
 }
 
 export async function generateMetadata({
   params,
 }: PaintingProps): Promise<Metadata> {
+  const { slug, locale } = await params
   const painting = getPainting({
-    slug: decodeURIComponent(params?.slug),
-    locale: params?.locale,
+    slug: decodeURIComponent(slug),
+    locale,
   })
 
   if (!painting) {
@@ -35,7 +36,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       creator: "@abdulachik",
       title: painting.title,
-      description: painting.description,
+      description: painting.description || undefined,
       images: [
         {
           url:
@@ -47,7 +48,7 @@ export async function generateMetadata({
     },
     openGraph: {
       title: painting.title,
-      description: painting.description,
+      description: painting.description || undefined,
       type: "article",
       images: [
         {
@@ -63,7 +64,7 @@ export async function generateMetadata({
   }
 }
 
-export async function generateStaticParams(): Promise<PaintingProps["params"][]> {
+export async function generateStaticParams() {
   return allPaintings.map((painting) => ({
     slug: painting.slugAsParams,
     locale: painting.locale
@@ -71,7 +72,7 @@ export async function generateStaticParams(): Promise<PaintingProps["params"][]>
 }
 
 export default async function PostPage({ params }: PaintingProps) {
-  const { locale } = params
+  const { slug, locale } = await params
 
   const isValidLocale = locales.some((cur) => cur === locale);
 
@@ -80,8 +81,8 @@ export default async function PostPage({ params }: PaintingProps) {
   unstable_setRequestLocale(locale);
 
   const painting = getPainting({
-    slug: decodeURIComponent(params.slug),
-    locale: params.locale,
+    slug: decodeURIComponent(slug),
+    locale,
   })
 
   if (!painting) {
@@ -91,14 +92,12 @@ export default async function PostPage({ params }: PaintingProps) {
   return (
     <article className="prose dark:prose-invert py-6">
       <h1 className="mb-2 text-xl md:text-4xl">{painting.title}</h1>
-      <div className="flex items-center">
-        <p className="text-sm">{painting.author}</p>
-        <span className="mx-2">•</span>
-        <p className="text-sm">{painting.country}</p>
-        <span className="mx-2">•</span>
-        <p className="text-sm">{painting.year}</p>
-        <span className="mx-2">•</span>
-        <p className="text-sm">{painting.readingTime.text}</p>
+      <div className="flex items-center flex-wrap gap-2">
+        {painting.author && <p className="text-sm">{painting.author}</p>}
+        {painting.author && painting.country && <span>•</span>}
+        {painting.country && <p className="text-sm">{painting.country}</p>}
+        {painting.country && painting.year && <span>•</span>}
+        {painting.year && <p className="text-sm">{painting.year}</p>}
       </div>
       {painting.description && (
         <p className="text-sm mt-0 text-slate-700 dark:text-slate-200 md:text-md">
@@ -106,7 +105,7 @@ export default async function PostPage({ params }: PaintingProps) {
         </p>
       )}
       <hr className="my-4" />
-      <Mdx code={painting.body.code} />
+      <Mdx code={painting.mdx} />
     </article>
   )
 }

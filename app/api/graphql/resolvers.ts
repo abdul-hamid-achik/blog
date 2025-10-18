@@ -3,7 +3,7 @@ import { env } from "@/env.mjs";
 import { chatModel, openai as model, vectorStore } from "@/lib/ai";
 import { Posts, getPage, getContent } from "@/lib/data";
 import { lastfm } from "@/lib/lastfm";
-import { Document } from "contentlayer2/core";
+import { Document } from "langchain/document";
 import { GraphQLResolveInfo } from 'graphql';
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import { ConversationalRetrievalQAChain, VectorDBQAChain } from "langchain/chains";
@@ -63,7 +63,7 @@ const executor = await initializeAgentExecutorWithOptions(tools, chatModel, {
 
 function groupByMonth(posts: Posts) {
   return groupBy(posts, (post) => {
-    const date = new Date(post.date)
+    const date = new Date(post.date || "")
     return `${date.getFullYear()}-${date.getMonth() + 1}`
   })
 }

@@ -15,7 +15,7 @@ export const config = {
 };
 
 export default async function middleware(request: NextRequest) {
-  const ip = request.ip ?? '127.0.0.1';
+  const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? '127.0.0.1';
 
   const { success } = await ratelimit.limit(
     ip
@@ -31,6 +31,5 @@ export default async function middleware(request: NextRequest) {
     localePrefix: 'as-needed'
   });
 
-  // @TODO: fix this when types pass correctly
   return nextIntlMiddleware(request as any);
 };

@@ -24,22 +24,25 @@ export const metadata = {
 
 interface RootLayoutProps {
   children: React.ReactNode
-  params: {
+  params: Promise<{
     locale: string
-  }
+  }>
 }
 
 
 export function generateStaticParams() {
-  return locales.map((locale) => { locale })
+  return locales.map((locale) => ({ locale }))
 }
 
 export default async function LocaleLayout({ children, params }: RootLayoutProps) {
-  const { locale } = params
+  const { locale } = await params
 
-  const messages = await (getMessages(params) as Promise<{
-    messages: AbstractIntlMessages
-  }>).catch(() => notFound()).then(requestConfig => requestConfig?.messages)
+  let messages: AbstractIntlMessages
+  try {
+    messages = (await import(`@/translations/${locale}.json`)).default as AbstractIntlMessages
+  } catch {
+    notFound()
+  }
 
   return (
     <html lang={locale}>

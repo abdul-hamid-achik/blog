@@ -1,6 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from "@vercel/og"
-import { allDocuments } from "contentlayer2/generated"
+import { allPages, allPaintings, allPosts } from "content-collections"
+
+// Create allDocuments by combining all collections
+const allDocuments = [...allPosts, ...allPages, ...allPaintings]
 
 export const runtime = "edge"
 

@@ -28,8 +28,8 @@
       "@/*": [
         "./*"
       ],
-      "contentlayer2/generated": [
-        "./.contentlayer/generated"
+      "content-collections": [
+        "./.content-collections/generated"
       ]
     }
   },
@@ -38,7 +38,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".contentlayer/generated",
+    ".content-collections/generated",
     "scripts/ingest.ts",
     "codegen.mjs",
     "scripts/export.mjs"

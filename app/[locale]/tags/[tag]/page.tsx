@@ -1,4 +1,4 @@
-import { allPosts } from "contentlayer2/generated"
+import { allPosts } from "content-collections"
 import { getPosts } from "@/lib/data"
 import { getBaseURL } from "@/lib/utils"
 import { locales } from "@/navigation"
@@ -9,19 +9,20 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 interface TagProps {
-  params: {
+  params: Promise<{
     tag: string
     locale: string
-  }
+  }>
 }
 
 
 export async function generateMetadata({
   params,
 }: TagProps): Promise<Metadata> {
+  const { tag, locale } = await params
   const posts = getPosts({
-    tag: params.tag,
-    locale: params.locale
+    tag,
+    locale
   })
 
   if (!posts) {
@@ -30,11 +31,11 @@ export async function generateMetadata({
 
   return {
     metadataBase: new URL(getBaseURL()),
-    title: params.tag,
-    description: `Posts tagged with ${params.tag}`,
+    title: tag,
+    description: `Posts tagged with ${tag}`,
     keywords: posts.map((post) => post.tags?.join(", ")).join(", "),
     openGraph: {
-      title: params.tag,
+      title: tag,
       type: "article",
       images: posts.map((post) => ({
         url:
@@ -43,12 +44,12 @@ export async function generateMetadata({
             : `http://localhost:3000/api/og?title=${post.title}`,
       })),
       authors: ["Abdul Hamid Achik"],
-      url: `https://www.abdulachik.dev/tags/${params.tag}`,
+      url: `https://www.abdulachik.dev/tags/${tag}`,
     },
   }
 }
 
-export async function generateStaticParams(): Promise<TagProps["params"][]> {
+export async function generateStaticParams() {
   const localeTagCache = allPosts.reduce((cache, post) => {
     if (post.locale && post.tags) {
       if (!cache[post.locale]) {
@@ -66,11 +67,10 @@ export async function generateStaticParams(): Promise<TagProps["params"][]> {
   );
 }
 
-export default function TagPage({
-  params: { locale, tag },
-}: {
-  params: { locale: string; tag: string }
-}) {
+export default async function TagPage({
+  params,
+}: TagProps) {
+  const { locale, tag } = await params
   const isValidLocale = locales.some((cur) => cur === locale);
 
   if (!isValidLocale) notFound();
@@ -91,21 +91,25 @@ export default function TagPage({
 
       {posts
         .sort((first, second) => {
-          const firstDate = DateTime.fromISO(first.date)
-          const secondDate = DateTime.fromISO(second.date)
+          const firstDate = DateTime.fromISO(first.date || "")
+          const secondDate = DateTime.fromISO(second.date || "")
 
           return secondDate.toMillis() - firstDate.toMillis()
         })
         .map((post) => (
-          <article key={post._id}>
+          <article key={post._meta.path}>
             <Link href={`${baseUrl}/${locale}${post.slug}`}>
               <h2 className="mb-0">{post.title}</h2>
             </Link>
             <div className="flex items-center">
-              <p className="text-sm">
-                {DateTime.fromISO(post.date).toRelative()}
-              </p>
-              <span className="mx-2 my-0">•</span>
+              {post.date && (
+                <>
+                  <p className="text-sm">
+                    {DateTime.fromISO(post.date).toRelative()}
+                  </p>
+                  <span className="mx-2 my-0">•</span>
+                </>
+              )}
               <p className="text-sm">{post.readingTime.text}</p>
             </div>
             {post.description && <p className="m-0">{post.description}</p>}

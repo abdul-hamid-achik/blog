@@ -12,10 +12,11 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 export default async function Page({
-  params: { locale },
+  params,
 }: {
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }) {
+  const { locale } = await params
   const isValidLocale = locales.some((cur) => cur === locale);
 
   if (!isValidLocale) notFound();
@@ -30,21 +31,25 @@ export default async function Page({
     <div className="prose dark:prose-invert mt-4">
       {posts
         .sort((first, second) => {
-          const firstDate = DateTime.fromISO(first.date)
-          const secondDate = DateTime.fromISO(second.date)
+          const firstDate = DateTime.fromISO(first.date || "")
+          const secondDate = DateTime.fromISO(second.date || "")
 
           return secondDate.toMillis() - firstDate.toMillis()
         })
         .map((post) => (
-          <article key={post._id}>
+          <article key={post._meta.path}>
             <Link href={`${baseUrl}/${locale}${post.slug}`}>
               <h2 className="mb-0">{post.title}</h2>
             </Link>
             <div className="flex items-center">
-              <p className="text-sm">
-                {DateTime.fromISO(post.date).toRelative()}
-              </p>
-              <span className="mx-2 my-0">•</span>
+              {post.date && (
+                <>
+                  <p className="text-sm">
+                    {DateTime.fromISO(post.date).toRelative()}
+                  </p>
+                  <span className="mx-2 my-0">•</span>
+                </>
+              )}
               <p className="text-sm">{post.readingTime.text}</p>
             </div>
             {post.description && <p className="m-0">{post.description}</p>}

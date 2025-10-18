@@ -1,7 +1,7 @@
 "use client"
 
 import { Link } from "@/navigation"
-import { useMDXComponent } from "next-contentlayer2/hooks"
+import { useMDXComponent } from "@content-collections/mdx/react"
 import Image from "next/image"
 import { Tweet } from 'react-tweet'
 import {

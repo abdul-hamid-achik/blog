@@ -1,4 +1,6 @@
-import { allDocuments, allPages as pages, allPaintings as paintings, allPosts as posts } from "contentlayer2/generated";
+import { allPages as pages, allPaintings as paintings, allPosts as posts } from "content-collections";
+
+const allDocuments = [...posts, ...pages, ...paintings];
 
 
 type Paintings = typeof paintings;
@@ -122,7 +124,7 @@ export function getContent(ids?: string[], type?: string, locale?: string) {
   let everything = allDocuments;
 
   if (type) {
-    everything = everything.filter(document => document.type === type);
+    everything = everything.filter(document => document._meta.path.startsWith(type));
   }
 
   if (locale) {
@@ -133,6 +135,6 @@ export function getContent(ids?: string[], type?: string, locale?: string) {
     return everything;
   }
 
-  return everything.filter(item => ids.includes(item._id));
+  return everything.filter(item => ids.includes(item._meta.path));
 }
 

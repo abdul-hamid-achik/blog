@@ -1,6 +1,8 @@
 "use client"
 
-import { DocumentTypes, allDocuments } from "contentlayer2/generated";
+import { allPages, allPaintings, allPosts } from "content-collections";
+
+const allDocuments = [...allPosts, ...allPages, ...allPaintings];
 import { Content } from "@/.generated/graphql";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandLoading, CommandSeparator } from "@/components/ui/command";
 import { getBaseURL } from "@/lib/utils";
@@ -32,36 +34,41 @@ const SEARCH_QUERY = gql`
   }
 `;
 
-function groupByType(results: DocumentTypes[], locale: string) {
+type DocumentType = typeof allDocuments[number];
+
+function groupByType(results: DocumentType[], locale: string) {
   return results.reduce((groups: { [key: string]: Content[] }, result) => {
-    const group = result.type;
+    const group = result._meta.path.split("/")[0];
     if (group && result.locale === locale) {
       if (!groups[group]) {
         groups[group] = [];
       }
-      groups[group].push(result);
+      groups[group].push(result as any);
     }
     return groups;
   }, {});
 }
 
-const CommandItemComponent = ({ document, handleSelect }: { document: DocumentTypes | Content, handleSelect: (document: DocumentTypes | Content) => () => void }) => (
-  <CommandItem key={document._id} onSelect={handleSelect(document)} value={document._id!}>
-    <div className="flex items-center w-full">
-      <Image
-        src={('image' in document && document.image) ? document.image : `${getBaseURL()}/api/og?title=${encodeURIComponent(document.title!)}`}
-        alt={document.title!}
-        width={64}
-        height={Math.round(64 * (3 / 4))}
-        style={{
-          width: 'auto',
-          height: 'auto'
-        }}
-      />
-      <span className="text-sm text-muted-foreground mx-4 md:block hidden">{document.title}</span>
-    </div>
-  </CommandItem>
-)
+const CommandItemComponent = ({ document, handleSelect }: { document: DocumentType | Content, handleSelect: (document: DocumentType | Content) => () => void }) => {
+  const key = '_meta' in document ? document._meta.path : document.__typename || '';
+  return (
+    <CommandItem key={key} onSelect={handleSelect(document)} value={key}>
+      <div className="flex items-center w-full">
+        <Image
+          src={('image' in document && document.image) ? document.image : `${getBaseURL()}/api/og?title=${encodeURIComponent(document.title!)}`}
+          alt={document.title!}
+          width={64}
+          height={Math.round(64 * (3 / 4))}
+          style={{
+            width: 'auto',
+            height: 'auto'
+          }}
+        />
+        <span className="text-sm text-muted-foreground mx-4 md:block hidden">{document.title}</span>
+      </div>
+    </CommandItem>
+  )
+}
 
 export function Search() {
   const locale = useLocale();
@@ -126,9 +133,9 @@ export function Search() {
         {data?.search?.results && data?.search?.count > 0 && (
           <CommandGroup heading="Suggestions">
             {data.search.results.map(({ _id }: Content) => {
-              const document = allDocuments.find(doc => doc._id === _id && doc.locale === locale);
+              const document = allDocuments.find(doc => doc._meta.path === _id && doc.locale === locale);
               return document ? (
-                <CommandItemComponent document={document} handleSelect={handleSelect} key={document._id} />
+                <CommandItemComponent document={document} handleSelect={handleSelect} key={document._meta.path} />
               ) : null;
             })}
           </CommandGroup>)}

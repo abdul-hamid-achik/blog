@@ -1,4 +1,6 @@
-import { allDocuments, } from "contentlayer2/generated";
+import { allPages, allPaintings, allPosts } from "content-collections";
+
+const allDocuments = [...allPosts, ...allPages, ...allPaintings];
 import { documents } from "@/db/schema";
 import { vectorStore } from "@/lib/ai";
 import { db } from "@/lib/db";
@@ -20,7 +22,6 @@ function createPageContent(doc: any) {
     );
   }
 
-  // Add additional fields that are important for semantic vector usage in Pinecone
   if (doc.type === 'Post') {
     fields.push(
       { label: 'Date', value: doc.date },
@@ -50,7 +51,7 @@ async function main() {
 
   const docs = allDocuments.map(
     (doc) => ({
-      id: doc._id,
+      id: doc._meta.path,
       pageContent: createPageContent(doc),
       metadata: constructMetadata(doc)
     })
