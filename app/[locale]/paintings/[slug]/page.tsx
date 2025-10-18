@@ -64,7 +64,7 @@ export async function generateMetadata({
   }
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return allPaintings.map((painting) => ({
     slug: painting.slugAsParams,
     locale: painting.locale

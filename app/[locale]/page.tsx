@@ -10,7 +10,7 @@ import { DateTime } from "luxon"
 import { unstable_setRequestLocale } from "next-intl/server"
 import { notFound } from "next/navigation"
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return locales.map((locale) => ({ locale }))
 }
 
