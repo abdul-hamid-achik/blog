@@ -31,7 +31,7 @@ export async function generateMetadata({
   }
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return allPages.map((page) => ({
     slug: page.slugAsParams,
     locale: page.locale

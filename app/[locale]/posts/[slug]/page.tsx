@@ -62,7 +62,7 @@ export async function generateMetadata({
   }
 }
 
-export async function generateStaticParams() {
+export function generateStaticParams() {
   return allPosts.map((post) => ({
     slug: post.slugAsParams,
     locale: post.locale

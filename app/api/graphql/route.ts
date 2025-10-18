@@ -62,10 +62,11 @@ const server = new ApolloServer<Context>({
 }) as any
 
 const options = {
+  // eslint-disable-next-line require-await
   context: async (req: NextRequest) => {
     const locale = req.headers.get("locale") || "en"
 
-    return { req, locale }
+    return Promise.resolve({ req, locale })
   },
 }
 
@@ -77,7 +78,7 @@ const handler = startServerAndCreateNextHandler<NextRequest, Context>(
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
-export async function OPTIONS(_request: Request) {
+export function OPTIONS(_request: Request) {
   return new Response(undefined, { status: status.OK })
 }
 
