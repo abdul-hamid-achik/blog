@@ -2,7 +2,7 @@ import { Mdx } from "@/components/mdx-components";
 import { getPage } from "@/lib/data";
 import { getBaseURL } from "@/lib/utils";
 import { locales } from "@/navigation";
-import { allPages } from "contentlayer/generated";
+import { allPages } from "contentlayer2/generated";
 import { Metadata } from "next";
 import { unstable_setRequestLocale } from 'next-intl/server';
 import { notFound } from "next/navigation";

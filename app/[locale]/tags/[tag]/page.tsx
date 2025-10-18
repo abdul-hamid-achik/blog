@@ -1,4 +1,4 @@
-import { allPosts } from "@/.contentlayer/generated"
+import { allPosts } from "contentlayer2/generated"
 import { getPosts } from "@/lib/data"
 import { getBaseURL } from "@/lib/utils"
 import { locales } from "@/navigation"

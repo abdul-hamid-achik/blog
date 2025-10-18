@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from "@vercel/og"
-import { allDocuments } from "contentlayer/generated"
+import { allDocuments } from "contentlayer2/generated"
 
 export const runtime = "edge"
 

@@ -1,4 +1,4 @@
-import { allDocuments, } from ".contentlayer/generated/index.mjs";
+import { allDocuments, } from "contentlayer2/generated";
 import { documents } from "@/db/schema";
 import { vectorStore } from "@/lib/ai";
 import { db } from "@/lib/db";

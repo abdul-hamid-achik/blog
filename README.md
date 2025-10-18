@@ -1,6 +1,6 @@
 # Abdulachik.dev
 
-This is a personal blog built with [Next.js](https://nextjs.org/) and [Contentlayer](https://contentlayer.dev/). The blog is a platform to share ideas, experiences, and stories. It features technical posts, reflections on literature and philosophy, and personal narratives. You can visit the blog at [https://www.abdulachik.dev](https://www.abdulachik.dev).
+This is a personal blog built with [Next.js](https://nextjs.org/) and [Contentlayer2](https://github.com/timlrx/contentlayer2). The blog is a platform to share ideas, experiences, and stories. It features technical posts, reflections on literature and philosophy, and personal narratives. You can visit the blog at [https://www.abdulachik.dev](https://www.abdulachik.dev).
 
 ## Development
 
@@ -12,7 +12,7 @@ bun dev
 
 ## Codebase Overview
 
-The codebase is structured around Next.js, a React framework, and Contentlayer, a data layer for modern applications. It uses Apollo for handling GraphQL operations and Pinecone for vector search. The blog supports multiple languages and uses `next-intl` for internationalization. The content of the blog (posts, pages, and paintings) is stored in markdown files and processed by Contentlayer. The blog also features a search functionality that uses Apollo Client to fetch data from a GraphQL server.
+The codebase is structured around Next.js, a React framework, and Contentlayer2, a data layer for modern applications. It uses Apollo for handling GraphQL operations and Pinecone for vector search. The blog supports multiple languages and uses `next-intl` for internationalization. The content of the blog (posts, pages, and paintings) is stored in markdown files and processed by Contentlayer2. The blog also features a search functionality that uses Apollo Client to fetch data from a GraphQL server.
 
 ## Acknowledgements
 

@@ -1,6 +1,6 @@
 import "./env.mjs"
 
-import { withContentlayer } from "next-contentlayer"
+import { withContentlayer } from "next-contentlayer2"
 import withNextIntlPlugin from "next-intl/plugin"
 
 const withNextIntl = withNextIntlPlugin("./i18n.ts")
@@ -17,11 +17,11 @@ const nextConfig = {
       },
       ...(process.env.NODE_ENV !== "production"
         ? [
-            {
-              protocol: "http",
-              hostname: "localhost",
-            },
-          ]
+          {
+            protocol: "http",
+            hostname: "localhost",
+          },
+        ]
         : []),
     ],
   },

@@ -1,4 +1,4 @@
-import { allPages, allPaintings, allPosts } from '@/.contentlayer/generated';
+import { allPages, allPaintings, allPosts } from 'contentlayer2/generated';
 import { getBaseURL } from '@/lib/utils';
 import { MetadataRoute } from 'next';
 

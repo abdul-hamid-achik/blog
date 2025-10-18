@@ -1,4 +1,4 @@
-import { allDocuments, allPages as pages, allPaintings as paintings, allPosts as posts } from "@/.contentlayer/generated";
+import { allDocuments, allPages as pages, allPaintings as paintings, allPosts as posts } from "contentlayer2/generated";
 
 
 type Paintings = typeof paintings;

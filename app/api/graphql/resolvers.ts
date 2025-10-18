@@ -3,7 +3,7 @@ import { env } from "@/env.mjs";
 import { chatModel, openai as model, vectorStore } from "@/lib/ai";
 import { Posts, getPage, getContent } from "@/lib/data";
 import { lastfm } from "@/lib/lastfm";
-import { Document } from "contentlayer/core";
+import { Document } from "contentlayer2/core";
 import { GraphQLResolveInfo } from 'graphql';
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import { ConversationalRetrievalQAChain, VectorDBQAChain } from "langchain/chains";

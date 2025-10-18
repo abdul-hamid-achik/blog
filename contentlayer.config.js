@@ -3,7 +3,7 @@ import {
   defineDocumentType,
   defineNestedType,
   makeSource,
-} from "contentlayer/source-files"
+} from "contentlayer2/source-files"
 import readingTime from "reading-time"
 import codeHikeTheme from "./contentlayer.theme"
 
@@ -15,7 +15,7 @@ const getLocale = (path) => {
   return pathArray.length > 2 ? pathArray.slice(-2)[0] : "en"
 }
 
-/** @type {import('contentlayer/source-files').ComputedFields} */
+/** @type {import('contentlayer2/source-files').ComputedFields} */
 const computedFields = {
   slug: {
     type: "string",

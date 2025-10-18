@@ -1,6 +1,6 @@
 "use client"
 
-import { DocumentTypes, allDocuments } from "@/.contentlayer/generated";
+import { DocumentTypes, allDocuments } from "contentlayer2/generated";
 import { Content } from "@/.generated/graphql";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandLoading, CommandSeparator } from "@/components/ui/command";
 import { getBaseURL } from "@/lib/utils";
