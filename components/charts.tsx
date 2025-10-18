@@ -8,14 +8,13 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
-  Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend } from "@/components/ui/chart";
 
 
 interface PostsOverTime {
@@ -106,7 +105,7 @@ export function PostsOverTime() {
   const hsl = theme?.cssVars[mode === "dark" ? "dark" : "light"].primary
 
   return (
-    <div className="h-[200px] my-10">
+    <ChartContainer className="my-10 h-[200px]">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data?.postsOverTime || []}
@@ -119,6 +118,8 @@ export function PostsOverTime() {
         >
           <XAxis dataKey="month" />
           <YAxis />
+          <ChartTooltip content={<ChartTooltipContent />} />
+          <ChartLegend />
           <Line
             type="monotone"
             dataKey="count"
@@ -134,7 +135,7 @@ export function PostsOverTime() {
           />
         </LineChart>
       </ResponsiveContainer>
-    </div>
+    </ChartContainer>
   )
 }
 export function ReadingTimeDistribution() {
@@ -147,7 +148,7 @@ export function ReadingTimeDistribution() {
   const hsl = theme?.cssVars[mode === "dark" ? "dark" : "light"].primary
 
   return (
-    <div className="h-[200px] my-10">
+    <ChartContainer className="my-10 h-[200px]">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           width={500}
@@ -158,40 +159,9 @@ export function ReadingTimeDistribution() {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="category" />
           <YAxis />
-          <Tooltip
-            content={({ active, payload, label }) => {
-              if (active && payload && payload.length) {
-                const totalPosts = data?.readingTimeDistribution?.reduce((total: number, item: { count: number }) => total + item.count, 0) || 0;
-                const percentage = (((payload[0]?.value || 0) as number) / totalPosts * 100).toFixed(2);
-                return (
-                  <div className="rounded-lg border bg-background p-2 shadow-sm">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="flex flex-col">
-                        <span className="text-[0.70rem] uppercase text-muted-foreground">
-                          Category
-                        </span>
-                        <span className="font-bold text-muted-foreground">
-                          {payload[0].payload.category}
-                        </span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-[0.70rem] uppercase text-muted-foreground">
-                          Count
-                        </span>
-                        <span className="font-bold">
-                          {payload[0].value} ({percentage}%)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )
-              }
+          <ChartTooltip content={<ChartTooltipContent />} />
 
-              return null
-            }}
-          />
-
-          <Legend
+          <ChartLegend
             wrapperStyle={{
               fill: "var(--theme-primary)",
               opacity: 1,
@@ -209,7 +179,7 @@ export function ReadingTimeDistribution() {
           />
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </ChartContainer>
   )
 }
 
@@ -222,44 +192,14 @@ export const TopArtists = () => {
   if (error) return <Alert variant="destructive" className="h-[200px] my-10">{error.message}</Alert>;
 
   return (
-    <div className="h-[200px] my-10">
+    <ChartContainer className="my-10 h-[200px]">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart width={500} height={300} data={data.topArtists} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <Tooltip
-            content={({ active, payload }) => {
-              if (active && payload && payload.length) {
-                const data = payload[0].payload
-                return (
-                  <div className="bg-white dark:bg-gray-800 p-2 rounded shadow text-sm">
-                    <div className="flex items-center">
-                      <div className="mr-2">
-                        <span className="font-bold">
-                          {data.name}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="font-bold">
-                          {data.scrobbles} scrobbles
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )
-              }
-
-              return null
-            }}
-          />
-          <Legend
-            wrapperStyle={{
-              fill: "var(--theme-primary)",
-              opacity: 1,
-              "--theme-primary": `hsl(${hsl})`,
-            } as React.CSSProperties}
-          />
+          <ChartTooltip content={<ChartTooltipContent />} />
+          <ChartLegend />
           <Bar
             dataKey="scrobbles"
             fill="var(--theme-primary)"
@@ -267,11 +207,11 @@ export const TopArtists = () => {
               fill: "var(--theme-primary)",
               opacity: 1,
               "--theme-primary": `hsl(${hsl})`,
-            } as React.CSSProperties}
+            }}
           />
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </ChartContainer>
   );
 };
 
@@ -284,31 +224,14 @@ export const TopTags = () => {
   if (error) return <Alert variant="destructive" className="h-[200px] my-10">{error.message}</Alert>;
 
   return (
-    <div className="h-[200px] my-10">
+    <ChartContainer className="my-10 h-[200px]">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart width={500} height={300} data={data.topTags} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <Tooltip
-            content={({ active, payload, label }) => {
-              if (active && payload && payload.length) {
-                return (
-                  <div className="bg-white dark:bg-gray-800 p-2 rounded-md text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    <div className="text-muted-foreground">{`${label} : ${payload[0].value}`}</div>
-                  </div>
-                );
-              }
-              return null;
-            }}
-          />
-          <Legend
-            wrapperStyle={{
-              fill: "var(--theme-primary)",
-              opacity: 1,
-              "--theme-primary": `hsl(${hsl})`,
-            } as React.CSSProperties}
-          />
+          <ChartTooltip content={<ChartTooltipContent />} />
+          <ChartLegend />
           <Bar
             dataKey="count"
             fill="var(--theme-primary)"
@@ -316,11 +239,11 @@ export const TopTags = () => {
               fill: "var(--theme-primary)",
               opacity: 1,
               "--theme-primary": `hsl(${hsl})`,
-            } as React.CSSProperties}
+            }}
           />
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </ChartContainer>
   );
 };
 
@@ -333,48 +256,14 @@ export const TopTracks = () => {
   if (error) return <Alert variant="destructive" className="h-[200px] my-10">{error.message}</Alert>;
 
   return (
-    <div className="h-[200px] my-10">
+    <ChartContainer className="my-10 h-[200px]">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart width={500} height={300} data={data.topTracks} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <Tooltip
-            content={({ active, payload }) => {
-              if (active && payload && payload.length) {
-                const data = payload[0].payload
-                return (
-                  <div className="bg-white dark:bg-gray-800 p-2 rounded shadow text-sm">
-                    <div className="flex items-center space-x-4">
-                      <div className="mr-2">
-                        <span className="font-bold">
-                          {data.name}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="font-bold">
-                          {data.stats.userPlayCount} plays
-                        </span>
-                      </div>
-                      <div>
-                        <span className="font-bold">
-                          {data.artist.name}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )
-              }
-              return null
-            }}
-          />
-          <Legend
-            wrapperStyle={{
-              fill: "var(--theme-primary)",
-              opacity: 1,
-              "--theme-primary": `hsl(${hsl})`,
-            } as React.CSSProperties}
-          />
+          <ChartTooltip content={<ChartTooltipContent />} />
+          <ChartLegend />
           <Bar
             dataKey="stats.userPlayCount"
             fill="var(--theme-primary)"
@@ -382,11 +271,11 @@ export const TopTracks = () => {
               fill: "var(--theme-primary)",
               opacity: 1,
               "--theme-primary": `hsl(${hsl})`,
-            } as React.CSSProperties}
+            }}
           />
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </ChartContainer>
   );
 };
 

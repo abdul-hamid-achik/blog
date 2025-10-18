@@ -1,7 +1,7 @@
 import { Resolvers } from "@/.generated/graphql";
 import { env } from "@/env.mjs";
 import { chatModel, openai as model, vectorStore } from "@/lib/ai";
-import { Posts, getPage, getContent } from "@/lib/data";
+import { Posts, getPage, getContent, ContentType, Locale } from "@/lib/data";
 import { lastfm } from "@/lib/lastfm";
 import { Document } from "langchain/document";
 import { GraphQLResolveInfo } from 'graphql';
@@ -101,32 +101,34 @@ const resolvers: Resolvers = {
   Query: {
     posts(root, args, context, info: GraphQLResolveInfo) {
       const { locale } = context
-      return getContent([], 'Post', locale)
+      return getContent([], ContentType.POST, locale as Locale)
     },
 
     paintings(root, args, context: Context, info: GraphQLResolveInfo) {
       const { locale } = context;
-      return getContent([], 'Paint', locale)
+      return getContent([], ContentType.PAINTING, locale as Locale)
     },
 
     pages(root, args, context: Context, info: GraphQLResolveInfo) {
       const { locale } = context
-      return getContent([], 'Page', locale)
+      return getContent([], ContentType.PAGE, locale as Locale)
     },
 
     content(root, args, context: Context, info: GraphQLResolveInfo) {
       const { locale } = context
-      return getContent([], undefined, locale)
+      return getContent([], undefined, locale as Locale)
     },
 
     postsOverTime(root, args, context: Context, info: GraphQLResolveInfo) {
       const { locale } = context
-      const posts = getContent([], "Post", locale)
+      const posts = getContent([], ContentType.POST, locale as Locale)
       const groupedPosts = groupByMonth(posts as Posts)
-      return map(groupedPosts, (posts, month) => ({
+      const items = map(groupedPosts, (posts, month) => ({
         month,
         count: posts.length,
       }))
+      // Sort by YYYY-M or YYYY-MM lexical order
+      return items.sort((a, b) => a.month.localeCompare(b.month))
     },
 
     readingTimeDistribution(
@@ -136,12 +138,14 @@ const resolvers: Resolvers = {
       info: GraphQLResolveInfo
     ) {
       const { locale } = context
-      const posts = getContent([], "Post", locale)
+      const posts = getContent([], ContentType.POST, locale as Locale)
       const distribution = categorizeReadingTime(posts as Posts)
-      return map(distribution, (count, category) => ({
+      const items = map(distribution, (count, category) => ({
         category,
         count,
       }))
+      const order = ["0-2 minutes", "2-5 minutes", "5-10 minutes", "10+ minutes"]
+      return items.sort((a, b) => order.indexOf(a.category) - order.indexOf(b.category))
     },
 
     async search(root, { query, k = 5 }, context: Context, info: GraphQLResolveInfo) {
@@ -205,7 +209,7 @@ const resolvers: Resolvers = {
 
   Content: {
     __resolveType(obj) {
-      if (obj?.type === 'Page' || obj?.type === 'Post' || obj?.type === 'Painting') {
+      if (obj?.type === ContentType.PAGE || obj?.type === ContentType.POST || obj?.type === ContentType.PAINTING) {
         return obj.type;
       }
       return null;

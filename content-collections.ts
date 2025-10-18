@@ -1,6 +1,7 @@
 import { defineCollection, defineConfig } from "@content-collections/core";
 import { compileMDX } from "@content-collections/mdx";
 import { z } from "zod";
+import { ContentType, Locale } from "./lib/data";
 
 const posts = defineCollection({
     name: "posts",
@@ -15,9 +16,10 @@ const posts = defineCollection({
         public: z.boolean().default(true),
     }),
     transform: async (document, context) => {
-        const getLocale = (path: string) => {
+        const getLocale = (path: string): Locale => {
             const pathArray = path.split(".");
-            return pathArray.length > 2 ? pathArray.slice(-2)[0] : "en";
+            const locale = pathArray.length > 2 ? pathArray.slice(-2)[0] : Locale.EN;
+            return locale as Locale;
         };
 
         const mdx = await compileMDX(context, document);
@@ -38,6 +40,7 @@ const posts = defineCollection({
                 words: 150
             },
             locale: getLocale(document._meta.filePath),
+            type: ContentType.POST,
         };
     },
 });
@@ -52,9 +55,10 @@ const pages = defineCollection({
         tags: z.array(z.string()).optional(),
     }),
     transform: async (document, context) => {
-        const getLocale = (path: string) => {
+        const getLocale = (path: string): Locale => {
             const pathArray = path.split(".");
-            return pathArray.length > 2 ? pathArray.slice(-2)[0] : "en";
+            const locale = pathArray.length > 2 ? pathArray.slice(-2)[0] : Locale.EN;
+            return locale as Locale;
         };
 
         const mdx = await compileMDX(context, document);
@@ -69,6 +73,7 @@ const pages = defineCollection({
                 .join("/")
                 .replace(/\.(ru|ar|es)(\.mdx)?$/, ""),
             locale: getLocale(document._meta.filePath),
+            type: ContentType.PAGE,
         };
     },
 });
@@ -88,9 +93,10 @@ const paintings = defineCollection({
         tags: z.array(z.string()).optional(),
     }),
     transform: async (document, context) => {
-        const getLocale = (path: string) => {
+        const getLocale = (path: string): Locale => {
             const pathArray = path.split(".");
-            return pathArray.length > 2 ? pathArray.slice(-2)[0] : "en";
+            const locale = pathArray.length > 2 ? pathArray.slice(-2)[0] : Locale.EN;
+            return locale as Locale;
         };
 
         const mdx = await compileMDX(context, document);
@@ -105,6 +111,7 @@ const paintings = defineCollection({
                 .join("/")
                 .replace(/\.(ru|ar|es)(\.mdx)?$/, ""),
             locale: getLocale(document._meta.filePath),
+            type: ContentType.PAINTING,
         };
     },
 });

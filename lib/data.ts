@@ -1,5 +1,18 @@
 import { allPages as pages, allPaintings as paintings, allPosts as posts } from "content-collections";
 
+export enum ContentType {
+  POST = "Post",
+  PAGE = "Page",
+  PAINTING = "Painting"
+}
+
+export enum Locale {
+  EN = "en",
+  RU = "ru",
+  ES = "es",
+  AR = "ar"
+}
+
 const allDocuments = [...posts, ...pages, ...paintings];
 
 
@@ -36,7 +49,7 @@ export function getPost(params: BaseParams) {
   const { slug, locale } = params;
 
   const post = posts.find(
-    (post) => post.slug.includes(slug ?? "") && post.locale === (locale ?? "en")
+    (post) => post.slug.includes(slug ?? "") && post.locale === (locale ?? Locale.EN)
   )
 
   if (!post) {
@@ -71,7 +84,7 @@ export function getPainting(params: BaseParams) {
   const { slug, locale } = params;
 
   const painting = paintings.find(
-    (painting) => painting.slug.includes(slug ?? "") && painting.locale === (locale ?? "en")
+    (painting) => painting.slug.includes(slug ?? "") && painting.locale === (locale ?? Locale.EN)
   )
 
   if (!painting) {
@@ -120,11 +133,11 @@ export function getPage(params?: PageParams) {
 }
 
 
-export function getContent(ids?: string[], type?: string, locale?: string) {
+export function getContent(ids?: string[], type?: ContentType, locale?: Locale) {
   let everything = allDocuments;
 
   if (type) {
-    everything = everything.filter(document => document._meta.path.startsWith(type));
+    everything = everything.filter(document => (document as any).type === type);
   }
 
   if (locale) {

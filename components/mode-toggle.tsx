@@ -1,9 +1,11 @@
 "use client"
 
 import { useTheme } from "next-themes"
+import { useMounted } from "@/hooks/use-mounted"
 
 export function ModeToggle() {
   const { setTheme, theme } = useTheme()
+  const mounted = useMounted()
 
   return (
     <button
@@ -11,7 +13,7 @@ export function ModeToggle() {
       className="border rounded-md w-8 h-8 md:w-6 md:h-6 flex items-center justify-center"
     >
       <span className="sr-only">Toggle mode</span>
-      {theme === "light" ? (
+      {!mounted ? null : theme === "light" ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"

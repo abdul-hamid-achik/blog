@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useRef } from "react"
-import ReactDOMServer from "react-dom/server"
+
 type EmbedProps = {
   children: React.ReactNode
 }
@@ -27,14 +27,13 @@ const Embed: React.FC<EmbedProps> = ({
     }
   }, [children])
 
-  const html = ReactDOMServer.renderToString(children as React.ReactElement)
-
   return (
     <div
       ref={embedRef}
       className="flex justify-center"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
+    >
+      {children}
+    </div>
   )
 }
 

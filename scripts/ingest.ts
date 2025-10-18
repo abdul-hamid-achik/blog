@@ -4,6 +4,7 @@ const allDocuments = [...allPosts, ...allPages, ...allPaintings];
 import { documents } from "@/db/schema";
 import { vectorStore } from "@/lib/ai";
 import { db } from "@/lib/db";
+import { ContentType } from "@/lib/data";
 
 function createPageContent(doc: any) {
   const fields = [
@@ -14,7 +15,7 @@ function createPageContent(doc: any) {
     { label: 'Body', value: doc.body.raw }
   ];
 
-  if (doc.type === 'Painting') {
+  if (doc.type === ContentType.PAINTING) {
     fields.push(
       { label: 'Author', value: doc.author },
       { label: 'Style', value: doc.style },
@@ -22,7 +23,7 @@ function createPageContent(doc: any) {
     );
   }
 
-  if (doc.type === 'Post') {
+  if (doc.type === ContentType.POST) {
     fields.push(
       { label: 'Date', value: doc.date },
       ...doc.tags?.map((tag: string) => ({ label: 'Tag', value: tag })) || [],
