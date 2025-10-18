@@ -71,8 +71,6 @@ export function generateStaticParams() {
   }))
 }
 
-export const dynamicParams = false
-
 export default async function PostPage({ params }: PaintingProps) {
   const { slug, locale } = await params
 

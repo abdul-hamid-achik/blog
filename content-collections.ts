@@ -24,15 +24,13 @@ const posts = defineCollection({
 
         const mdx = await compileMDX(context, document);
 
+        const slugWithoutLocale = document._meta.path.replace(/\.(ru|ar|es)$/, "");
+
         return {
             ...document,
             mdx,
-            slug: `/${document._meta.path.replace(/\.(ru|ar|es)(\.mdx)?$/, "")}`,
-            slugAsParams: document._meta.path
-                .split("/")
-                .slice(1)
-                .join("/")
-                .replace(/\.(ru|ar|es)(\.mdx)?$/, ""),
+            slug: `/${slugWithoutLocale}`,
+            slugAsParams: slugWithoutLocale,
             readingTime: {
                 text: "1 min read",
                 minutes: 1,
@@ -63,15 +61,13 @@ const pages = defineCollection({
 
         const mdx = await compileMDX(context, document);
 
+        const slugWithoutLocale = document._meta.path.replace(/\.(ru|ar|es)$/, "");
+
         return {
             ...document,
             mdx,
-            slug: `/${document._meta.path.replace(/\.(ru|ar|es)(\.mdx)?$/, "")}`,
-            slugAsParams: document._meta.path
-                .split("/")
-                .slice(1)
-                .join("/")
-                .replace(/\.(ru|ar|es)(\.mdx)?$/, ""),
+            slug: `/${slugWithoutLocale}`,
+            slugAsParams: slugWithoutLocale,
             locale: getLocale(document._meta.filePath),
             type: ContentType.PAGE,
         };
@@ -101,15 +97,13 @@ const paintings = defineCollection({
 
         const mdx = await compileMDX(context, document);
 
+        const slugWithoutLocale = document._meta.path.replace(/\.(ru|ar|es)$/, "");
+
         return {
             ...document,
             mdx,
-            slug: `/${document._meta.path.replace(/\.(ru|ar|es)(\.mdx)?$/, "")}`,
-            slugAsParams: document._meta.path
-                .split("/")
-                .slice(1)
-                .join("/")
-                .replace(/\.(ru|ar|es)(\.mdx)?$/, ""),
+            slug: `/${slugWithoutLocale}`,
+            slugAsParams: slugWithoutLocale,
             locale: getLocale(document._meta.filePath),
             type: ContentType.PAINTING,
         };

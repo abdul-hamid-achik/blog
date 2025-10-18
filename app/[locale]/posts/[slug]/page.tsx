@@ -69,8 +69,6 @@ export function generateStaticParams() {
   }))
 }
 
-export const dynamicParams = false
-
 export default async function PostPage({ params }: PostProps) {
   const { slug, locale } = await params
   const isValidLocale = locales.some((cur) => cur === locale);
