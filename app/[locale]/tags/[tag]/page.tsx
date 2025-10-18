@@ -2,10 +2,10 @@ import { allPosts } from "content-collections"
 import { getPosts } from "@/lib/data"
 import { getBaseURL } from "@/lib/utils"
 import { locales } from "@/navigation"
+import { Link } from "@/navigation"
 import { DateTime } from "luxon"
 import { Metadata } from "next"
 import { unstable_setRequestLocale } from "next-intl/server"
-import Link from "next/link"
 import { notFound } from "next/navigation"
 
 interface TagProps {
@@ -77,7 +77,6 @@ export default async function TagPage({
 
   unstable_setRequestLocale(locale);
 
-  const baseUrl = getBaseURL()
   const posts = getPosts({
     tag: decodeURIComponent(tag),
     locale
@@ -98,7 +97,7 @@ export default async function TagPage({
         })
         .map((post) => (
           <article key={post._meta.path}>
-            <Link href={`${baseUrl}/${locale}${post.slug}`}>
+            <Link href={`/posts/${post.slug}`}>
               <h2 className="mb-0">{post.title}</h2>
             </Link>
             <div className="flex items-center">
@@ -117,7 +116,7 @@ export default async function TagPage({
               <div className="mt-4 flex flex-wrap">
                 {post.tags.map((tag) => (
                   <Link
-                    href={`${baseUrl}/${locale}/tags/${tag}`}
+                    href={`/tags/${encodeURIComponent(tag)}`}
                     key={tag}
                     className="mr-2 text-sm"
                   >

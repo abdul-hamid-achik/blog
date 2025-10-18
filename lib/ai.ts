@@ -9,7 +9,7 @@ import { PGVectorStore } from "langchain/vectorstores/pgvector";
 const temperature = parseFloat(await get('temperature') || "0.8");
 
 export const openai = new OpenAI({
-  modelName: "gpt-4",
+  modelName: "gpt-4o-mini",
   openAIApiKey: env.OPEN_AI_API_KEY,
   temperature
 });
@@ -19,7 +19,7 @@ export const embeddings = new OpenAIEmbeddings({
 });
 
 export const chatModel = new ChatOpenAI({
-  modelName: "gpt-4",
+  modelName: "gpt-4o-mini",
   openAIApiKey: env.OPEN_AI_API_KEY,
   temperature
 })
@@ -30,10 +30,10 @@ export const vectorStore = await PGVectorStore.initialize(embeddings, {
     database: env.POSTGRES_DATABASE,
     user: env.POSTGRES_USER,
     password: env.POSTGRES_PASSWORD,
-    ssl: isProduction
+    ssl: true
   },
   tableName: "documents",
-  
+
   columns: {
     idColumnName: "id",
     vectorColumnName: "embedding",

@@ -12,7 +12,7 @@ bun dev
 
 ## Codebase Overview
 
-The codebase is structured around Next.js, a React framework, and Contentlayer2, a data layer for modern applications. It uses Apollo for handling GraphQL operations and Pinecone for vector search. The blog supports multiple languages and uses `next-intl` for internationalization. The content of the blog (posts, pages, and paintings) is stored in markdown files and processed by Contentlayer2. The blog also features a search functionality that uses Apollo Client to fetch data from a GraphQL server.
+The codebase is structured around Next.js, a React framework, and Contentlayer2, a data layer for modern applications. It uses Apollo for handling GraphQL operations and PGVector for vector search. The blog supports multiple languages and uses `next-intl` for internationalization. The content of the blog (posts, pages, and paintings) is stored in markdown files and processed by Contentlayer2. The blog also features a search functionality that uses Apollo Client to fetch data from a GraphQL server.
 
 ## Acknowledgements
 

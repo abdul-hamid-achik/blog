@@ -7,8 +7,7 @@ export default {
   out: "./db/migrations",
   dialect: 'postgresql',
   dbCredentials: {
-    ssl: isProduction,
-    url: env.POSTGRES_URL,
+    url: env.DATABASE_URL,
   },
   verbose: !isProduction
 } satisfies Config;
