@@ -14,7 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend } from "@/components/ui/chart";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 
 
 interface PostsOverTime {
@@ -100,7 +100,7 @@ export function PostsOverTime() {
   const { theme: mode } = useTheme()
 
   if (loading) return <Skeleton className="h-[200px] my-10" />
-  if (error) return <Alert variant="destructive" className="h-[200px] my-10">{error.message}</Alert>
+  if (error) return <Alert variant="destructive" className="h-[200px] my-10">{String(error?.message || error)}</Alert>
 
   const hsl = theme?.cssVars[mode === "dark" ? "dark" : "light"].primary
 
@@ -118,8 +118,8 @@ export function PostsOverTime() {
         >
           <XAxis dataKey="month" />
           <YAxis />
-          <ChartTooltip content={<ChartTooltipContent />} />
-          <ChartLegend />
+          <ChartTooltip content={ChartTooltipContent} />
+          <ChartLegend content={ChartLegendContent} />
           <Line
             type="monotone"
             dataKey="count"
@@ -143,7 +143,7 @@ export function ReadingTimeDistribution() {
   const { theme: mode } = useTheme()
 
   if (loading) return <Skeleton className="h-[200px] my-10" />
-  if (error) return <Alert variant="destructive" className="h-[200px] my-10">{error.message}</Alert>
+  if (error) return <Alert variant="destructive" className="h-[200px] my-10">{String(error?.message || error)}</Alert>
 
   const hsl = theme?.cssVars[mode === "dark" ? "dark" : "light"].primary
 
@@ -198,8 +198,8 @@ export const TopArtists = () => {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <ChartTooltip content={<ChartTooltipContent />} />
-          <ChartLegend />
+          <ChartTooltip content={ChartTooltipContent} />
+          <ChartLegend content={ChartLegendContent} />
           <Bar
             dataKey="scrobbles"
             fill="var(--theme-primary)"
@@ -207,7 +207,7 @@ export const TopArtists = () => {
               fill: "var(--theme-primary)",
               opacity: 1,
               "--theme-primary": `hsl(${hsl})`,
-            }}
+            } as React.CSSProperties}
           />
         </BarChart>
       </ResponsiveContainer>
@@ -230,8 +230,8 @@ export const TopTags = () => {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <ChartTooltip content={<ChartTooltipContent />} />
-          <ChartLegend />
+          <ChartTooltip content={ChartTooltipContent} />
+          <ChartLegend content={ChartLegendContent} />
           <Bar
             dataKey="count"
             fill="var(--theme-primary)"
@@ -239,7 +239,7 @@ export const TopTags = () => {
               fill: "var(--theme-primary)",
               opacity: 1,
               "--theme-primary": `hsl(${hsl})`,
-            }}
+            } as React.CSSProperties}
           />
         </BarChart>
       </ResponsiveContainer>
@@ -262,8 +262,8 @@ export const TopTracks = () => {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
-          <ChartTooltip content={<ChartTooltipContent />} />
-          <ChartLegend />
+          <ChartTooltip content={ChartTooltipContent} />
+          <ChartLegend content={ChartLegendContent} />
           <Bar
             dataKey="stats.userPlayCount"
             fill="var(--theme-primary)"
@@ -271,7 +271,7 @@ export const TopTracks = () => {
               fill: "var(--theme-primary)",
               opacity: 1,
               "--theme-primary": `hsl(${hsl})`,
-            }}
+            } as React.CSSProperties}
           />
         </BarChart>
       </ResponsiveContainer>

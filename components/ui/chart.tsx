@@ -42,16 +42,26 @@ export function ChartTooltip({
     return <RechartsTooltip content={content} {...props} />
 }
 
-export function ChartTooltipContent({
-    labelKey,
-    nameKey,
-}: {
-    labelKey?: string
-    nameKey?: string
-}) {
+export function ChartTooltipContent({ active, payload, label }: any) {
+    if (!active || !payload || !payload.length) {
+        return null
+    }
+
     return (
         <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
-            <div data-role="chart-tooltip" data-label-key={labelKey} data-name-key={nameKey} />
+            <div className="grid gap-2">
+                {label && <div className="font-medium">{label}</div>}
+                {payload.map((item: any, index: number) => (
+                    <div key={index} className="flex items-center gap-2">
+                        <div
+                            className="h-2 w-2 rounded-full"
+                            style={{ backgroundColor: item.color }}
+                        />
+                        <span className="text-muted-foreground">{item.name}:</span>
+                        <span className="font-bold">{item.value}</span>
+                    </div>
+                ))}
+            </div>
         </div>
     )
 }
@@ -63,8 +73,24 @@ export function ChartLegend({
     return <RechartsLegend content={content} {...props} />
 }
 
-export function ChartLegendContent() {
-    return <div data-role="chart-legend" />
+export function ChartLegendContent({ payload }: any) {
+    if (!payload || !payload.length) {
+        return null
+    }
+
+    return (
+        <div className="flex items-center justify-center gap-4">
+            {payload.map((item: any, index: number) => (
+                <div key={index} className="flex items-center gap-2">
+                    <div
+                        className="h-2 w-2 rounded-full"
+                        style={{ backgroundColor: item.color }}
+                    />
+                    <span className="text-sm text-muted-foreground">{item.value}</span>
+                </div>
+            ))}
+        </div>
+    )
 }
 
 
