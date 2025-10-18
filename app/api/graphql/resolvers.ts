@@ -1,7 +1,7 @@
 import { Resolvers } from "@/.generated/graphql";
 import { env } from "@/env.mjs";
 import { chatModel, openai as model, vectorStore } from "@/lib/ai";
-import { Posts, getPage, getContent, ContentType, Locale } from "@/lib/data";
+import { Posts, getPage, getContent, ContentType, Locale, ContentWithId } from "@/lib/data";
 import { lastfm } from "@/lib/lastfm";
 import { Document } from "langchain/document";
 import { GraphQLResolveInfo } from 'graphql';
@@ -14,6 +14,9 @@ import { ChainTool } from "langchain/tools";
 import { countBy, groupBy, map } from "lodash";
 import { v4 as uuid } from 'uuid';
 import type { Context } from './context';
+
+// Helper type for posts with _id
+type PostsWithId = ContentWithId<Posts>;
 
 
 const upstashRedisConfig = {
@@ -61,14 +64,14 @@ const executor = await initializeAgentExecutorWithOptions(tools, chatModel, {
   verbose: true,
 });
 
-function groupByMonth(posts: Posts) {
+function groupByMonth(posts: PostsWithId) {
   return groupBy(posts, (post) => {
     const date = new Date(post.date || "")
     return `${date.getFullYear()}-${date.getMonth() + 1}`
   })
 }
 
-function categorizeReadingTime(posts: Posts) {
+function categorizeReadingTime(posts: PostsWithId) {
   return countBy(posts, (post) => {
     const time = post.readingTime.minutes
     if (time < 2) return "0-2 minutes"
@@ -121,8 +124,8 @@ const resolvers: Resolvers = {
 
     postsOverTime(root, args, context: Context, info: GraphQLResolveInfo) {
       const { locale } = context
-      const posts = getContent([], ContentType.POST, locale as Locale)
-      const groupedPosts = groupByMonth(posts as Posts)
+      const posts = getContent([], ContentType.POST, locale as Locale) as PostsWithId
+      const groupedPosts = groupByMonth(posts)
       const items = map(groupedPosts, (posts, month) => ({
         month,
         count: posts.length,
@@ -138,8 +141,8 @@ const resolvers: Resolvers = {
       info: GraphQLResolveInfo
     ) {
       const { locale } = context
-      const posts = getContent([], ContentType.POST, locale as Locale)
-      const distribution = categorizeReadingTime(posts as Posts)
+      const posts = getContent([], ContentType.POST, locale as Locale) as PostsWithId
+      const distribution = categorizeReadingTime(posts)
       const items = map(distribution, (count, category) => ({
         category,
         count,
@@ -148,10 +151,11 @@ const resolvers: Resolvers = {
       return items.sort((a, b) => order.indexOf(a.category) - order.indexOf(b.category))
     },
 
-    async search(root, { query, k = 5 }, context: Context, info: GraphQLResolveInfo) {
+    async search(root, { query, k = 5, locale }, context: Context, info: GraphQLResolveInfo) {
       const foundContent = await vectorStore.similaritySearch(query, k!);
       const ids = [...new Set(foundContent.map(result => result.metadata._id))] as string[];
-      const results = getContent(ids)
+      const searchLocale = (locale || context.locale) as Locale;
+      const results = getContent(ids, undefined, searchLocale)
       const count = results.length
       return {
         results,

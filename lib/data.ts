@@ -21,7 +21,11 @@ type Posts = typeof posts
 type Pages = typeof pages;
 type Content = typeof allDocuments
 
-export type { Content, Pages, Paintings, Posts };
+type ContentWithId<T> = T extends readonly (infer U)[]
+  ? (U & { _id: string })[]
+  : T & { _id: string };
+
+export type { Content, Pages, Paintings, Posts, ContentWithId };
 export interface BaseParams {
   slug?: string;
   locale?: string;
@@ -133,7 +137,7 @@ export function getPage(params?: PageParams) {
 }
 
 
-export function getContent(ids?: string[], type?: ContentType, locale?: Locale) {
+export function getContent(ids?: string[], type?: ContentType, locale?: Locale): ContentWithId<Content> {
   let everything = allDocuments;
 
   if (type) {
@@ -145,9 +149,9 @@ export function getContent(ids?: string[], type?: ContentType, locale?: Locale) 
   }
 
   if (!ids || ids.length === 0) {
-    return everything;
+    return [...everything.map(item => ({ ...item, _id: item._meta.path }))] as ContentWithId<Content>;
   }
 
-  return everything.filter(item => ids.includes(item._meta.path));
+  return [...everything.filter(item => ids.includes(item._meta.path)).map(item => ({ ...item, _id: item._meta.path }))] as ContentWithId<Content>;
 }
 

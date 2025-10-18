@@ -32,7 +32,7 @@ type Query {
   readingTimeDistribution: [ReadingTimeDistribution]
 
   "Performs a semantic search across posts, pages, and paintings in my blog"
-  search(query: String!, k: Int): SearchResult
+  search(query: String!, k: Int, locale: String): SearchResult
 
   "Performs a VectorDBQAChain on my content and returns relevant results"
   answer(question: String!, k: Int): QA

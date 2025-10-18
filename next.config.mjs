@@ -15,6 +15,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "i.gr-assets.com",
       },
+      {
+        protocol: "https",
+        hostname: "www.abdulachik.dev",
+      },
       ...(process.env.NODE_ENV !== "production"
         ? [
           {
