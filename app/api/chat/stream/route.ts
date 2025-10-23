@@ -513,7 +513,7 @@ This is critical for providing relevant context about what they're actually view
 }
 
 // Handle preflight requests
-export async function OPTIONS(request: NextRequest) {
+export function OPTIONS(request: NextRequest) {
     return new Response(null, {
         status: 200,
         headers: {
