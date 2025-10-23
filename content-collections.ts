@@ -110,6 +110,39 @@ const paintings = defineCollection({
     },
 });
 
+const prompts = defineCollection({
+    name: "prompts",
+    directory: "content/prompts",
+    include: "**/*.mdx",
+    schema: z.object({
+        title: z.string(),
+        description: z.string().optional().nullable(),
+        locale: z.enum(['en', 'es', 'ru']),
+        promptType: z.enum(['chat-assistant', 'tool-instructions', 'page-context', 'smerdyakov-personality']),
+        parameters: z.array(z.string()).optional(),
+    }),
+    transform: async (document, context) => {
+        const getLocale = (path: string): Locale => {
+            const pathArray = path.split(".");
+            const locale = pathArray.length > 2 ? pathArray.slice(-2)[0] : Locale.EN;
+            return locale as Locale;
+        };
+
+        const mdx = await compileMDX(context, document);
+
+        const slugWithoutLocale = document._meta.path.replace(/\.(ru|ar|es)$/, "");
+
+        return {
+            ...document,
+            mdx,
+            slug: `/${slugWithoutLocale}`,
+            slugAsParams: slugWithoutLocale,
+            locale: getLocale(document._meta.filePath),
+            type: ContentType.PROMPT,
+        };
+    },
+});
+
 export default defineConfig({
-    collections: [posts, pages, paintings],
+    collections: [posts, pages, paintings, prompts],
 });

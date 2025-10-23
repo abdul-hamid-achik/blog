@@ -1,5 +1,6 @@
 import "@/app/globals.css"
 import { Analytics } from "@/components/analytics"
+import { Chat } from "@/components/chat"
 import Navbar from "@/components/navbar"
 import ApolloProvider from "@/components/providers/apollo"
 import { IntlProvider } from "@/components/providers/intl"
@@ -57,6 +58,7 @@ export default async function LocaleLayout({ children, params }: RootLayoutProps
                 <Search />
                 <main>{children}</main>
               </div>
+              <Chat />
               <Analytics />
               <SpeedInsights />
             </ThemeProvider>

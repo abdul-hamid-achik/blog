@@ -1,9 +1,10 @@
-import { allPages as pages, allPaintings as paintings, allPosts as posts } from "content-collections";
+import { allPages as pages, allPaintings as paintings, allPosts as posts, allPrompts as prompts } from "content-collections";
 
 export enum ContentType {
   POST = "Post",
   PAGE = "Page",
-  PAINTING = "Painting"
+  PAINTING = "Painting",
+  PROMPT = "Prompt"
 }
 
 export enum Locale {
@@ -13,19 +14,20 @@ export enum Locale {
   AR = "ar"
 }
 
-const allDocuments = [...posts, ...pages, ...paintings];
+const allDocuments = [...posts, ...pages, ...paintings, ...prompts];
 
 
 type Paintings = typeof paintings;
 type Posts = typeof posts
 type Pages = typeof pages;
+type Prompts = typeof prompts;
 type Content = typeof allDocuments
 
 type ContentWithId<T> = T extends readonly (infer U)[]
   ? (U & { _id: string })[]
   : T & { _id: string };
 
-export type { Content, Pages, Paintings, Posts, ContentWithId };
+export type { Content, Pages, Paintings, Posts, ContentWithId, Prompts };
 export interface BaseParams {
   slug?: string;
   locale?: string;

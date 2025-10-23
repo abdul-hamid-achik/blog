@@ -19,8 +19,11 @@ export const env = createEnv({
     POSTGRES_USER: z.string(),
     POSTGRES_PASSWORD: z.string(),
     EDGE_CONFIG: z.string().optional(),
+    RESEND_API_KEY: z.string().min(1),
   },
-  client: {},
+  client: {
+    NEXT_PUBLIC_APP_URL: z.string().url(),
+  },
   runtimeEnv: {
     OPEN_AI_API_KEY: process.env.OPEN_AI_API_KEY,
     APOLLO_KEY: process.env.APOLLO_KEY,
@@ -38,5 +41,7 @@ export const env = createEnv({
     POSTGRES_USER: process.env.POSTGRES_USER,
     POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD,
     EDGE_CONFIG: process.env.EDGE_CONFIG,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
 })

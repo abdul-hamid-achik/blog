@@ -1,4 +1,7 @@
+import { User } from '@/lib/auth';
+
 export interface Context {
-  locale: string,
+  locale: string;
+  user: User;
 }
 

@@ -15,6 +15,13 @@
       "when": 1696430861662,
       "tag": "0001_freezing_zodiak",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1734567890000,
+      "tag": "0002_verification_tokens",
+      "breakpoints": true
     }
   ]
 }

@@ -10,4 +10,7 @@ export declare const allPages: Array<Page>;
 export type Painting = GetTypeByName<typeof configuration, "paintings">;
 export declare const allPaintings: Array<Painting>;
 
+export type Prompt = GetTypeByName<typeof configuration, "prompts">;
+export declare const allPrompts: Array<Prompt>;
+
 export {};

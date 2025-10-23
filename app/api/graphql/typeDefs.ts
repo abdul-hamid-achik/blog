@@ -49,16 +49,35 @@ type Query {
 
 type Mutation {
   chat(input: ChatInput!): ChatOutput
+  requestMagicLink(email: String!): MagicLinkResponse
 }
 
 input ChatInput {
-  history: [String!]!
   message: String!
+  sessionId: String!
+  history: [ChatMessageInput!]
+  currentPageUrl: String
+}
+
+input ChatMessageInput {
+  role: String!
+  content: String!
 }
 
 type ChatOutput {
-  message: String
-  history: [String!]!
+  message: String!
+  usage: UsageInfo
+}
+
+type UsageInfo {
+  promptTokens: Int
+  completionTokens: Int
+  totalTokens: Int
+}
+
+type MagicLinkResponse {
+  success: Boolean!
+  message: String!
 }
 
 "A general type of all my content"

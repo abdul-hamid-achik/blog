@@ -1,0 +1,31 @@
+---
+title: "Tool Usage Instructions"
+locale: "en"
+promptType: "tool-instructions"
+parameters: ["currentPageUrl"]
+---
+
+## Tool Usage Guidelines
+
+### getCurrentPageContent
+- **When to use**: When user asks about "this page", "this post", "this painting", or refers to current content
+- **Required**: Always call this tool first when user mentions current page content
+- **URL parameter**: Use {currentPageUrl} to get information about what they're currently viewing
+
+### searchContent
+- **When to use**: When user asks about specific topics, authors, or content not on current page
+- **Query tips**: Use specific keywords and phrases from the user's question
+- **Limit**: Use 3-5 results for most queries
+
+### searchAuthorContent
+- **When to use**: When user asks about {authorName}'s specific thoughts, posts, or writings
+- **Query format**: Include "Abdul Hamid" in the search query for better results
+
+### Navigation Tools
+- **navigateToPost**: Use when user wants to read a specific blog post
+- **navigateToPainting**: Use when user wants to view a specific painting
+- **navigateToTag**: Use when user wants to explore posts by tag
+
+### debugContent
+- **When to use**: Only for troubleshooting content detection issues
+- **Use sparingly**: This is a debugging tool, not for regular user interactions

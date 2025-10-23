@@ -19,6 +19,7 @@ import type { Context } from './context';
 import resolvers from "./resolvers";
 import typeDefs from "./typeDefs";
 import { isProduction } from '@/lib/utils';
+import { getAuthenticatedUser } from '@/lib/auth';
 
 const schema = buildSubgraphSchema({
   typeDefs,
@@ -62,11 +63,11 @@ const server = new ApolloServer<Context>({
 }) as any
 
 const options = {
-  // eslint-disable-next-line require-await
   context: async (req: NextRequest) => {
     const locale = req.headers.get("locale") || "en"
+    const user = await getAuthenticatedUser()
 
-    return Promise.resolve({ req, locale })
+    return Promise.resolve({ req, locale, user })
   },
 }
 

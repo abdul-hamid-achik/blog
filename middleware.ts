@@ -1,15 +1,8 @@
 import { locales } from "@/navigation";
-import { Ratelimit } from '@upstash/ratelimit';
-import { kv } from '@vercel/kv';
+import { siteRateLimiter } from '@/lib/rate-limit';
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from 'next/server';
 import { isProduction } from '@/lib/utils';
-
-const ratelimit = new Ratelimit({
-  redis: kv,
-  // 25 requests from the same IP in 10 seconds
-  limiter: Ratelimit.slidingWindow(25, '10 s'),
-});
 
 export const config = {
   matcher: ['/((?!api|_next|_vercel|.*\\..*).*)', '/'],
@@ -29,9 +22,7 @@ export default async function middleware(request: NextRequest) {
 
   const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? '127.0.0.1';
 
-  const { success } = await ratelimit.limit(
-    ip
-  );
+  const { success } = await siteRateLimiter.limit(ip);
 
   if (!success) {
     return NextResponse.redirect(new URL(`/blocked`, request.url));
