@@ -92,13 +92,16 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const handlerRequest = request.clone()
   let requestBody: unknown
 
   try {
     requestBody = await request.clone().json()
-  } catch (error) {
-    console.warn("Failed to parse GraphQL request body.")
-    return await handler(request)
+  } catch {
+    console.warn(
+      "Failed to parse GraphQL request body for batch validation; forwarding to handler."
+    )
+    return await handler(handlerRequest)
   }
 
   if (Array.isArray(requestBody) && requestBody.length > MAX_BATCH_SIZE) {
@@ -114,5 +117,5 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  return await handler(request)
+  return await handler(handlerRequest)
 }
