@@ -43,14 +43,16 @@ if (isProduction) {
 
 const server = new ApolloServer<Context>({
   schema,
-  allowBatchedHttpRequests: true,
-  introspection: true,
+  allowBatchedHttpRequests: !isProduction,
+  introspection: !isProduction,
   cache,
   plugins: [
     ApolloServerPluginUsageReportingDisabled(),
-    ApolloServerPluginInlineTrace({
-      includeErrors: { unmodified: true },
-    }),
+    ...(isProduction
+      ? []
+      : [ApolloServerPluginInlineTrace({
+          includeErrors: { unmodified: true },
+        })]),
     isProduction
       ? ApolloServerPluginLandingPageProductionDefault({
         graphRef: `abdulachik-blog@current`,

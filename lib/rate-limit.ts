@@ -28,13 +28,12 @@ export async function checkRateLimit(userId: string, type: 'site' | 'chat' | 'st
     const result = await limiter.limit(userId);
 
     if (!result.success && !isProduction) {
-        console.warn(`⚠️ DEV MODE: ${type} rate limit exceeded for ${userId}. Would block in production.`);
-        return { allowed: true, warning: true, remaining: 0, reset: result.reset };
+        console.warn(`⚠️ DEV MODE: ${type} rate limit exceeded for ${userId}.`);
     }
 
     return {
         allowed: result.success,
-        warning: false,
+        warning: !result.success && !isProduction,
         remaining: result.remaining,
         reset: result.reset
     };

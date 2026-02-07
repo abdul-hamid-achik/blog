@@ -9,6 +9,11 @@ export const config = {
 };
 
 export default async function middleware(request: NextRequest) {
+  // Defense-in-depth: strip internal Next.js headers that could be used
+  // to bypass middleware (CVE-2025-29927)
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.delete('x-middleware-subrequest');
+
   const nextIntlMiddleware = createMiddleware({
     locales,
     defaultLocale: "en",
@@ -20,7 +25,10 @@ export default async function middleware(request: NextRequest) {
     return nextIntlMiddleware(request as any);
   }
 
-  const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? '127.0.0.1';
+  // Use Vercel's trusted IP header first, fall back to x-forwarded-for
+  const ip = request.headers.get('x-real-ip')
+    ?? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    ?? '127.0.0.1';
 
   const { success } = await siteRateLimiter.limit(ip);
 

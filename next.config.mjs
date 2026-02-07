@@ -30,24 +30,59 @@ const nextConfig = {
     ],
   },
   async headers() {
+    const securityHeaders = [
+      {
+        key: "X-Content-Type-Options",
+        value: "nosniff",
+      },
+      {
+        key: "X-Frame-Options",
+        value: "DENY",
+      },
+      {
+        key: "X-XSS-Protection",
+        value: "1; mode=block",
+      },
+      {
+        key: "Referrer-Policy",
+        value: "strict-origin-when-cross-origin",
+      },
+      {
+        key: "Permissions-Policy",
+        value: "camera=(), microphone=(), geolocation=()",
+      },
+      {
+        key: "Strict-Transport-Security",
+        value: "max-age=63072000; includeSubDomains; preload",
+      },
+    ]
+
     return [
+      {
+        source: "/(.*)",
+        headers: securityHeaders,
+      },
       {
         source: "/api/graphql",
         headers: [
-          { key: "Access-Control-Allow-Credentials", value: "true" },
-          {
-            key: "Access-Control-Allow-Origin",
-            value: "https://studio.apollographql.com",
-          },
-          {
-            key: "Access-Control-Allow-Methods",
-            value: "GET,OPTIONS,PATCH,DELETE,POST,PUT",
-          },
-          {
-            key: "Access-Control-Allow-Headers",
-            value:
-              "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
-          },
+          ...(process.env.NODE_ENV !== "production"
+            ? [
+                { key: "Access-Control-Allow-Credentials", value: "true" },
+                {
+                  key: "Access-Control-Allow-Origin",
+                  value: "https://studio.apollographql.com",
+                },
+                {
+                  key: "Access-Control-Allow-Methods",
+                  value: "GET,OPTIONS,PATCH,DELETE,POST,PUT",
+                },
+                {
+                  key: "Access-Control-Allow-Headers",
+                  value:
+                    "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
+                },
+              ]
+            : []),
         ],
       },
     ]
