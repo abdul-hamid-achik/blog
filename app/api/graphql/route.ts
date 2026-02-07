@@ -93,22 +93,22 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const contentType = request.headers.get("content-type") ?? ""
-  const normalizedContentType = contentType.split(";")[0].trim().toLowerCase()
+  const mediaType = contentType.split(";")[0].trim().toLowerCase()
 
-  if (normalizedContentType !== "application/json") {
+  if (mediaType !== "application/json") {
     return await handler(request)
   }
 
-  const requestForParsing = request.clone()
+  const clonedRequest = request.clone()
   let requestBody: unknown
 
   try {
-    requestBody = await requestForParsing.json()
+    requestBody = await clonedRequest.json()
   } catch (error) {
     const requestId = request.headers.get("x-request-id") ?? "unknown"
     const errorMessage = (
       error instanceof Error ? error.message : "unknown error"
-    ).replace(/[\r\n]+/g, " ")
+    ).replace(/[\r\n]+/g, " ") // Prevent multi-line log injection.
     console.warn(
       `Failed to parse GraphQL request body for batch validation (${errorMessage}); forwarding to handler. requestId=${requestId}`
     )
