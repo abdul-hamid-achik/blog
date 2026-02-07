@@ -2,7 +2,8 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { getAuthenticatedUser, getMessageCount } from '@/lib/auth';
 import { FREE_MESSAGE_LIMIT } from '@/lib/constants';
-import { checkRateLimit, isUserBlocked } from '@/lib/rate-limit';
+import { checkRateLimit, checkIpRateLimit, isUserBlocked, isIpBlocked, recordAbuseStrike } from '@/lib/rate-limit';
+import { moderateInput, ModerationResult } from '@/lib/moderation';
 import { chatModel, searchSimilarContent } from '@/lib/ai';
 import { getContent, ContentType, Locale } from '@/lib/data';
 import { streamText, tool, stepCountIs } from 'ai';
@@ -26,6 +27,20 @@ function getCorsOrigin(request: NextRequest): string {
     }
     return ALLOWED_ORIGINS[0];
 }
+
+// Extract client IP from request headers (same logic as middleware)
+function getClientIp(request: NextRequest): string {
+    return request.headers.get('x-real-ip')
+        ?? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+        ?? '127.0.0.1';
+}
+
+// Shared 403 response headers
+const DENY_HEADERS = {
+    'Content-Type': 'text/plain',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+} as const;
 
 // Input validation schema
 const inputSchema = z.object({
@@ -355,7 +370,36 @@ export async function POST(request: NextRequest) {
         const rawLocale = request.headers.get("locale") || Locale.EN;
         const locale: Locale = validLocales.includes(rawLocale) ? (rawLocale as Locale) : Locale.EN;
 
-        // Authentication check
+        // --- IP-level checks (prevents session-rotation abuse) ---
+        const clientIp = getClientIp(request);
+
+        if (await isIpBlocked(clientIp)) {
+            return new Response('Access denied', { status: 403, headers: DENY_HEADERS });
+        }
+
+        const ipRateLimit = await checkIpRateLimit(clientIp);
+        if (!ipRateLimit.allowed) {
+            return new Response('Rate limit exceeded', {
+                status: 429,
+                headers: { ...DENY_HEADERS, 'Retry-After': '60' }
+            });
+        }
+
+        // --- Content moderation (before auth so we don't waste DB queries on spam) ---
+        const moderation = moderateInput(message);
+
+        if (moderation.result === ModerationResult.BLOCK) {
+            // Record a strike against this IP for abuse escalation
+            await recordAbuseStrike(clientIp);
+
+            if (!isProduction) {
+                console.warn(`🛡️ Message blocked: ${moderation.reason} from IP ${clientIp}`);
+            }
+
+            return new Response('Message not allowed', { status: 400, headers: DENY_HEADERS });
+        }
+
+        // --- Authentication check ---
         const user = await getAuthenticatedUser();
 
         if (!user.isAuthenticated) {
@@ -364,11 +408,7 @@ export async function POST(request: NextRequest) {
             if (messageCount >= FREE_MESSAGE_LIMIT) {
                 return new Response('Authentication required', {
                     status: 401,
-                    headers: {
-                        'Content-Type': 'text/plain',
-                        'X-Content-Type-Options': 'nosniff',
-                        'X-Frame-Options': 'DENY'
-                    }
+                    headers: DENY_HEADERS
                 });
             }
         }
@@ -378,27 +418,15 @@ export async function POST(request: NextRequest) {
 
         // Check if user is blocked
         if (await isUserBlocked(userId)) {
-            return new Response('Access denied', {
-                status: 403,
-                headers: {
-                    'Content-Type': 'text/plain',
-                    'X-Content-Type-Options': 'nosniff',
-                    'X-Frame-Options': 'DENY'
-                }
-            });
+            return new Response('Access denied', { status: 403, headers: DENY_HEADERS });
         }
 
-        // Rate limiting (use stream rate limiter for stricter limits)
+        // Rate limiting per session/user (use stream rate limiter for stricter limits)
         const rateLimitResult = await checkRateLimit(userId, 'stream');
         if (!rateLimitResult.allowed) {
             return new Response('Rate limit exceeded', {
                 status: 429,
-                headers: {
-                    'Content-Type': 'text/plain',
-                    'X-Content-Type-Options': 'nosniff',
-                    'X-Frame-Options': 'DENY',
-                    'Retry-After': '60'
-                }
+                headers: { ...DENY_HEADERS, 'Retry-After': '60' }
             });
         }
 
