@@ -106,7 +106,8 @@ export async function POST(request: NextRequest) {
   } catch {
     const requestId = request.headers.get("x-request-id") ?? "unknown"
     console.warn(
-      `Failed to parse GraphQL request body for batch validation; forwarding to handler. requestId=${requestId}`
+      "Failed to parse GraphQL request body for batch validation; forwarding to handler.",
+      { requestId }
     )
     return await handler(request)
   }
