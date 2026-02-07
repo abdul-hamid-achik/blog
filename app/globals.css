@@ -69,7 +69,8 @@
 
 /* ============================================
    Light Theme — Snow Storm backgrounds, Polar Night text
-   Primary accent: nord10 (deep frost blue)
+   Primary accent: nord9 (frost blue, 4.64:1 with dark text)
+   Aurora colors darkened for WCAG AA on light backgrounds
    ============================================ */
 :root {
   --radius: 0.5rem;
@@ -79,28 +80,29 @@
   --card-foreground: #2E3440;     /* nord0 */
   --popover: #ECEFF4;             /* nord6 */
   --popover-foreground: #2E3440;  /* nord0 */
-  --primary: #5E81AC;             /* nord10 — deep frost */
-  --primary-foreground: #ECEFF4;  /* nord6 */
+  --primary: #81A1C1;             /* nord9 — frost blue, 4.64:1 with dark fg */
+  --primary-foreground: #2E3440;  /* nord0 — dark text for AA compliance */
   --secondary: #E5E9F0;          /* nord5 */
   --secondary-foreground: #2E3440; /* nord0 */
   --muted: #D8DEE9;              /* nord4 */
-  --muted-foreground: #4C566A;    /* nord3 */
+  --muted-foreground: #4C566A;    /* nord3 — 6.40:1 on bg */
   --accent: #D8DEE9;             /* nord4 */
   --accent-foreground: #2E3440;   /* nord0 */
-  --destructive: #BF616A;         /* nord11 — aurora red */
+  --destructive: #A3434B;         /* darkened nord11 — 5.26:1 on bg */
   --destructive-foreground: #ECEFF4; /* nord6 */
   --border: #D8DEE9;             /* nord4 */
   --input: #D8DEE9;              /* nord4 */
   --ring: #5E81AC;               /* nord10 */
-  --success: #A3BE8C;            /* nord14 — aurora green */
-  --success-foreground: #2E3440;  /* nord0 */
-  --warning: #EBCB8B;            /* nord13 — aurora yellow */
-  --warning-foreground: #2E3440;  /* nord0 */
+  --success: #507040;            /* darkened nord14 — 5.19:1 on bg */
+  --success-foreground: #ECEFF4;  /* nord6 */
+  --warning: #7D6528;            /* darkened nord13 — 4.84:1 on bg */
+  --warning-foreground: #ECEFF4;  /* nord6 */
 }
 
 /* ============================================
    Dark Theme — Polar Night backgrounds, Snow Storm text
-   Primary accent: nord8 (bright frost blue)
+   Primary accent: nord8 (bright frost blue, 6.24:1)
+   Muted/destructive adjusted for WCAG AA compliance
    ============================================ */
 .dark {
   --background: #2E3440;          /* nord0 */
@@ -109,22 +111,22 @@
   --card-foreground: #D8DEE9;     /* nord4 */
   --popover: #3B4252;             /* nord1 */
   --popover-foreground: #D8DEE9;  /* nord4 */
-  --primary: #88C0D0;             /* nord8 — bright frost */
+  --primary: #88C0D0;             /* nord8 — bright frost, 6.24:1 */
   --primary-foreground: #2E3440;  /* nord0 */
   --secondary: #434C5E;          /* nord2 */
   --secondary-foreground: #D8DEE9; /* nord4 */
   --muted: #3B4252;              /* nord1 */
-  --muted-foreground: #7B88A1;    /* nord3-bright — between nord3/nord4 for readability */
+  --muted-foreground: #A5ADBC;    /* lightened nord3 — 5.53:1 on bg, 4.46:1 on card */
   --accent: #434C5E;             /* nord2 */
   --accent-foreground: #D8DEE9;   /* nord4 */
-  --destructive: #BF616A;         /* nord11 — aurora red */
-  --destructive-foreground: #D8DEE9; /* nord4 */
+  --destructive: #D08890;         /* lightened nord11 — 4.52:1 on bg */
+  --destructive-foreground: #2E3440; /* nord0 */
   --border: #434C5E;             /* nord2 */
   --input: #434C5E;              /* nord2 */
   --ring: #88C0D0;               /* nord8 */
-  --success: #A3BE8C;            /* nord14 — aurora green */
+  --success: #A3BE8C;            /* nord14 — 6.13:1 on bg */
   --success-foreground: #2E3440;  /* nord0 */
-  --warning: #EBCB8B;            /* nord13 — aurora yellow */
+  --warning: #EBCB8B;            /* nord13 — 8.00:1 on bg */
   --warning-foreground: #2E3440;  /* nord0 */
 }
 

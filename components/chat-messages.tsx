@@ -103,7 +103,7 @@ export function ChatMessages({ messages, isLoading = false, usage, onAuthSuccess
                         >
                             {isAuthPrompt ? (
                                 <div className="space-y-3">
-                                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                                    <div className="flex items-center gap-2 text-warning">
                                         <Lock className="h-4 w-4" />
                                         <span className="font-medium">Authentication Required</span>
                                     </div>
