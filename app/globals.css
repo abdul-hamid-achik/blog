@@ -1,73 +1,131 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 47.4% 11.2%;
+@plugin "@tailwindcss/typography";
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+@custom-variant dark (&:where(.dark, .dark *));
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 47.4% 11.2%;
+/* ============================================
+   Nord Color Palette from Arctic Studios
+   https://www.nordtheme.com
+   ============================================ */
+@theme {
+  /* Polar Night */
+  --color-nord0: #2E3440;
+  --color-nord1: #3B4252;
+  --color-nord2: #434C5E;
+  --color-nord3: #4C566A;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 47.4% 11.2%;
+  /* Snow Storm */
+  --color-nord4: #D8DEE9;
+  --color-nord5: #E5E9F0;
+  --color-nord6: #ECEFF4;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+  /* Frost */
+  --color-nord7: #8FBCBB;
+  --color-nord8: #88C0D0;
+  --color-nord9: #81A1C1;
+  --color-nord10: #5E81AC;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+  /* Aurora */
+  --color-nord11: #BF616A;
+  --color-nord12: #D08770;
+  --color-nord13: #EBCB8B;
+  --color-nord14: #A3BE8C;
+  --color-nord15: #B48EAD;
+}
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+/* Semantic color tokens mapped to Nord palette */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
 
-    --destructive: 0 100% 50%;
-    --destructive-foreground: 210 40% 98%;
+/* ============================================
+   Light Theme — Snow Storm backgrounds, Polar Night text
+   Primary accent: nord10 (deep frost blue)
+   ============================================ */
+:root {
+  --radius: 0.5rem;
+  --background: #ECEFF4;          /* nord6 */
+  --foreground: #2E3440;          /* nord0 */
+  --card: #E5E9F0;                /* nord5 */
+  --card-foreground: #2E3440;     /* nord0 */
+  --popover: #ECEFF4;             /* nord6 */
+  --popover-foreground: #2E3440;  /* nord0 */
+  --primary: #5E81AC;             /* nord10 — deep frost */
+  --primary-foreground: #ECEFF4;  /* nord6 */
+  --secondary: #E5E9F0;          /* nord5 */
+  --secondary-foreground: #2E3440; /* nord0 */
+  --muted: #D8DEE9;              /* nord4 */
+  --muted-foreground: #4C566A;    /* nord3 */
+  --accent: #D8DEE9;             /* nord4 */
+  --accent-foreground: #2E3440;   /* nord0 */
+  --destructive: #BF616A;         /* nord11 — aurora red */
+  --destructive-foreground: #ECEFF4; /* nord6 */
+  --border: #D8DEE9;             /* nord4 */
+  --input: #D8DEE9;              /* nord4 */
+  --ring: #5E81AC;               /* nord10 */
+  --success: #A3BE8C;            /* nord14 — aurora green */
+  --success-foreground: #2E3440;  /* nord0 */
+  --warning: #EBCB8B;            /* nord13 — aurora yellow */
+  --warning-foreground: #2E3440;  /* nord0 */
+}
 
-    --ring: 215 20.2% 65.1%;
-
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 224 71% 4%;
-    --foreground: 213 31% 91%;
-
-    --muted: 223 47% 11%;
-    --muted-foreground: 215.4 16.3% 56.9%;
-
-    --popover: 224 71% 4%;
-    --popover-foreground: 215 20.2% 65.1%;
-
-    --card: 224 71% 4%;
-    --card-foreground: 213 31% 91%;
-
-    --border: 216 34% 17%;
-    --input: 216 34% 17%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 1.2%;
-
-    --secondary: 222.2 47.4% 11.2%;
-    --secondary-foreground: 210 40% 98%;
-
-    --accent: 216 34% 17%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-
-    --ring: 216 34% 17%;
-
-    --radius: 0.5rem;
-  }
+/* ============================================
+   Dark Theme — Polar Night backgrounds, Snow Storm text
+   Primary accent: nord8 (bright frost blue)
+   ============================================ */
+.dark {
+  --background: #2E3440;          /* nord0 */
+  --foreground: #D8DEE9;          /* nord4 */
+  --card: #3B4252;                /* nord1 */
+  --card-foreground: #D8DEE9;     /* nord4 */
+  --popover: #3B4252;             /* nord1 */
+  --popover-foreground: #D8DEE9;  /* nord4 */
+  --primary: #88C0D0;             /* nord8 — bright frost */
+  --primary-foreground: #2E3440;  /* nord0 */
+  --secondary: #434C5E;          /* nord2 */
+  --secondary-foreground: #D8DEE9; /* nord4 */
+  --muted: #3B4252;              /* nord1 */
+  --muted-foreground: #7B88A1;    /* nord3-bright — between nord3/nord4 for readability */
+  --accent: #434C5E;             /* nord2 */
+  --accent-foreground: #D8DEE9;   /* nord4 */
+  --destructive: #BF616A;         /* nord11 — aurora red */
+  --destructive-foreground: #D8DEE9; /* nord4 */
+  --border: #434C5E;             /* nord2 */
+  --input: #434C5E;              /* nord2 */
+  --ring: #88C0D0;               /* nord8 */
+  --success: #A3BE8C;            /* nord14 — aurora green */
+  --success-foreground: #2E3440;  /* nord0 */
+  --warning: #EBCB8B;            /* nord13 — aurora yellow */
+  --warning-foreground: #2E3440;  /* nord0 */
 }
 
 @layer base {

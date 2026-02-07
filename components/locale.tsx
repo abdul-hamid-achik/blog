@@ -59,7 +59,7 @@ export default function LocaleSelect({ selected }: { selected: string }) {
             <SelectItem
               key={locale}
               value={locale}
-              className="cursor-pointer text-xs hover:bg-gray-200 dark:hover:bg-gray-800"
+              className="cursor-pointer text-xs hover:bg-accent"
             >
               {`${getLocaleFlag(locale as Locale)} ${getLocaleName(
                 locale as Locale

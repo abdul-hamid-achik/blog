@@ -48,7 +48,7 @@ export default async function LocaleLayout({ children, params }: RootLayoutProps
   return (
     <html lang={locale} suppressHydrationWarning>
       <body
-        className={`dark:bg-slate-950 min-h-screen bg-white text-slate-900 antialiased dark:text-slate-50 ${inter.className}`}
+        className={`min-h-screen bg-background text-foreground antialiased ${inter.className}`}
       >
         <ApolloProvider>
           <IntlProvider locale={locale} messages={messages}>

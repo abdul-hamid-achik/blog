@@ -60,14 +60,14 @@ export function ChatAuth({ onSuccess, className }: ChatAuthProps) {
 
     if (isSuccess) {
         return (
-            <div className={cn("p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg", className)}>
+            <div className={cn("p-4 bg-success/10 border border-success/30 rounded-lg", className)}>
                 <div className="flex items-start gap-3">
-                    <Mail className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                    <Mail className="h-5 w-5 text-success mt-0.5 flex-shrink-0" />
                     <div className="flex-1">
-                        <h3 className="font-medium text-green-900 dark:text-green-100 mb-1">
+                        <h3 className="font-medium text-foreground mb-1">
                             Check your email!
                         </h3>
-                        <p className="text-sm text-green-700 dark:text-green-300">
+                        <p className="text-sm text-success">
                             {message}
                         </p>
                     </div>
@@ -77,14 +77,14 @@ export function ChatAuth({ onSuccess, className }: ChatAuthProps) {
     }
 
     return (
-        <div className={cn("p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg", className)}>
+        <div className={cn("p-4 bg-warning/10 border border-warning/30 rounded-lg", className)}>
             <div className="flex items-start gap-3 mb-4">
-                <Mail className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                <Mail className="h-5 w-5 text-warning mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
-                    <h3 className="font-medium text-amber-900 dark:text-amber-100 mb-1">
+                    <h3 className="font-medium text-foreground mb-1">
                         Email verification required
                     </h3>
-                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                    <p className="text-sm text-warning">
                         You&apos;ve used all {FREE_MESSAGE_LIMIT} free messages. Enter your email to continue chatting.
                     </p>
                 </div>
@@ -107,8 +107,8 @@ export function ChatAuth({ onSuccess, className }: ChatAuthProps) {
                     <p className={cn(
                         "text-sm",
                         isSuccess
-                            ? "text-green-700 dark:text-green-300"
-                            : "text-red-700 dark:text-red-300"
+                            ? "text-success"
+                            : "text-destructive"
                     )}>
                         {message}
                     </p>
@@ -117,7 +117,7 @@ export function ChatAuth({ onSuccess, className }: ChatAuthProps) {
                 <Button
                     type="submit"
                     disabled={!email.trim() || isLoading}
-                    className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+                    className="w-full bg-warning text-warning-foreground hover:bg-warning/90"
                 >
                     {isLoading ? (
                         <>

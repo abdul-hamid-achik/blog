@@ -48,7 +48,7 @@ export function ChartTooltipContent({ active, payload, label }: any) {
     }
 
     return (
-        <div className="rounded-lg border bg-background p-2 shadow-sm text-sm">
+        <div className="rounded-lg border bg-background p-2 shadow-xs text-sm">
             <div className="grid gap-2">
                 {label && <div className="font-medium">{label}</div>}
                 {payload.map((item: any, index: number) => (

@@ -44,7 +44,7 @@ export function ChatInput({
     };
 
     return (
-        <div className="border-t border-slate-200 dark:border-slate-700 p-4 bg-white dark:bg-slate-900">
+        <div className="border-t border-border p-4 bg-background">
             <div className="flex gap-2">
                 <div className="flex-1 relative">
                     <Textarea
@@ -54,11 +54,11 @@ export function ChatInput({
                         onKeyDown={handleKeyDown}
                         placeholder={placeholder}
                         disabled={disabled}
-                        className="resize-none min-h-[60px] max-h-[100px] bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-50 placeholder:text-slate-500 dark:placeholder:text-slate-400"
+                        className="resize-none min-h-[60px] max-h-[100px] bg-muted border-border text-foreground placeholder:text-muted-foreground"
                         rows={1}
                     />
                     {message.length > maxChars - 50 && (
-                        <div className="absolute bottom-2 right-2 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-1 rounded">
+                        <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-muted px-1 rounded">
                             {remainingChars}
                         </div>
                     )}
@@ -67,12 +67,12 @@ export function ChatInput({
                     onClick={handleSend}
                     disabled={!message.trim() || disabled}
                     size="icon"
-                    className="h-[60px] w-[60px] bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white"
+                    className="h-[60px] w-[60px] bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                     <Send className="h-4 w-4" />
                 </Button>
             </div>
-            <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <div className="text-xs text-muted-foreground mt-1">
                 Press Enter to send, Shift+Enter for new line
             </div>
         </div>
