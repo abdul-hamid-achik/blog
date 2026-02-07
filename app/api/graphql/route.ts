@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
   try {
     requestBody = await request.clone().json()
   } catch (error) {
-    console.warn("Failed to parse GraphQL request body.", error)
+    console.warn("Failed to parse GraphQL request body.")
     return await handler(request)
   }
 
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
       {
         errors: [
           {
-            message: `Batch size of ${requestBody.length} exceeds maximum of ${MAX_BATCH_SIZE} operations.`,
+            message: `Batch size limit exceeded. Received ${requestBody.length} operations, maximum allowed is ${MAX_BATCH_SIZE}.`,
           },
         ],
       },
