@@ -99,15 +99,18 @@ export async function POST(request: NextRequest) {
   }
 
   const handlerRequest = request.clone()
+  const requestForParsing = handlerRequest.clone()
   let requestBody: unknown
 
   try {
-    requestBody = await request.json()
+    requestBody = await requestForParsing.json()
   } catch {
     const requestId = request.headers.get("x-request-id") ?? "unknown"
-    console.warn(
-      `Failed to parse GraphQL request body for batch validation; forwarding to handler. requestId=${requestId}`
-    )
+    console.warn({
+      message:
+        "Failed to parse GraphQL request body for batch validation; forwarding to handler.",
+      requestId,
+    })
     return await handler(handlerRequest)
   }
 
