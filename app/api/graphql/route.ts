@@ -94,8 +94,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const contentType = request.headers.get("content-type") ?? ""
   const mediaType = contentType.split(";")[0].trim().toLowerCase()
+  const allowedMediaTypes = new Set([
+    "application/json",
+    "application/graphql+json",
+    "application/graphql-response+json",
+  ])
 
-  if (mediaType !== "application/json") {
+  if (!allowedMediaTypes.has(mediaType)) {
     return await handler(request)
   }
 
