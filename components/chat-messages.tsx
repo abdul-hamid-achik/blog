@@ -148,9 +148,10 @@ function AssistantMessageContent({ content }: { content: string }) {
                             // Only allow internal images to prevent tracking/privacy leaks
                             img: ({ src, alt }) => {
                                 if (!isSafeImage(src)) {
-                                    // Render alt text as plain text for blocked images
+                                    // Show blocked image indicator for accessibility
                                     // React automatically escapes JSX content, preventing XSS
-                                    return alt ? <span className="text-muted-foreground italic">[Image: {alt}]</span> : null;
+                                    const label = alt ? `[Image: ${alt}]` : '[Image]';
+                                    return <span className="text-muted-foreground italic">{label}</span>;
                                 }
                                 return (
                                     <img 
