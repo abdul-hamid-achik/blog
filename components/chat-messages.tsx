@@ -26,6 +26,12 @@ interface ChatMessagesProps {
 // Safe URL protocols for links
 const ALLOWED_PROTOCOLS = ['http:', 'https:', 'mailto:'];
 
+// Allowed domains for images (internal only)
+const ALLOWED_IMAGE_DOMAINS = [
+    'abdulachik.dev',
+    'www.abdulachik.dev'
+];
+
 function isSafeUrl(href: string | undefined): boolean {
     if (!href) return false;
     try {
@@ -34,6 +40,27 @@ function isSafeUrl(href: string | undefined): boolean {
     } catch {
         // Relative URLs are safe
         return href.startsWith('/') || href.startsWith('#');
+    }
+}
+
+function isSafeImage(src: string | undefined): boolean {
+    if (!src) return false;
+    
+    // Relative URLs (internal) are safe
+    if (src.startsWith('/')) return true;
+    
+    try {
+        const url = new URL(src, window.location.origin);
+        
+        // Only allow https protocol for absolute URLs
+        if (url.protocol !== 'https:') return false;
+        
+        // Check if hostname matches allowed domains
+        return ALLOWED_IMAGE_DOMAINS.some(domain => 
+            url.hostname === domain || url.hostname.endsWith(`.${domain}`)
+        );
+    } catch {
+        return false;
     }
 }
 
@@ -105,8 +132,21 @@ function AssistantMessageContent({ content }: { content: string }) {
                                     </a>
                                 );
                             },
-                            // Disallow images to prevent tracking/privacy leaks
-                            img: () => null,
+                            // Only allow internal images to prevent tracking/privacy leaks
+                            img: ({ src, alt }) => {
+                                if (!isSafeImage(src)) {
+                                    // Render alt text as plain text for blocked images
+                                    return alt ? <span className="text-muted-foreground italic">[Image: {alt}]</span> : null;
+                                }
+                                return (
+                                    <img 
+                                        src={src} 
+                                        alt={alt || ''} 
+                                        className="max-w-full rounded border border-border my-1"
+                                        loading="lazy"
+                                    />
+                                );
+                            },
                             // Compact paragraphs for chat context
                             p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
                             ul: ({ children }) => <ul className="list-disc pl-4 mb-1">{children}</ul>,
