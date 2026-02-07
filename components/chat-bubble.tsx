@@ -24,7 +24,7 @@ export function ChatBubble({ onClick, unreadCount = 0 }: ChatBubbleProps) {
     return (
         <button
             onClick={onClick}
-            className="fixed bottom-4 right-4 z-[9999] h-14 w-14 rounded-full bg-slate-900 dark:bg-slate-700 text-white shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-200 flex items-center justify-center group"
+            className="fixed bottom-4 right-4 z-[9999] h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-200 flex items-center justify-center group"
             aria-label="Open chat"
         >
             <Bell
@@ -35,11 +35,11 @@ export function ChatBubble({ onClick, unreadCount = 0 }: ChatBubbleProps) {
                 }}
             />
             {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-xs text-white flex items-center justify-center font-semibold animate-pulse shadow-md">
+                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-xs text-destructive-foreground flex items-center justify-center font-semibold animate-pulse shadow-md">
                     {unreadCount}
                 </span>
             )}
-            <span className="absolute inset-0 rounded-full bg-slate-900 dark:bg-slate-700 animate-ping opacity-20" />
+            <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-20" />
 
             <style jsx>{`
                 @keyframes tingle {

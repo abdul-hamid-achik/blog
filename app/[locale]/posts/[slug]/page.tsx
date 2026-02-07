@@ -96,7 +96,7 @@ export default async function PostPage({ params }: PostProps) {
         <p className="text-sm">{post.readingTime.text}</p>
       </div>
       {post.description && (
-        <p className="text-md mt-0 text-slate-700 dark:text-slate-200 md:text-xl">
+        <p className="text-md mt-0 text-muted-foreground md:text-xl">
           {post.description}
         </p>
       )}

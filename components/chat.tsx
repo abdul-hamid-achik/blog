@@ -195,18 +195,18 @@ export function Chat() {
                     isOpen ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-4 scale-95 pointer-events-none"
                 )}
             >
-                <div className="w-[380px] h-[600px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-2xl flex flex-col overflow-hidden">
+                <div className="w-[380px] h-[600px] bg-background border border-border rounded-lg shadow-2xl flex flex-col overflow-hidden">
                     {/* Header */}
-                    <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex items-center justify-between">
+                    <div className="p-4 border-b border-border bg-muted flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="h-2 w-2 rounded-full bg-green-500 dark:bg-green-400 animate-pulse shadow-sm shadow-green-500/50" />
-                            <h3 className="font-semibold text-slate-900 dark:text-slate-50">Concierge</h3>
+                            <div className="h-2 w-2 rounded-full bg-success animate-pulse shadow-xs shadow-success/50" />
+                            <h3 className="font-semibold text-foreground">Concierge</h3>
                         </div>
                         <div className="flex items-center gap-2">
                             {messages.length > 0 && (
                                 <button
                                     onClick={handleClearChat}
-                                    className="text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-50 transition-colors px-2 py-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+                                    className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-accent"
                                     title="Clear chat"
                                 >
                                     Clear
@@ -214,7 +214,7 @@ export function Chat() {
                             )}
                             <button
                                 onClick={() => setIsOpen(false)}
-                                className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-50 transition-colors p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+                                className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded hover:bg-accent"
                                 title="Close chat"
                             >
                                 <X className="h-4 w-4" />

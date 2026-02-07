@@ -100,7 +100,7 @@ export default async function PostPage({ params }: PaintingProps) {
         {painting.year && <p className="text-sm">{painting.year}</p>}
       </div>
       {painting.description && (
-        <p className="text-sm mt-0 text-slate-700 dark:text-slate-200 md:text-md">
+        <p className="text-sm mt-0 text-muted-foreground md:text-md">
           {painting.description}
         </p>
       )}

@@ -70,9 +70,9 @@ export function ChatMessages({ messages, isLoading = false, usage, onAuthSuccess
     }, [messages, isLoading]);
 
     return (
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-950">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted">
             {messages.length === 0 && !isLoading && (
-                <div className="flex items-center justify-center h-full text-slate-500 dark:text-slate-400 text-sm">
+                <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
                     <div className="text-center space-y-2">
                         <p>👋 Hi! I&apos;m your AI assistant.</p>
                         <p className="text-xs">Ask me anything about this blog!</p>
@@ -95,15 +95,15 @@ export function ChatMessages({ messages, isLoading = false, usage, onAuthSuccess
                     >
                         <div
                             className={cn(
-                                "max-w-[80%] rounded-lg px-4 py-2 text-sm shadow-sm",
+                                "max-w-[80%] rounded-lg px-4 py-2 text-sm shadow-xs",
                                 message.role === 'user'
-                                    ? "bg-slate-900 dark:bg-slate-700 text-white"
-                                    : "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50 border border-slate-200 dark:border-slate-700"
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-card text-card-foreground border border-border"
                             )}
                         >
                             {isAuthPrompt ? (
                                 <div className="space-y-3">
-                                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                                    <div className="flex items-center gap-2 text-warning">
                                         <Lock className="h-4 w-4" />
                                         <span className="font-medium">Authentication Required</span>
                                     </div>
@@ -120,7 +120,7 @@ export function ChatMessages({ messages, isLoading = false, usage, onAuthSuccess
                                                 <Link
                                                     key={i}
                                                     href={part.path}
-                                                    className="inline-flex items-center gap-1 text-slate-900 dark:text-slate-100 hover:underline font-medium bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded"
+                                                    className="inline-flex items-center gap-1 text-foreground hover:underline font-medium bg-muted px-2 py-1 rounded"
                                                     onClick={() => {
                                                         // Close chat when navigating
                                                         window.dispatchEvent(new CustomEvent('close-chat'));
@@ -142,17 +142,17 @@ export function ChatMessages({ messages, isLoading = false, usage, onAuthSuccess
 
             {isLoading && (
                 <div className="flex justify-start">
-                    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 shadow-sm">
+                    <div className="bg-card border border-border rounded-lg px-4 py-3 shadow-xs">
                         <div className="flex items-center gap-2">
-                            <Loader2 className="h-4 w-4 animate-spin text-slate-900 dark:text-slate-50" />
-                            <span className="text-sm text-slate-600 dark:text-slate-400">Thinking...</span>
+                            <Loader2 className="h-4 w-4 animate-spin text-foreground" />
+                            <span className="text-sm text-muted-foreground">Thinking...</span>
                         </div>
                     </div>
                 </div>
             )}
 
             {usage && usage.totalTokens && usage.totalTokens > 0 && (
-                <div className="text-xs text-slate-500 dark:text-slate-400 text-center py-2">
+                <div className="text-xs text-muted-foreground text-center py-2">
                     Tokens used: {usage.totalTokens}
                 </div>
             )}
