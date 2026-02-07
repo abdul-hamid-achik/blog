@@ -68,35 +68,36 @@
 }
 
 /* ============================================
-   Light Theme — Snow Storm backgrounds, Polar Night text
-   Primary accent: nord9 (frost blue, 4.64:1 with dark text)
-   Aurora colors darkened for WCAG AA on light backgrounds
+   Light Theme — White canvas, Snow Storm surfaces
+   White base provides crisp contrast; Snow Storm colors give
+   cards/surfaces the distinctive Nord arctic feel.
+   Aurora colors darkened for WCAG AA on white backgrounds.
    ============================================ */
 :root {
   --radius: 0.5rem;
-  --background: #ECEFF4;          /* nord6 */
-  --foreground: #2E3440;          /* nord0 */
-  --card: #E5E9F0;                /* nord5 */
+  --background: #FFFFFF;          /* white canvas — clean and crisp */
+  --foreground: #2E3440;          /* nord0 — 12.7:1 on white */
+  --card: #ECEFF4;                /* nord6 — visible lift from white */
   --card-foreground: #2E3440;     /* nord0 */
-  --popover: #ECEFF4;             /* nord6 */
+  --popover: #FFFFFF;             /* white */
   --popover-foreground: #2E3440;  /* nord0 */
-  --primary: #81A1C1;             /* nord9 — frost blue, 4.64:1 with dark fg */
-  --primary-foreground: #2E3440;  /* nord0 — dark text for AA compliance */
-  --secondary: #E5E9F0;          /* nord5 */
+  --primary: #5E81AC;             /* nord10 — deep frost, 4.04:1 on white */
+  --primary-foreground: #FFFFFF;  /* white */
+  --secondary: #ECEFF4;          /* nord6 */
   --secondary-foreground: #2E3440; /* nord0 */
-  --muted: #D8DEE9;              /* nord4 */
-  --muted-foreground: #4C566A;    /* nord3 — 6.40:1 on bg */
-  --accent: #D8DEE9;             /* nord4 */
+  --muted: #E5E9F0;              /* nord5 — subtle surface on white */
+  --muted-foreground: #4C566A;    /* nord3 — 7.50:1 on white */
+  --accent: #ECEFF4;             /* nord6 — hover highlight */
   --accent-foreground: #2E3440;   /* nord0 */
-  --destructive: #A3434B;         /* darkened nord11 — 5.26:1 on bg */
-  --destructive-foreground: #ECEFF4; /* nord6 */
-  --border: #D8DEE9;             /* nord4 */
+  --destructive: #A3434B;         /* darkened nord11 — 6.26:1 on white */
+  --destructive-foreground: #FFFFFF;
+  --border: #D8DEE9;             /* nord4 — visible on white */
   --input: #D8DEE9;              /* nord4 */
   --ring: #5E81AC;               /* nord10 */
-  --success: #507040;            /* darkened nord14 — 5.19:1 on bg */
-  --success-foreground: #ECEFF4;  /* nord6 */
-  --warning: #7D6528;            /* darkened nord13 — 4.84:1 on bg */
-  --warning-foreground: #ECEFF4;  /* nord6 */
+  --success: #507040;            /* darkened nord14 — 6.18:1 on white */
+  --success-foreground: #FFFFFF;
+  --warning: #7D6528;            /* darkened nord13 — 5.77:1 on white */
+  --warning-foreground: #FFFFFF;
 }
 
 /* ============================================
@@ -137,5 +138,25 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Nord-themed prose overrides */
+  .prose :where(a):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    color: var(--primary);
+  }
+  .prose :where(a:hover):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    color: var(--foreground);
+  }
+  .prose :where(hr):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    border-color: var(--border);
+  }
+  .prose :where(blockquote):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    border-left-color: var(--primary);
+    color: var(--muted-foreground);
+  }
+  .prose :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    background-color: var(--muted);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
   }
 }
