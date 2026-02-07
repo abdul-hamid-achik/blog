@@ -60,12 +60,9 @@ function isSafeImage(src: string | undefined): boolean {
         
         // Check if hostname exactly matches allowed domains
         // Use exact match or ensure it's a proper subdomain (not just a string suffix)
-        return ALLOWED_IMAGE_DOMAINS.some(domain => {
-            if (url.hostname === domain) return true;
-            // For subdomains, ensure the domain is preceded by a dot
-            if (url.hostname.endsWith('.' + domain)) return true;
-            return false;
-        });
+        return ALLOWED_IMAGE_DOMAINS.some(domain => 
+            url.hostname === domain || url.hostname.endsWith('.' + domain)
+        );
     } catch {
         return false;
     }
