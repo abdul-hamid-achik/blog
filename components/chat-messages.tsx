@@ -27,10 +27,7 @@ interface ChatMessagesProps {
 const ALLOWED_PROTOCOLS = ['http:', 'https:', 'mailto:'];
 
 // Allowed domains for images (internal only)
-const ALLOWED_IMAGE_DOMAINS = [
-    'abdulachik.dev',
-    'www.abdulachik.dev'
-];
+const ALLOWED_IMAGE_DOMAINS = ['abdulachik.dev'];
 
 function isSafeUrl(href: string | undefined): boolean {
     if (!href) return false;
@@ -58,11 +55,23 @@ function isSafeImage(src: string | undefined): boolean {
         // Only allow https protocol for absolute URLs
         if (url.protocol !== 'https:') return false;
         
-        // Check if hostname exactly matches allowed domains
-        // Use exact match or ensure it's a proper subdomain (not just a string suffix)
-        return ALLOWED_IMAGE_DOMAINS.some(domain => 
-            url.hostname === domain || url.hostname.endsWith('.' + domain)
-        );
+        // Check if hostname exactly matches allowed domains or is a valid subdomain
+        // Split both hostname and domain into parts to ensure proper domain boundary matching
+        return ALLOWED_IMAGE_DOMAINS.some(domain => {
+            if (url.hostname === domain) return true;
+            
+            // For subdomain validation, ensure it's a proper subdomain
+            // by checking that hostname ends with '.domain' (not just contains it)
+            const domainParts = domain.split('.');
+            const hostnameParts = url.hostname.split('.');
+            
+            // Hostname must have more parts than domain to be a subdomain
+            if (hostnameParts.length <= domainParts.length) return false;
+            
+            // Check if the last N parts of hostname match the domain parts
+            const hostnameEnd = hostnameParts.slice(-domainParts.length).join('.');
+            return hostnameEnd === domain;
+        });
     } catch {
         return false;
     }
