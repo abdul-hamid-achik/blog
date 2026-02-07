@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { users, verificationTokens, chatMessages } from '@/db/schema';
 import { eq, and, gt, count } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
+import { FREE_MESSAGE_LIMIT } from './constants';
 
 const AUTH_COOKIE_NAME = 'chat-auth';
 const AUTH_COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // 30 days
@@ -96,8 +97,10 @@ export async function verifyToken(token: string): Promise<string | null> {
     try {
         const now = new Date();
 
-        const verification = await db.select()
-            .from(verificationTokens)
+        // Atomic check-and-mark: UPDATE ... WHERE used = false RETURNING email
+        // This prevents TOCTOU race conditions where the same token could be used twice
+        const result = await db.update(verificationTokens)
+            .set({ used: true })
             .where(
                 and(
                     eq(verificationTokens.token, token),
@@ -105,18 +108,13 @@ export async function verifyToken(token: string): Promise<string | null> {
                     gt(verificationTokens.expiresAt, now)
                 )
             )
-            .limit(1);
+            .returning({ email: verificationTokens.email });
 
-        if (verification.length === 0) {
+        if (result.length === 0) {
             return null;
         }
 
-        // Mark token as used
-        await db.update(verificationTokens)
-            .set({ used: true })
-            .where(eq(verificationTokens.token, token));
-
-        return verification[0].email;
+        return result[0].email;
     } catch (error) {
         console.error('Error verifying token:', error);
         return null;
@@ -163,6 +161,7 @@ export async function getMessageCount(sessionId: string): Promise<number> {
         return result[0]?.count || 0;
     } catch (error) {
         console.error('Error getting message count:', error);
-        return 0;
+        // Return the limit on error to prevent free message bypass when DB is unavailable
+        return FREE_MESSAGE_LIMIT;
     }
 }

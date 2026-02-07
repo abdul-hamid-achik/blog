@@ -14,11 +14,18 @@ import { db } from "@/lib/db";
 import { chatMessages, chatSessions } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { getMessageCount, createVerificationToken } from "@/lib/auth";
+import { FREE_MESSAGE_LIMIT } from "@/lib/constants";
 import { sendMagicLinkEmail } from "@/lib/email";
 import { getPromptWithParams, getDefaultPromptParams } from "@/lib/prompts";
+import { createHash } from 'crypto';
 
 // Helper type for posts with _id
 type PostsWithId = ContentWithId<Posts>;
+
+// Helper function to hash email for rate limiting (prevents PII leakage)
+function hashEmail(email: string): string {
+  return createHash('sha256').update(email.toLowerCase().trim()).digest('hex');
+}
 
 // Define tools for the AI assistant
 const createTools = (locale: Locale) => ({
@@ -133,29 +140,31 @@ const createTools = (locale: Locale) => ({
     }
   }),
 
-  debugContent: tool({
-    description: 'Debug tool to see what content is available. Use this to troubleshoot content detection issues.',
-    inputSchema: z.object({
-      type: z.string().optional().describe('Content type to debug: posts, paintings, or pages')
-    }),
-    execute: ({ type }) => {
-      if (type === 'paintings') {
-        const paintings = getContent([], ContentType.PAINTING, locale);
-        return `Available paintings (${paintings.length}):\n${paintings.slice(0, 5).map((p: any, i: number) =>
-          `${i + 1}. ${p.title} - slugAsParams: "${p.slugAsParams}", slug: "${p.slug}"`
-        ).join('\n')}`;
-      } else if (type === 'posts') {
-        const posts = getContent([], ContentType.POST, locale);
-        return `Available posts (${posts.length}):\n${posts.slice(0, 5).map((p: any, i: number) =>
-          `${i + 1}. ${p.title} - slugAsParams: "${p.slugAsParams}", slug: "${p.slug}"`
-        ).join('\n')}`;
-      } else {
-        const allContent = getContent([], undefined, locale);
-        return `All content (${allContent.length}):\n${allContent.slice(0, 10).map((c: any, i: number) =>
-          `${i + 1}. ${c.title} (${c.type}) - slugAsParams: "${c.slugAsParams}", slug: "${c.slug}"`
-        ).join('\n')}`;
+  ...(isProduction ? {} : {
+    debugContent: tool({
+      description: 'Debug tool to see what content is available. Use this to troubleshoot content detection issues.',
+      inputSchema: z.object({
+        type: z.string().optional().describe('Content type to debug: posts, paintings, or pages')
+      }),
+      execute: ({ type }) => {
+        if (type === 'paintings') {
+          const paintings = getContent([], ContentType.PAINTING, locale);
+          return `Available paintings (${paintings.length}):\n${paintings.slice(0, 5).map((p: any, i: number) =>
+            `${i + 1}. ${p.title} - slugAsParams: "${p.slugAsParams}", slug: "${p.slug}"`
+          ).join('\n')}`;
+        } else if (type === 'posts') {
+          const posts = getContent([], ContentType.POST, locale);
+          return `Available posts (${posts.length}):\n${posts.slice(0, 5).map((p: any, i: number) =>
+            `${i + 1}. ${p.title} - slugAsParams: "${p.slugAsParams}", slug: "${p.slug}"`
+          ).join('\n')}`;
+        } else {
+          const allContent = getContent([], undefined, locale);
+          return `All content (${allContent.length}):\n${allContent.slice(0, 10).map((c: any, i: number) =>
+            `${i + 1}. ${c.title} (${c.type}) - slugAsParams: "${c.slugAsParams}", slug: "${c.slug}"`
+          ).join('\n')}`;
+        }
       }
-    }
+    }),
   }),
 
   getCurrentPageContent: tool({
@@ -407,10 +416,26 @@ function categorizeReadingTime(posts: PostsWithId) {
   })
 }
 
+// Input validation schema for GraphQL chat mutation (mirrors streaming endpoint)
+const chatInputSchema = z.object({
+  message: z.string().min(1).max(2000),
+  sessionId: z.string().uuid(),
+  history: z.array(z.object({
+    role: z.enum(['user', 'assistant']),
+    content: z.string().max(4000)
+  })).max(50).default([]),
+  currentPageUrl: z.string().max(500).optional()
+});
+
 const resolvers: Resolvers = {
   Mutation: {
     async chat(root, { input }, context: Context, info: GraphQLResolveInfo) {
-      const { message, sessionId, history = [], currentPageUrl } = input;
+      // Validate input to prevent cost-escalation attacks
+      const validated = chatInputSchema.safeParse(input);
+      if (!validated.success) {
+        throw new Error('Invalid input: ' + validated.error.issues.map(i => i.message).join(', '));
+      }
+      const { message, sessionId, history = [], currentPageUrl } = validated.data;
       const userLocale = context.locale as Locale;
       const user = context.user;
 
@@ -426,17 +451,14 @@ const resolvers: Resolvers = {
 
         // Check rate limits
         const rateLimitResult = await checkRateLimit(userId);
-        if (!rateLimitResult.allowed && isProduction) {
+        if (!rateLimitResult.allowed) {
           throw new Error('Rate limit exceeded. Please try again later.');
-        }
-        if (!rateLimitResult.allowed && !isProduction) {
-          console.warn(`⚠️ DEV MODE: Rate limit exceeded for ${userId}. Would block in production.`);
         }
       } else {
         // Unauthenticated users - check message count
         const messageCount = await getMessageCount(sessionId);
 
-        if (messageCount >= 5) {
+        if (messageCount >= FREE_MESSAGE_LIMIT) {
           // Check if this is an email submission
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (emailRegex.test(message.trim())) {
@@ -467,7 +489,7 @@ const resolvers: Resolvers = {
           } else {
             // User hasn't provided email yet, show auth prompt
             return {
-              message: `🔒 You've used all 5 free messages! To continue chatting, please provide your email address and I'll send you a magic link to verify your identity.\n\nJust type your email address in the chat.`,
+              message: `🔒 You've used all ${FREE_MESSAGE_LIMIT} free messages! To continue chatting, please provide your email address and I'll send you a magic link to verify your identity.\n\nJust type your email address in the chat.`,
               usage: {
                 promptTokens: 0,
                 completionTokens: 0,
@@ -487,11 +509,8 @@ const resolvers: Resolvers = {
 
         // Check rate limits
         const rateLimitResult = await checkRateLimit(tempUserId);
-        if (!rateLimitResult.allowed && isProduction) {
+        if (!rateLimitResult.allowed) {
           throw new Error('Rate limit exceeded. Please try again later.');
-        }
-        if (!rateLimitResult.allowed && !isProduction) {
-          console.warn(`⚠️ DEV MODE: Rate limit exceeded for ${tempUserId}. Would block in production.`);
         }
       }
 
@@ -573,11 +592,11 @@ This is critical for providing relevant context about what they're actually view
           });
 
           if (result.toolCalls && result.toolCalls.length > 0) {
-            console.log('🔧 Tool calls made:', result.toolCalls.map(tc => ({ name: tc.toolName })));
+            console.log('🔧 Tool calls made:', result.toolCalls.map(tc => ({ name: tc?.toolName })));
           }
 
           if (result.toolResults && result.toolResults.length > 0) {
-            console.log('🔧 Tool results:', result.toolResults.map(tr => ({ toolName: tr.toolName })));
+            console.log('🔧 Tool results:', result.toolResults.map(tr => ({ toolName: tr?.toolName })));
           }
         }
 
@@ -691,6 +710,16 @@ This is critical for providing relevant context about what they're actually view
           };
         }
 
+        // Rate limit magic link requests by email to prevent email bombing
+        // Hash the email to prevent PII leakage in rate limit datastore/logs
+        const rateLimitResult = await checkRateLimit(`magic-link:${hashEmail(email)}`, 'chat');
+        if (!rateLimitResult.allowed) {
+          return {
+            success: false,
+            message: 'Too many requests. Please wait a few minutes before requesting another verification link.'
+          };
+        }
+
         // Create verification token
         const token = await createVerificationToken(email);
 
@@ -699,7 +728,7 @@ This is critical for providing relevant context about what they're actually view
 
         return {
           success: true,
-          message: `Verification link sent to ${email}. Please check your email and click the link to continue chatting.`
+          message: 'Verification link sent. Please check your email and click the link to continue chatting.'
         };
       } catch (error) {
         console.error('Error in requestMagicLink:', error);

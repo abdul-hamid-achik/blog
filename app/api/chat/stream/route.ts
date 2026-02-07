@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { getAuthenticatedUser, getMessageCount } from '@/lib/auth';
+import { FREE_MESSAGE_LIMIT } from '@/lib/constants';
 import { checkRateLimit, isUserBlocked } from '@/lib/rate-limit';
 import { chatModel, searchSimilarContent } from '@/lib/ai';
 import { getContent, ContentType, Locale } from '@/lib/data';
@@ -10,6 +11,21 @@ import { db } from '@/lib/db';
 import { chatMessages, chatSessions } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { getPromptWithParams, getDefaultPromptParams } from '@/lib/prompts';
+
+// Allowed CORS origins
+const ALLOWED_ORIGINS = [
+    'https://www.abdulachik.dev',
+    'https://abdulachik.dev',
+    ...(isProduction ? [] : ['http://localhost:3000']),
+];
+
+function getCorsOrigin(request: NextRequest): string {
+    const origin = request.headers.get('origin');
+    if (origin && ALLOWED_ORIGINS.includes(origin)) {
+        return origin;
+    }
+    return ALLOWED_ORIGINS[0];
+}
 
 // Input validation schema
 const inputSchema = z.object({
@@ -343,7 +359,7 @@ export async function POST(request: NextRequest) {
         if (!user.isAuthenticated) {
             // Check message count for unauthenticated users
             const messageCount = await getMessageCount(sessionId);
-            if (messageCount >= 5) {
+            if (messageCount >= FREE_MESSAGE_LIMIT) {
                 return new Response('Authentication required', {
                     status: 401,
                     headers: {
@@ -481,9 +497,10 @@ This is critical for providing relevant context about what they're actually view
                 'Connection': 'keep-alive',
                 'X-Content-Type-Options': 'nosniff',
                 'X-Frame-Options': 'DENY',
-                'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
+                'Access-Control-Allow-Origin': getCorsOrigin(request),
                 'Access-Control-Allow-Methods': 'POST',
-                'Access-Control-Allow-Headers': 'Content-Type'
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Vary': 'Origin'
             }
         });
 
@@ -517,10 +534,11 @@ export function OPTIONS(request: NextRequest) {
     return new Response(null, {
         status: 200,
         headers: {
-            'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
+            'Access-Control-Allow-Origin': getCorsOrigin(request),
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            'Access-Control-Max-Age': '86400'
+            'Access-Control-Max-Age': '86400',
+            'Vary': 'Origin'
         }
     });
 }
