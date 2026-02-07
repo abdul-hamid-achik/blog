@@ -43,7 +43,7 @@ if (isProduction) {
 
 const server = new ApolloServer<Context>({
   schema,
-  allowBatchedHttpRequests: !isProduction,
+  allowBatchedHttpRequests: true,
   introspection: !isProduction,
   cache,
   plugins: [
