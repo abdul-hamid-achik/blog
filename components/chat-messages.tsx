@@ -143,8 +143,7 @@ function AssistantMessageContent({ content }: { content: string }) {
                             img: ({ src, alt }) => {
                                 if (!isSafeImage(src)) {
                                     // Render alt text as plain text for blocked images
-                                    // The alt text is already sanitized by react-markdown
-                                    return alt ? <span className="text-muted-foreground italic">[Image: {String(alt)}]</span> : null;
+                                    return alt ? <span className="text-muted-foreground italic">[Image: {alt}]</span> : null;
                                 }
                                 return (
                                     <img 
