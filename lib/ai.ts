@@ -40,6 +40,7 @@ export async function searchSimilarContent(
   try {
     // Generate embedding for the query
     const queryEmbedding = await generateEmbedding(query);
+    const queryVector = JSON.stringify(queryEmbedding);
 
     // Query pgvector using Drizzle with cosine distance, filtered by similarity threshold
     const results = await db.execute(
@@ -48,10 +49,10 @@ export async function searchSimilarContent(
           id,
           content,
           metadata,
-          1 - (embedding <=> ${JSON.stringify(queryEmbedding)}::vector) as similarity
+          1 - (embedding <=> ${queryVector}::vector) as similarity
         FROM ${documents}
-        WHERE 1 - (embedding <=> ${JSON.stringify(queryEmbedding)}::vector) >= ${SIMILARITY_THRESHOLD}
-        ORDER BY embedding <=> ${JSON.stringify(queryEmbedding)}::vector
+        WHERE 1 - (embedding <=> ${queryVector}::vector) >= ${SIMILARITY_THRESHOLD}
+        ORDER BY embedding <=> ${queryVector}::vector
         LIMIT ${limit}
       `
     );

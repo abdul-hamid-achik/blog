@@ -24,6 +24,9 @@ const ALLOWED_ORIGINS = [
     ...(isProduction ? [] : ['http://localhost:3000']),
 ];
 
+// Valid locales for validation
+const VALID_LOCALES = Object.values(Locale) as string[];
+
 function getCorsOrigin(request: NextRequest): string {
     const origin = request.headers.get('origin');
     if (origin && ALLOWED_ORIGINS.includes(origin)) {
@@ -39,12 +42,16 @@ function getClientIp(request: NextRequest): string {
         ?? '127.0.0.1';
 }
 
-// Shared 403 response headers
-const DENY_HEADERS = {
-    'Content-Type': 'text/plain',
-    'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
-} as const;
+// Shared 403 response headers - now a function to include CORS headers
+function getDenyHeaders(request: NextRequest): Record<string, string> {
+    return {
+        'Content-Type': 'text/plain',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
+        'Access-Control-Allow-Origin': getCorsOrigin(request),
+        'Vary': 'Origin'
+    };
+}
 
 // Input validation schema
 const inputSchema = z.object({
@@ -370,22 +377,21 @@ export async function POST(request: NextRequest) {
         const { message, sessionId, history = [], currentPageUrl } = validatedInput;
 
         // Get locale from headers with validation
-        const validLocales = Object.values(Locale) as string[];
         const rawLocale = request.headers.get("locale") || Locale.EN;
-        const locale: Locale = validLocales.includes(rawLocale) ? (rawLocale as Locale) : Locale.EN;
+        const locale: Locale = VALID_LOCALES.includes(rawLocale) ? (rawLocale as Locale) : Locale.EN;
 
         // --- IP-level checks (prevents session-rotation abuse) ---
         const clientIp = getClientIp(request);
 
         if (await isIpBlocked(clientIp)) {
-            return new Response('Access denied', { status: 403, headers: DENY_HEADERS });
+            return new Response('Access denied', { status: 403, headers: getDenyHeaders(request) });
         }
 
         const ipRateLimit = await checkIpRateLimit(clientIp);
         if (!ipRateLimit.allowed) {
             return new Response('Rate limit exceeded', {
                 status: 429,
-                headers: { ...DENY_HEADERS, 'Retry-After': '60' }
+                headers: { ...getDenyHeaders(request), 'Retry-After': '60' }
             });
         }
 
@@ -400,7 +406,7 @@ export async function POST(request: NextRequest) {
                 console.warn(`🛡️ Message blocked: ${moderation.reason} from IP ${clientIp}`);
             }
 
-            return new Response('Message not allowed', { status: 400, headers: DENY_HEADERS });
+            return new Response('Message not allowed', { status: 400, headers: getDenyHeaders(request) });
         }
 
         // --- Authentication check ---
@@ -412,7 +418,7 @@ export async function POST(request: NextRequest) {
             if (messageCount >= FREE_MESSAGE_LIMIT) {
                 return new Response('Authentication required', {
                     status: 401,
-                    headers: DENY_HEADERS
+                    headers: getDenyHeaders(request)
                 });
             }
         }
@@ -422,7 +428,7 @@ export async function POST(request: NextRequest) {
 
         // Check if user is blocked
         if (await isUserBlocked(userId)) {
-            return new Response('Access denied', { status: 403, headers: DENY_HEADERS });
+            return new Response('Access denied', { status: 403, headers: getDenyHeaders(request) });
         }
 
         // Rate limiting per session/user (use stream rate limiter for stricter limits)
@@ -430,7 +436,7 @@ export async function POST(request: NextRequest) {
         if (!rateLimitResult.allowed) {
             return new Response('Rate limit exceeded', {
                 status: 429,
-                headers: { ...DENY_HEADERS, 'Retry-After': '60' }
+                headers: { ...getDenyHeaders(request), 'Retry-After': '60' }
             });
         }
 
@@ -496,7 +502,7 @@ This is critical for providing relevant context about what they're actually view
                     controller.enqueue(encoder.encode('data: {"type":"start"}\n\n'));
 
                     // Generate streaming response with tools
-                    // maxSteps enables multi-step tool chaining (e.g. search -> getCurrentPage -> respond)
+                    // stopWhen enables multi-step tool chaining (e.g. search -> getCurrentPage -> respond)
                     const result = await streamText({
                         model: chatModel,
                         messages,

@@ -52,10 +52,18 @@ export function Chat() {
 
     // Abort in-flight request when chat is closed or component unmounts
     useEffect(() => {
+        // Abort immediately when the chat is closed
+        if (!isOpen) {
+            abortControllerRef.current?.abort();
+            abortControllerRef.current = null;
+        }
+
+        // Also abort on component unmount
         return () => {
             abortControllerRef.current?.abort();
+            abortControllerRef.current = null;
         };
-    }, []);
+    }, [isOpen]);
 
     // Add welcome message when chat opens for the first time
     useEffect(() => {
@@ -177,8 +185,17 @@ export function Chat() {
 
             setIsLoading(false);
         } catch (error) {
-            // Don't treat abort as an error
+            // Don't treat abort as an error, but reset loading state and clear placeholder
             if (error instanceof DOMException && error.name === 'AbortError') {
+                setIsLoading(false);
+                // Remove the empty assistant message placeholder
+                setMessages(prev => {
+                    const updated = [...prev];
+                    if (updated.length > 0 && updated[updated.length - 1].role === 'assistant' && !updated[updated.length - 1].content) {
+                        updated.pop();
+                    }
+                    return updated;
+                });
                 return;
             }
             console.error('Chat streaming error:', error);

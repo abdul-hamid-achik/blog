@@ -23,6 +23,20 @@ interface ChatMessagesProps {
     onAuthSuccess?: () => void;
 }
 
+// Safe URL protocols for links
+const ALLOWED_PROTOCOLS = ['http:', 'https:', 'mailto:'];
+
+function isSafeUrl(href: string | undefined): boolean {
+    if (!href) return false;
+    try {
+        const url = new URL(href, window.location.origin);
+        return ALLOWED_PROTOCOLS.includes(url.protocol);
+    } catch {
+        // Relative URLs are safe
+        return href.startsWith('/') || href.startsWith('#');
+    }
+}
+
 // Extract a readable label from a navigation path
 function getNavLabel(path: string): string {
     const segments = path.split('/').filter(Boolean);
@@ -79,12 +93,20 @@ function AssistantMessageContent({ content }: { content: string }) {
                     <Markdown
                         key={i}
                         components={{
-                            // Keep links styled consistently
-                            a: ({ href, children }) => (
-                                <a href={href} className="text-primary underline" target="_blank" rel="noopener noreferrer">
-                                    {children}
-                                </a>
-                            ),
+                            // Keep links styled consistently with URL validation
+                            a: ({ href, children }) => {
+                                if (!isSafeUrl(href)) {
+                                    // Render as plain text if URL is unsafe
+                                    return <span>{children}</span>;
+                                }
+                                return (
+                                    <a href={href} className="text-primary underline" target="_blank" rel="noopener noreferrer">
+                                        {children}
+                                    </a>
+                                );
+                            },
+                            // Disallow images to prevent tracking/privacy leaks
+                            img: () => null,
                             // Compact paragraphs for chat context
                             p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
                             ul: ({ children }) => <ul className="list-disc pl-4 mb-1">{children}</ul>,
