@@ -14,6 +14,12 @@ export default async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.delete('x-middleware-subrequest');
 
+  // Create a new request with sanitized headers
+  const sanitizedRequest = new NextRequest(request.url, {
+    headers: requestHeaders,
+    method: request.method,
+  });
+
   const nextIntlMiddleware = createMiddleware({
     locales,
     defaultLocale: "en",
@@ -22,19 +28,19 @@ export default async function middleware(request: NextRequest) {
 
   // Skip rate limiting in development
   if (!isProduction) {
-    return nextIntlMiddleware(request as any);
+    return nextIntlMiddleware(sanitizedRequest as any);
   }
 
   // Use Vercel's trusted IP header first, fall back to x-forwarded-for
-  const ip = request.headers.get('x-real-ip')
-    ?? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+  const ip = sanitizedRequest.headers.get('x-real-ip')
+    ?? sanitizedRequest.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
     ?? '127.0.0.1';
 
   const { success } = await siteRateLimiter.limit(ip);
 
   if (!success) {
-    return NextResponse.redirect(new URL(`/blocked`, request.url));
+    return NextResponse.redirect(new URL(`/blocked`, sanitizedRequest.url));
   }
 
-  return nextIntlMiddleware(request as any);
+  return nextIntlMiddleware(sanitizedRequest as any);
 };

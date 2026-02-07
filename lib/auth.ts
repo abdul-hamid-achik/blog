@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { users, verificationTokens, chatMessages } from '@/db/schema';
 import { eq, and, gt, count } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
+import { FREE_MESSAGE_LIMIT } from './constants';
 
 const AUTH_COOKIE_NAME = 'chat-auth';
 const AUTH_COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // 30 days
@@ -161,6 +162,6 @@ export async function getMessageCount(sessionId: string): Promise<number> {
     } catch (error) {
         console.error('Error getting message count:', error);
         // Return the limit on error to prevent free message bypass when DB is unavailable
-        return 5;
+        return FREE_MESSAGE_LIMIT;
     }
 }

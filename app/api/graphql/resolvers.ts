@@ -14,11 +14,18 @@ import { db } from "@/lib/db";
 import { chatMessages, chatSessions } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { getMessageCount, createVerificationToken } from "@/lib/auth";
+import { FREE_MESSAGE_LIMIT } from "@/lib/constants";
 import { sendMagicLinkEmail } from "@/lib/email";
 import { getPromptWithParams, getDefaultPromptParams } from "@/lib/prompts";
+import { createHash } from 'crypto';
 
 // Helper type for posts with _id
 type PostsWithId = ContentWithId<Posts>;
+
+// Helper function to hash email for rate limiting (prevents PII leakage)
+function hashEmail(email: string): string {
+  return createHash('sha256').update(email.toLowerCase().trim()).digest('hex');
+}
 
 // Define tools for the AI assistant
 const createTools = (locale: Locale) => ({
@@ -451,7 +458,7 @@ const resolvers: Resolvers = {
         // Unauthenticated users - check message count
         const messageCount = await getMessageCount(sessionId);
 
-        if (messageCount >= 5) {
+        if (messageCount >= FREE_MESSAGE_LIMIT) {
           // Check if this is an email submission
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (emailRegex.test(message.trim())) {
@@ -482,7 +489,7 @@ const resolvers: Resolvers = {
           } else {
             // User hasn't provided email yet, show auth prompt
             return {
-              message: `🔒 You've used all 5 free messages! To continue chatting, please provide your email address and I'll send you a magic link to verify your identity.\n\nJust type your email address in the chat.`,
+              message: `🔒 You've used all ${FREE_MESSAGE_LIMIT} free messages! To continue chatting, please provide your email address and I'll send you a magic link to verify your identity.\n\nJust type your email address in the chat.`,
               usage: {
                 promptTokens: 0,
                 completionTokens: 0,
@@ -704,7 +711,8 @@ This is critical for providing relevant context about what they're actually view
         }
 
         // Rate limit magic link requests by email to prevent email bombing
-        const rateLimitResult = await checkRateLimit(`magic-link:${email}`, 'chat');
+        // Hash the email to prevent PII leakage in rate limit datastore/logs
+        const rateLimitResult = await checkRateLimit(`magic-link:${hashEmail(email)}`, 'chat');
         if (!rateLimitResult.allowed) {
           return {
             success: false,

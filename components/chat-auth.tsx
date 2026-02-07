@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Mail } from "lucide-react";
 import { gql, useMutation } from "@apollo/client";
 import { cn } from "@/lib/utils";
+import { FREE_MESSAGE_LIMIT } from "@/lib/constants";
 
 const REQUEST_MAGIC_LINK_MUTATION = gql`
   mutation RequestMagicLink($email: String!) {
@@ -84,7 +85,7 @@ export function ChatAuth({ onSuccess, className }: ChatAuthProps) {
                         Email verification required
                     </h3>
                     <p className="text-sm text-amber-700 dark:text-amber-300">
-                        You&apos;ve used all 5 free messages. Enter your email to continue chatting.
+                        You&apos;ve used all {FREE_MESSAGE_LIMIT} free messages. Enter your email to continue chatting.
                     </p>
                 </div>
             </div>
