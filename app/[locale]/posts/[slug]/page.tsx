@@ -1,4 +1,6 @@
+import { ArticleJsonLd } from "@/components/json-ld"
 import { Mdx } from "@/components/mdx-components"
+import RelatedPosts from "@/components/related-posts"
 import { getPost } from "@/lib/data"
 import { getBaseURL } from "@/lib/utils"
 import { locales } from "@/navigation"
@@ -25,39 +27,36 @@ export async function generateMetadata({
     return {}
   }
 
+  const baseUrl = getBaseURL()
+  const ogImage = `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}`
+
   return {
-    metadataBase: new URL(getBaseURL()),
+    metadataBase: new URL(baseUrl),
     title: post.title,
     description: post.description,
     keywords: post.tags?.join(", "),
+    alternates: {
+      canonical: `${baseUrl}/${locale}/posts/${post.slugAsParams}`,
+      languages: {
+        en: `${baseUrl}/en/posts/${post.slugAsParams}`,
+        es: `${baseUrl}/es/posts/${post.slugAsParams}`,
+        ru: `${baseUrl}/ru/posts/${post.slugAsParams}`,
+      },
+    },
     twitter: {
       card: "summary_large_image",
       creator: "@abdulachik",
       title: post.title,
       description: post.description || undefined,
-      images: [
-        {
-          url:
-            process.env.NODE_ENV === "production"
-              ? `https://www.abdulachik.dev/api/og?title=${post.title}`
-              : `http://localhost:3000/api/og?title=${post.title}`,
-        },
-      ],
+      images: [{ url: ogImage }],
     },
     openGraph: {
       title: post.title,
       description: post.description || undefined,
       type: "article",
-      images: [
-        {
-          url:
-            process.env.NODE_ENV === "production"
-              ? `https://www.abdulachik.dev/api/og?title=${post.title}`
-              : `http://localhost:3000/api/og?title=${post.title}`,
-        },
-      ],
+      images: [{ url: ogImage }],
       authors: ["Abdul Hamid Achik"],
-      url: `https://www.abdulachik.dev/posts/${post.slugAsParams}`,
+      url: `${baseUrl}/${locale}/posts/${post.slugAsParams}`,
     },
   }
 }
@@ -84,24 +83,40 @@ export default async function PostPage({ params }: PostProps) {
   }
 
   return (
-    <article className="prose dark:prose-invert py-6">
-      <h1 className="mb-2 text-xl md:text-4xl">{post.title}</h1>
-      <div className="flex items-center">
-        {post.date && (
-          <>
-            <p className="text-sm">{DateTime.fromISO(post.date).toRelative()}</p>
-            <span className="mx-2">•</span>
-          </>
+    <>
+      <ArticleJsonLd
+        title={post.title}
+        description={post.description}
+        date={post.date}
+        image={post.image}
+        slug={post.slugAsParams}
+        locale={locale}
+        tags={post.tags}
+      />
+      <article className="prose dark:prose-invert py-6">
+        <h1 className="mb-2 text-xl md:text-4xl">{post.title}</h1>
+        <div className="flex items-center">
+          {post.date && (
+            <>
+              <p className="text-sm">{DateTime.fromISO(post.date).toRelative()}</p>
+              <span className="mx-2">•</span>
+            </>
+          )}
+          <p className="text-sm">{post.readingTime.text}</p>
+        </div>
+        {post.description && (
+          <p className="text-md mt-0 text-muted-foreground md:text-xl">
+            {post.description}
+          </p>
         )}
-        <p className="text-sm">{post.readingTime.text}</p>
-      </div>
-      {post.description && (
-        <p className="text-md mt-0 text-muted-foreground md:text-xl">
-          {post.description}
-        </p>
-      )}
-      <hr className="my-4" />
-      <Mdx code={post.mdx} />
-    </article>
+        <hr className="my-4" />
+        <Mdx code={post.mdx} />
+        <RelatedPosts
+          currentSlug={post.slugAsParams}
+          locale={locale}
+          tags={post.tags}
+        />
+      </article>
+    </>
   )
 }
