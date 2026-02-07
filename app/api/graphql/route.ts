@@ -26,6 +26,8 @@ const schema = buildSubgraphSchema({
   resolvers: resolvers as GraphQLResolverMap<unknown>
 })
 
+const MAX_BATCH_SIZE = 5
+
 // Use in-memory cache in development to avoid Redis connection issues.
 let cache: KeyvAdapter | undefined;
 if (isProduction) {
@@ -90,5 +92,14 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const requestBody = await request.clone().json().catch(() => null)
+
+  if (Array.isArray(requestBody) && requestBody.length > MAX_BATCH_SIZE) {
+    return Response.json(
+      { errors: [{ message: `Batch size exceeds ${MAX_BATCH_SIZE} operations.` }] },
+      { status: status.BAD_REQUEST }
+    )
+  }
+
   return await handler(request)
 }
