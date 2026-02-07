@@ -3,7 +3,7 @@
   "style": "default",
   "tailwind": {
     "css": "app/globals.css",
-    "baseColor": "slate",
+    "baseColor": "nord",
     "cssVariables": true
   },
   "rsc": false,
