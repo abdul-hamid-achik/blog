@@ -5,7 +5,7 @@ import { FREE_MESSAGE_LIMIT } from '@/lib/constants';
 import { checkRateLimit, isUserBlocked } from '@/lib/rate-limit';
 import { chatModel, searchSimilarContent } from '@/lib/ai';
 import { getContent, ContentType, Locale } from '@/lib/data';
-import { streamText, tool } from 'ai';
+import { streamText, tool, stepCountIs } from 'ai';
 import { isProduction } from '@/lib/utils';
 import { db } from '@/lib/db';
 import { chatMessages, chatSessions } from '@/db/schema';
@@ -350,8 +350,10 @@ export async function POST(request: NextRequest) {
         const validatedInput = inputSchema.parse(body);
         const { message, sessionId, history = [], currentPageUrl } = validatedInput;
 
-        // Get locale from headers
-        const locale = (request.headers.get("locale") || "en") as Locale;
+        // Get locale from headers with validation
+        const validLocales = Object.values(Locale) as string[];
+        const rawLocale = request.headers.get("locale") || Locale.EN;
+        const locale: Locale = validLocales.includes(rawLocale) ? (rawLocale as Locale) : Locale.EN;
 
         // Authentication check
         const user = await getAuthenticatedUser();
@@ -455,10 +457,12 @@ This is critical for providing relevant context about what they're actually view
                     controller.enqueue(encoder.encode('data: {"type":"start"}\n\n'));
 
                     // Generate streaming response with tools
+                    // maxSteps enables multi-step tool chaining (e.g. search -> getCurrentPage -> respond)
                     const result = await streamText({
                         model: chatModel,
                         messages,
                         tools,
+                        stopWhen: stepCountIs(5),
                         onFinish: async (result) => {
                             // Save complete response to database
                             const promptTokens = 'promptTokens' in result.usage ? (result.usage.promptTokens as number) : 0;

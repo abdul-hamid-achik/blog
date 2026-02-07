@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { ChatBubble } from "@/components/chat-bubble";
 import { ChatMessages, Message } from "@/components/chat-messages";
@@ -14,6 +14,7 @@ export function Chat() {
     const [sessionId, setSessionId] = useState<string>("");
     const [usage, setUsage] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const abortControllerRef = useRef<AbortController | null>(null);
 
     // Initialize or retrieve session ID
     useEffect(() => {
@@ -49,6 +50,13 @@ export function Chat() {
         return () => window.removeEventListener('close-chat', handleCloseChat);
     }, []);
 
+    // Abort in-flight request when chat is closed or component unmounts
+    useEffect(() => {
+        return () => {
+            abortControllerRef.current?.abort();
+        };
+    }, []);
+
     // Add welcome message when chat opens for the first time
     useEffect(() => {
         if (isOpen && messages.length === 0) {
@@ -61,6 +69,11 @@ export function Chat() {
     }, [isOpen, messages.length]);
 
     const handleSendMessage = async (content: string) => {
+        // Abort any previous in-flight request
+        abortControllerRef.current?.abort();
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
         const userMessage: Message = {
             role: 'user',
             content
@@ -94,7 +107,8 @@ export function Chat() {
                     sessionId,
                     history,
                     currentPageUrl
-                })
+                }),
+                signal: controller.signal
             });
 
             if (!response.ok) {
@@ -163,6 +177,10 @@ export function Chat() {
 
             setIsLoading(false);
         } catch (error) {
+            // Don't treat abort as an error
+            if (error instanceof DOMException && error.name === 'AbortError') {
+                return;
+            }
             console.error('Chat streaming error:', error);
             setIsLoading(false);
 
@@ -179,23 +197,35 @@ export function Chat() {
     };
 
     const handleClearChat = () => {
+        abortControllerRef.current?.abort();
         setMessages([]);
         sessionStorage.removeItem('chat-messages');
         setUsage(null);
+        setIsLoading(false);
     };
 
     return (
         <>
             {!isOpen && <ChatBubble onClick={() => setIsOpen(true)} />}
 
-            {/* Chat Window - Bottom Right Corner */}
+            {/* Chat Window - Responsive: full-screen on mobile, floating on desktop */}
             <div
                 className={cn(
-                    "fixed bottom-4 right-4 z-[9998] transition-all duration-300 ease-in-out",
+                    "fixed z-[9998] transition-all duration-300 ease-in-out",
+                    // Mobile: full screen with safe area insets
+                    "inset-0 sm:inset-auto",
+                    // Desktop: bottom-right floating panel
+                    "sm:bottom-4 sm:right-4",
                     isOpen ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-4 scale-95 pointer-events-none"
                 )}
             >
-                <div className="w-[380px] h-[600px] bg-background border border-border rounded-lg shadow-2xl flex flex-col overflow-hidden">
+                <div className={cn(
+                    "bg-background border-border shadow-2xl flex flex-col overflow-hidden",
+                    // Mobile: full screen
+                    "w-full h-full",
+                    // Desktop: fixed-size floating card
+                    "sm:w-[380px] sm:h-[600px] sm:border sm:rounded-lg"
+                )}>
                     {/* Header */}
                     <div className="p-4 border-b border-border bg-muted flex items-center justify-between">
                         <div className="flex items-center gap-2">
