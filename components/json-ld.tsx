@@ -48,10 +48,12 @@ export function ArticleJsonLd({
     },
   }
 
+  const jsonString = JSON.stringify(jsonLd).replace(/</g, '\\u003c')
+
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      dangerouslySetInnerHTML={{ __html: jsonString }}
     />
   )
 }
@@ -79,10 +81,12 @@ export function WebSiteJsonLd() {
     },
   }
 
+  const jsonString = JSON.stringify(jsonLd).replace(/</g, '\\u003c')
+
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      dangerouslySetInnerHTML={{ __html: jsonString }}
     />
   )
 }

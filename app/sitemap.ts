@@ -15,7 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ]
 
   const postsSitemap = allPosts.map(post => ({
-    url: `${baseUrl}/${post.locale}${post.slug}`,
+    url: `${baseUrl}/${post.locale}/posts${post.slug}`,
     lastModified: post.date ? new Date(post.date) : new Date(),
     changeFrequency: 'monthly' as const,
     priority: 0.8,
@@ -29,7 +29,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   const paintingsSitemap = allPaintings.map(painting => ({
-    url: `${baseUrl}/${painting.locale}${painting.slug}`,
+    url: `${baseUrl}/${painting.locale}/paintings${painting.slug}`,
     lastModified: new Date(),
     changeFrequency: 'yearly' as const,
     priority: 0.5,
