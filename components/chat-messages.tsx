@@ -149,12 +149,13 @@ function AssistantMessageContent({ content }: { content: string }) {
                             img: ({ src, alt }) => {
                                 if (!isSafeImage(src)) {
                                     // Render alt text as plain text for blocked images
+                                    // React automatically escapes JSX content, preventing XSS
                                     return alt ? <span className="text-muted-foreground italic">[Image: {alt}]</span> : null;
                                 }
                                 return (
                                     <img 
                                         src={src} 
-                                        alt={alt || ''} 
+                                        alt={alt || 'Image'} 
                                         className="max-w-full rounded border border-border my-1"
                                         loading="lazy"
                                     />
