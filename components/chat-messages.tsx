@@ -23,6 +23,60 @@ interface ChatMessagesProps {
     onAuthSuccess?: () => void;
 }
 
+// Safe URL protocols for links
+const ALLOWED_PROTOCOLS = ['http:', 'https:', 'mailto:'];
+
+// Allowed domains for images (internal only)
+const ALLOWED_IMAGE_DOMAINS = ['abdulachik.dev'];
+
+function isSafeUrl(href: string | undefined): boolean {
+    if (!href) return false;
+    try {
+        const url = new URL(href, window.location.origin);
+        return ALLOWED_PROTOCOLS.includes(url.protocol);
+    } catch {
+        // Relative URLs are safe
+        return href.startsWith('/') || href.startsWith('#');
+    }
+}
+
+function isSafeImage(src: string | undefined): boolean {
+    if (!src) return false;
+    
+    // Relative URLs (internal) are safe
+    if (src.startsWith('/')) return true;
+    
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') return false;
+    
+    try {
+        const url = new URL(src, window.location.origin);
+        
+        // Only allow https protocol for absolute URLs
+        if (url.protocol !== 'https:') return false;
+        
+        // Check if hostname exactly matches allowed domains or is a valid subdomain
+        // Split both hostname and domain into parts to ensure proper domain boundary matching
+        return ALLOWED_IMAGE_DOMAINS.some(domain => {
+            if (url.hostname === domain) return true;
+            
+            // For subdomain validation, ensure it's a proper subdomain
+            // by checking that hostname ends with '.domain' (not just contains it)
+            const domainParts = domain.split('.');
+            const hostnameParts = url.hostname.split('.');
+            
+            // Hostname must have more parts than domain to be a subdomain
+            if (hostnameParts.length <= domainParts.length) return false;
+            
+            // Check if the last N parts of hostname match the domain parts
+            const hostnameEnd = hostnameParts.slice(-domainParts.length).join('.');
+            return hostnameEnd === domain;
+        });
+    } catch {
+        return false;
+    }
+}
+
 // Extract a readable label from a navigation path
 function getNavLabel(path: string): string {
     const segments = path.split('/').filter(Boolean);
@@ -79,12 +133,35 @@ function AssistantMessageContent({ content }: { content: string }) {
                     <Markdown
                         key={i}
                         components={{
-                            // Keep links styled consistently
-                            a: ({ href, children }) => (
-                                <a href={href} className="text-primary underline" target="_blank" rel="noopener noreferrer">
-                                    {children}
-                                </a>
-                            ),
+                            // Keep links styled consistently with URL validation
+                            a: ({ href, children }) => {
+                                if (!isSafeUrl(href)) {
+                                    // Render as plain text if URL is unsafe
+                                    return <span>{children}</span>;
+                                }
+                                return (
+                                    <a href={href} className="text-primary underline" target="_blank" rel="noopener noreferrer">
+                                        {children}
+                                    </a>
+                                );
+                            },
+                            // Only allow internal images to prevent tracking/privacy leaks
+                            img: ({ src, alt }) => {
+                                if (!isSafeImage(src)) {
+                                    // Show blocked image indicator for accessibility
+                                    // React automatically escapes JSX content, preventing XSS
+                                    const label = alt ? `[Image: ${alt}]` : '[Image]';
+                                    return <span className="text-muted-foreground italic">{label}</span>;
+                                }
+                                return (
+                                    <img 
+                                        src={src} 
+                                        alt={alt || 'Image'} 
+                                        className="max-w-full rounded border border-border my-1"
+                                        loading="lazy"
+                                    />
+                                );
+                            },
                             // Compact paragraphs for chat context
                             p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
                             ul: ({ children }) => <ul className="list-disc pl-4 mb-1">{children}</ul>,

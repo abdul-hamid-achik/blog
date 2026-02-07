@@ -1,6 +1,7 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { kv } from '@vercel/kv';
 import { isProduction } from '@/lib/utils';
+import { ABUSE_THRESHOLD, ABUSE_WINDOW_SECONDS, TEMP_BLOCK_SECONDS } from '@/lib/constants';
 
 // Site-wide rate limiter (for middleware)
 export const siteRateLimiter = new Ratelimit({
@@ -74,10 +75,6 @@ export async function unblockUser(userId: string) {
 // ---------------------------------------------------------------------------
 // Track moderation violations per IP. After ABUSE_THRESHOLD violations within
 // the TTL window the IP is temporarily blocked for TEMP_BLOCK_SECONDS.
-
-const ABUSE_THRESHOLD = 5;
-const ABUSE_WINDOW_SECONDS = 600;   // 10 minutes
-const TEMP_BLOCK_SECONDS = 3600;    // 1 hour
 
 /**
  * Record a moderation violation for an IP and auto-block if threshold is exceeded.
