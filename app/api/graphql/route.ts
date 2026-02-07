@@ -26,6 +26,8 @@ const schema = buildSubgraphSchema({
   resolvers: resolvers as GraphQLResolverMap<unknown>
 })
 
+const MAX_BATCH_SIZE = 5
+
 // Use in-memory cache in development to avoid Redis connection issues.
 let cache: KeyvAdapter | undefined;
 if (isProduction) {
@@ -43,7 +45,7 @@ if (isProduction) {
 
 const server = new ApolloServer<Context>({
   schema,
-  allowBatchedHttpRequests: !isProduction,
+  allowBatchedHttpRequests: true,
   introspection: !isProduction,
   cache,
   plugins: [
@@ -90,5 +92,46 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const contentType = request.headers.get("content-type") ?? ""
+  const mediaType = contentType.split(";")[0].trim().toLowerCase()
+  const allowedMediaTypes = new Set([
+    "application/json",
+    "application/graphql+json",
+    "application/graphql-response+json",
+  ])
+
+  if (!allowedMediaTypes.has(mediaType)) {
+    return await handler(request)
+  }
+
+  const clonedRequest = request.clone()
+  let requestBody: unknown
+
+  try {
+    requestBody = await clonedRequest.json()
+  } catch (error) {
+    const requestId = request.headers.get("x-request-id") ?? "unknown"
+    const errorMessage = (
+      error instanceof Error ? error.message : "unknown error"
+    ).replace(/[\r\n]+/g, " ") // Prevent multi-line log injection.
+    console.warn(
+      `Failed to parse GraphQL request body for batch validation (${errorMessage}); forwarding to handler. requestId=${requestId}`
+    )
+    return await handler(request)
+  }
+
+  if (Array.isArray(requestBody) && requestBody.length > MAX_BATCH_SIZE) {
+    return Response.json(
+      {
+        errors: [
+          {
+            message: `Batch size limit exceeded. Received ${requestBody.length} operations, maximum allowed is ${MAX_BATCH_SIZE}.`,
+          },
+        ],
+      },
+      { status: status.BAD_REQUEST }
+    )
+  }
+
   return await handler(request)
 }
