@@ -13,6 +13,10 @@ import { chatMessages, chatSessions } from '@/db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { getPromptWithParams, getDefaultPromptParams } from '@/lib/prompts';
 
+// Allow up to 60s for streaming responses (Vercel Pro) or signal intent on Hobby.
+// On Hobby plan, streaming functions get ~30s. Reducing step count keeps us within budget.
+export const maxDuration = 60;
+
 // Allowed CORS origins
 const ALLOWED_ORIGINS = [
     'https://www.abdulachik.dev',
@@ -444,8 +448,15 @@ export async function POST(request: NextRequest) {
             console.warn('⚠️ System prompt is empty, using fallback');
         }
 
-        // Add current page context if available
+        // Add identity context so the AI knows who it's speaking to
         let finalSystemPrompt = systemPrompt;
+        if (user.isAuthenticated) {
+            finalSystemPrompt += `\n\nIMPORTANT IDENTITY CONTEXT: You are speaking to the blog's author, ${defaultParams.authorName} (${user.email}). Address them as the blog owner. You may be more familiar and reference "your posts", "your paintings", etc.`;
+        } else {
+            finalSystemPrompt += `\n\nIMPORTANT IDENTITY CONTEXT: You are speaking to a visitor of ${defaultParams.authorName}'s blog, NOT the author himself. Refer to the blog author in the third person ("Abdul Hamid wrote...", "his latest post..."). Do NOT say "your blog" or "your posts" -- the visitor does not own the blog.`;
+        }
+
+        // Add current page context if available
         if (currentPageUrl) {
             const pageContextPrompt = getPromptWithParams('page-context', locale, {
                 ...defaultParams,
@@ -490,7 +501,7 @@ This is critical for providing relevant context about what they're actually view
                         model: chatModel,
                         messages,
                         tools,
-                        stopWhen: stepCountIs(5),
+                        stopWhen: stepCountIs(3),
                         onFinish: async (result) => {
                             // Save complete response to database
                             const promptTokens = 'promptTokens' in result.usage ? (result.usage.promptTokens as number) : 0;

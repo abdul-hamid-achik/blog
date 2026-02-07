@@ -62,7 +62,7 @@ export function Chat() {
         if (isOpen && messages.length === 0) {
             const welcomeMessage: Message = {
                 role: 'assistant',
-                content: "You are speaking to Mr. Smerdyakov, Dostoyevsky's character. I suppose you have questions about this philosophical blog of yours. What would you like to discuss?"
+                content: "You are speaking to Mr. Smerdyakov, Dostoyevsky's character. I suppose you have questions about this blog. What would you like to discuss?"
             };
             setMessages([welcomeMessage]);
         }
