@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const contentType = request.headers.get("content-type") ?? ""
-  const normalizedContentType = contentType.split(";")[0].trim()
+  const normalizedContentType = contentType.split(";")[0].trim().toLowerCase()
 
   if (normalizedContentType !== "application/json") {
     return await handler(request)
@@ -106,7 +106,9 @@ export async function POST(request: NextRequest) {
     requestBody = await requestForParsing.json()
   } catch (error) {
     const requestId = request.headers.get("x-request-id") ?? "unknown"
-    const errorMessage = error instanceof Error ? error.message : "unknown error"
+    const errorMessage = (
+      error instanceof Error ? error.message : "unknown error"
+    ).replace(/[\r\n]+/g, " ")
     console.warn(
       `Failed to parse GraphQL request body for batch validation (${errorMessage}); forwarding to handler. requestId=${requestId}`
     )
