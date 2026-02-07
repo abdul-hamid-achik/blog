@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { getAuthenticatedUser, getMessageCount } from '@/lib/auth';
+import { FREE_MESSAGE_LIMIT } from '@/lib/constants';
 import { checkRateLimit, isUserBlocked } from '@/lib/rate-limit';
 import { chatModel, searchSimilarContent } from '@/lib/ai';
 import { getContent, ContentType, Locale } from '@/lib/data';
@@ -358,7 +359,7 @@ export async function POST(request: NextRequest) {
         if (!user.isAuthenticated) {
             // Check message count for unauthenticated users
             const messageCount = await getMessageCount(sessionId);
-            if (messageCount >= 5) {
+            if (messageCount >= FREE_MESSAGE_LIMIT) {
                 return new Response('Authentication required', {
                     status: 401,
                     headers: {
@@ -498,7 +499,8 @@ This is critical for providing relevant context about what they're actually view
                 'X-Frame-Options': 'DENY',
                 'Access-Control-Allow-Origin': getCorsOrigin(request),
                 'Access-Control-Allow-Methods': 'POST',
-                'Access-Control-Allow-Headers': 'Content-Type'
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Vary': 'Origin'
             }
         });
 
@@ -535,7 +537,8 @@ export function OPTIONS(request: NextRequest) {
             'Access-Control-Allow-Origin': getCorsOrigin(request),
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            'Access-Control-Max-Age': '86400'
+            'Access-Control-Max-Age': '86400',
+            'Vary': 'Origin'
         }
     });
 }
