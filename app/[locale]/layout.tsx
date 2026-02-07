@@ -8,11 +8,11 @@ import ApolloProvider from "@/components/providers/apollo"
 import { IntlProvider } from "@/components/providers/intl"
 import { ThemeProvider } from "@/components/providers/theme"
 import { Search } from "@/components/search"
-import getMessages from '@/i18n'
 import { getBaseURL } from "@/lib/utils"
 import { locales } from "@/navigation"
 import "@code-hike/mdx/dist/index.css"
 import { AbstractIntlMessages } from "next-intl"
+import { getTranslations } from "next-intl/server"
 import { Inter } from "next/font/google"
 import { notFound } from "next/navigation"
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -54,6 +54,8 @@ export default async function LocaleLayout({ children, params }: RootLayoutProps
     notFound()
   }
 
+  const t = await getTranslations()
+
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
@@ -66,7 +68,7 @@ export default async function LocaleLayout({ children, params }: RootLayoutProps
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded focus:bg-background focus:px-4 focus:py-2 focus:text-foreground focus:shadow-lg"
         >
-          Skip to main content
+          {t("Skip to main content")}
         </a>
         <ApolloProvider>
           <IntlProvider locale={locale} messages={messages}>

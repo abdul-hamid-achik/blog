@@ -1,6 +1,7 @@
 import { Link } from "@/navigation"
 import { getPosts } from "@/lib/data"
 import { DateTime } from "luxon"
+import { useTranslations } from "next-intl"
 
 interface RelatedPostsProps {
   currentSlug: string
@@ -9,13 +10,14 @@ interface RelatedPostsProps {
 }
 
 export default function RelatedPosts({ currentSlug, locale, tags }: RelatedPostsProps) {
+  const t = useTranslations()
   if (!tags || tags.length === 0) return null
 
   const allPosts = getPosts({ locale, public: true })
   if (!allPosts) return null
 
   const related = allPosts
-    .filter((post) => !post.slug.includes(currentSlug))
+    .filter((post) => post.slugAsParams !== currentSlug)
     .map((post) => {
       const overlap = post.tags?.filter((tag) => tags.includes(tag)).length || 0
       return { post, overlap }
@@ -28,7 +30,7 @@ export default function RelatedPosts({ currentSlug, locale, tags }: RelatedPosts
 
   return (
     <section className="mt-8 border-t border-border pt-6">
-      <h2 className="text-lg font-semibold mb-4">Related Posts</h2>
+      <h2 className="text-lg font-semibold mb-4">{t("Related Posts")}</h2>
       <div className="space-y-3">
         {related.map(({ post }) => (
           <article key={post._meta.path}>

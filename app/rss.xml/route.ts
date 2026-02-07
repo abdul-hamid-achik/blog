@@ -39,7 +39,7 @@ ${rssItems}
   return new Response(rss, {
     headers: {
       "Content-Type": "application/rss+xml; charset=utf-8",
-      "Cache-Control": "s-maxage=3600, stale-while-revalidate",
+      "Cache-Control": "s-maxage=3600, stale-while-revalidate=3600",
     },
   })
 }
