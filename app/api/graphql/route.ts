@@ -92,11 +92,24 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const requestBody = await request.clone().json().catch(() => null)
+  let requestBody: unknown
+
+  try {
+    requestBody = await request.clone().json()
+  } catch (error) {
+    console.warn("Failed to parse GraphQL request body.", error)
+    return await handler(request)
+  }
 
   if (Array.isArray(requestBody) && requestBody.length > MAX_BATCH_SIZE) {
     return Response.json(
-      { errors: [{ message: `Batch size exceeds ${MAX_BATCH_SIZE} operations.` }] },
+      {
+        errors: [
+          {
+            message: `Batch size of ${requestBody.length} exceeds maximum of ${MAX_BATCH_SIZE} operations.`,
+          },
+        ],
+      },
       { status: status.BAD_REQUEST }
     )
   }
