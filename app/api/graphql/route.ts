@@ -104,10 +104,12 @@ export async function POST(request: NextRequest) {
   try {
     requestBody = await clonedRequest.json()
   } catch {
-    const requestId = request.headers.get("x-request-id") ?? "unknown"
+    const requestId = (request.headers.get("x-request-id") ?? "unknown").replace(
+      /[\r\n]+/g,
+      ""
+    )
     console.warn(
-      "Failed to parse GraphQL request body for batch validation; forwarding to handler.",
-      { requestId }
+      `Failed to parse GraphQL request body for batch validation; forwarding to handler. requestId=${requestId}`
     )
     return await handler(request)
   }
