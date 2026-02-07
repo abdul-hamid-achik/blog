@@ -49,16 +49,23 @@ function isSafeImage(src: string | undefined): boolean {
     // Relative URLs (internal) are safe
     if (src.startsWith('/')) return true;
     
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') return false;
+    
     try {
         const url = new URL(src, window.location.origin);
         
         // Only allow https protocol for absolute URLs
         if (url.protocol !== 'https:') return false;
         
-        // Check if hostname matches allowed domains
-        return ALLOWED_IMAGE_DOMAINS.some(domain => 
-            url.hostname === domain || url.hostname.endsWith(`.${domain}`)
-        );
+        // Check if hostname exactly matches allowed domains
+        // Use exact match or ensure it's a proper subdomain (not just a string suffix)
+        return ALLOWED_IMAGE_DOMAINS.some(domain => {
+            if (url.hostname === domain) return true;
+            // For subdomains, ensure the domain is preceded by a dot
+            if (url.hostname.endsWith('.' + domain)) return true;
+            return false;
+        });
     } catch {
         return false;
     }
@@ -136,7 +143,8 @@ function AssistantMessageContent({ content }: { content: string }) {
                             img: ({ src, alt }) => {
                                 if (!isSafeImage(src)) {
                                     // Render alt text as plain text for blocked images
-                                    return alt ? <span className="text-muted-foreground italic">[Image: {alt}]</span> : null;
+                                    // The alt text is already sanitized by react-markdown
+                                    return alt ? <span className="text-muted-foreground italic">[Image: {String(alt)}]</span> : null;
                                 }
                                 return (
                                     <img 
