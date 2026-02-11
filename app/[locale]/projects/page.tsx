@@ -28,7 +28,7 @@ const categoryLabels: Record<Project["category"], string> = {
   product: "Product",
   cli: "CLI",
   library: "Library",
-  "neovim-plugin": "Neovim Plugin",
+  "neovim-plugin": "Nvim Plugin",
 }
 
 function TechBadge({ tech }: { tech: string }) {
@@ -41,7 +41,7 @@ function TechBadge({ tech }: { tech: string }) {
 
 function CategoryBadge({ category }: { category: Project["category"] }) {
   return (
-    <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+    <span className="inline-flex items-center whitespace-nowrap rounded-md bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
       {categoryLabels[category]}
     </span>
   )
@@ -113,7 +113,7 @@ function ProjectCard({ project }: { project: Project }) {
   return (
     <Card className="flex flex-col">
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex items-center gap-2">
           <CardTitle className="text-base">{project.name}</CardTitle>
           <CategoryBadge category={project.category} />
         </div>
@@ -197,7 +197,7 @@ export default async function ProjectsPage({
 
       <section>
         <h2 className="text-lg font-semibold mb-4">Open Source</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {oss.map((project) => (
             <ProjectCard key={project.name} project={project} />
           ))}
