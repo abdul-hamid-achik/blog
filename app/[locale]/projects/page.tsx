@@ -111,42 +111,26 @@ function FeaturedCard({ project }: { project: Project }) {
 
 function ProjectCard({ project }: { project: Project }) {
   return (
-    <Card className="flex flex-col">
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-2">
-          <CardTitle className="text-base">{project.name}</CardTitle>
-          <CategoryBadge category={project.category} />
-        </div>
-        <CardDescription>{project.description}</CardDescription>
-      </CardHeader>
-      <CardContent className="flex-1 space-y-3">
-        <div className="flex flex-wrap gap-1.5">
-          {project.tech.map((t) => (
-            <TechBadge key={t} tech={t} />
-          ))}
-        </div>
-        <ul className="space-y-1 text-sm">
-          {project.features.map((feature) => (
-            <li key={feature} className="flex gap-2">
-              <span className="text-muted-foreground select-none">-</span>
-              <span>{feature}</span>
-            </li>
-          ))}
-        </ul>
-      </CardContent>
-      <CardFooter className="gap-2">
-        {project.website && (
-          <Button variant="outline" size="sm" asChild>
-            <a
-              href={project.website}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
-              Website
-            </a>
-          </Button>
-        )}
+    <Card className="flex flex-row items-center gap-0 p-4 sm:flex-col sm:items-stretch sm:gap-0 sm:p-0">
+      <div className="flex-1 min-w-0 sm:flex sm:flex-col sm:flex-1">
+        <CardHeader className="p-0 pb-2 sm:p-6 sm:pb-3">
+          <div className="flex items-center gap-2">
+            <CardTitle className="text-base truncate">{project.name}</CardTitle>
+            <CategoryBadge category={project.category} />
+          </div>
+          <CardDescription className="line-clamp-2">
+            {project.description}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0 sm:p-6 sm:pt-0 sm:flex-1">
+          <div className="flex flex-wrap gap-1.5">
+            {project.tech.map((t) => (
+              <TechBadge key={t} tech={t} />
+            ))}
+          </div>
+        </CardContent>
+      </div>
+      <CardFooter className="p-0 pl-4 sm:p-4 sm:pt-0 sm:pl-6">
         {project.github && (
           <Button variant="ghost" size="sm" asChild>
             <a
@@ -155,7 +139,7 @@ function ProjectCard({ project }: { project: Project }) {
               rel="noopener noreferrer"
             >
               <Github className="mr-1.5 h-3.5 w-3.5" />
-              GitHub
+              <span className="sr-only sm:not-sr-only">GitHub</span>
             </a>
           </Button>
         )}
@@ -197,7 +181,7 @@ export default async function ProjectsPage({
 
       <section>
         <h2 className="text-lg font-semibold mb-4">Open Source</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {oss.map((project) => (
             <ProjectCard key={project.name} project={project} />
           ))}
