@@ -22,6 +22,7 @@ const Navbar = () => {
           <Link href="/">{t("Home")}</Link>
           {/* <Link href="/contact">{t("Contact")}</Link> */}
           <Link href="/insights">{t("Insights")}</Link>
+          <Link href="/projects">{t("Projects")}</Link>
           {/* <Link href="/paintings">{t("Paintings")}</Link> */}
           {/* <Link href="/music">{t("Music")}</Link> */}
           <Link href="/about">{t("About")}</Link>
