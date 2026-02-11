@@ -17,6 +17,9 @@ export default function Footer() {
           <Link href="/insights" className="hover:text-foreground transition-colors">
             {t("Insights")}
           </Link>
+          <Link href="/projects" className="hover:text-foreground transition-colors">
+            {t("Projects")}
+          </Link>
           <a
             href="/rss.xml"
             className="hover:text-foreground transition-colors"
