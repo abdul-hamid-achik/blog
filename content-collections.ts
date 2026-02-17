@@ -1,7 +1,7 @@
 import { defineCollection, defineConfig } from "@content-collections/core";
 import { compileMDX } from "@content-collections/mdx";
 import { z } from "zod";
-import { ContentType, Locale } from "./lib/data";
+import { ContentType, Locale } from "./lib/types";
 
 const posts = defineCollection({
     name: "posts",

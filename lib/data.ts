@@ -1,18 +1,6 @@
 import { allPages as pages, allPaintings as paintings, allPosts as posts, allPrompts as prompts } from "content-collections";
-
-export enum ContentType {
-  POST = "Post",
-  PAGE = "Page",
-  PAINTING = "Painting",
-  PROMPT = "Prompt"
-}
-
-export enum Locale {
-  EN = "en",
-  RU = "ru",
-  ES = "es",
-  AR = "ar"
-}
+export { ContentType, Locale } from "./types"
+import { ContentType, Locale } from "./types";
 
 const allDocuments = [...posts, ...pages, ...paintings, ...prompts];
 
