@@ -43,6 +43,38 @@ export const projects: Project[] = [
       "CI/CD integration with GitHub Actions",
     ],
   },
+  {
+    name: "Vue Native",
+    description: "Build native iOS & Android apps with Vue 3",
+    longDescription:
+      "Write Vue 3 components that render real native views — no WebView, no compromise. Supports Composition API, 20+ built-in components, native modules, hot reload, and cross-platform from a single codebase.",
+    category: "product",
+    tech: ["TypeScript", "Swift", "Kotlin", "Vue 3"],
+    github: "https://github.com/abdul-hamid-achik/vue-native",
+    website: "https://vue-native.dev",
+    featured: true,
+    features: [
+      "Real native UI — no DOM, no WebView",
+      "20+ components, native modules & navigation",
+      "Cross-platform iOS & Android from one codebase",
+    ],
+  },
+  {
+    name: "Blueprint",
+    description: "Declarative language for writing web services",
+    longDescription:
+      "A declarative programming language that compiles .bp files to runnable TypeScript projects. Write a spec, get a working API powered by Hono, Drizzle, and Zod. No boilerplate, no lock-in.",
+    category: "product",
+    tech: ["Go", "TypeScript", "Hono", "Drizzle", "Zod"],
+    github: "https://github.com/abdul-hamid-achik/blueprint",
+    website: "https://blueprint-lang.dev",
+    featured: true,
+    features: [
+      "Intent-first .bp syntax compiles to TypeScript",
+      "Generates Hono + Drizzle + Zod projects",
+      "Built-in validation, pagination & error handling",
+    ],
+  },
   // Open Source Tools
   {
     name: "noted",
