@@ -18,6 +18,12 @@ export const metadata: Metadata = {
   title: "Projects",
   description:
     "Products and open-source tools by Abdul Hamid Achik — browser extensions, CLI tools, Neovim plugins, and Go libraries.",
+  keywords: "Abdul Hamid Achik, projects, open source, CLI tools, Neovim plugins, Go libraries, browser extensions, developer tools, LinkGlow, hitspec, Tarot Agent, Vue Native, Blueprint",
+  openGraph: {
+    title: "Projects | Abdul Hamid",
+    description: "Products and open-source tools by Abdul Hamid Achik — browser extensions, CLI tools, Neovim plugins, and Go libraries.",
+    type: "website",
+  },
 }
 
 export function generateStaticParams() {

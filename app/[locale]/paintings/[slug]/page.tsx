@@ -1,3 +1,4 @@
+import { ArticleJsonLd } from "@/components/json-ld"
 import { Mdx } from "@/components/mdx-components"
 import { getPainting } from "@/lib/data"
 import { getBaseURL } from "@/lib/utils"
@@ -27,39 +28,36 @@ export async function generateMetadata({
     return {}
   }
 
+  const baseUrl = getBaseURL()
+  const ogImage = `${baseUrl}/api/og?title=${encodeURIComponent(painting.title)}`
+
   return {
-    metadataBase: new URL(getBaseURL()),
+    metadataBase: new URL(baseUrl),
     title: painting.title,
     description: painting.description,
     keywords: painting.tags?.join(", "),
+    alternates: {
+      canonical: `${baseUrl}/${locale}/paintings/${painting.slugAsParams}`,
+      languages: {
+        en: `${baseUrl}/en/paintings/${painting.slugAsParams}`,
+        es: `${baseUrl}/es/paintings/${painting.slugAsParams}`,
+        ru: `${baseUrl}/ru/paintings/${painting.slugAsParams}`,
+      },
+    },
     twitter: {
       card: "summary_large_image",
       creator: "@abdulachik",
       title: painting.title,
       description: painting.description || undefined,
-      images: [
-        {
-          url:
-            process.env.NODE_ENV === "production"
-              ? `https://www.abdulachik.dev/api/og?title=${painting.title}`
-              : `http://localhost:3000/api/og?title=${painting.title}`,
-        },
-      ],
+      images: [{ url: ogImage }],
     },
     openGraph: {
       title: painting.title,
       description: painting.description || undefined,
       type: "article",
-      images: [
-        {
-          url:
-            process.env.NODE_ENV === "production"
-              ? `https://www.abdulachik.dev/api/og?title=${painting.title}`
-              : `http://localhost:3000/api/og?title=${painting.title}`,
-        },
-      ],
+      images: [{ url: ogImage }],
       authors: ["Abdul Hamid Achik"],
-      url: `https://www.abdulachik.dev/paintings/${painting.slugAsParams}`,
+      url: `${baseUrl}/${locale}/paintings/${painting.slugAsParams}`,
     },
   }
 }
@@ -90,8 +88,18 @@ export default async function PostPage({ params }: PaintingProps) {
   }
 
   return (
-    <article className="prose dark:prose-invert py-6">
-      <h1 className="mb-2 text-xl md:text-4xl">{painting.title}</h1>
+    <>
+      <ArticleJsonLd
+        title={painting.title}
+        description={painting.description}
+        image={painting.image}
+        slug={painting.slugAsParams}
+        locale={locale}
+        tags={painting.tags}
+        type="paintings"
+      />
+      <article className="prose dark:prose-invert py-6">
+        <h1 className="mb-2 text-xl md:text-4xl">{painting.title}</h1>
       <div className="flex items-center flex-wrap gap-2">
         {painting.author && <p className="text-sm">{painting.author}</p>}
         {painting.author && painting.country && <span>•</span>}
@@ -107,5 +115,6 @@ export default async function PostPage({ params }: PaintingProps) {
       <hr className="my-4" />
       <Mdx code={painting.mdx} />
     </article>
+    </>
   )
 }

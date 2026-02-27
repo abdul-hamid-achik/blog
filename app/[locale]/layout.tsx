@@ -22,12 +22,40 @@ const inter = Inter({ subsets: ["latin"] })
 const baseUrl = getBaseURL()
 
 export const metadata = {
-  title: "Abdul Hamid",
-  description: "A Lacanian full-stack developer",
+  title: {
+    default: "Abdul Hamid",
+    template: "%s | Abdul Hamid",
+  },
+  description: "A Lacanian full-stack developer — arts, culture, and technology.",
   metadataBase: new URL(baseUrl),
   alternates: {
     types: {
       "application/rss+xml": `${baseUrl}/rss.xml`,
+    },
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Abdul Hamid",
+    title: "Abdul Hamid",
+    description: "A Lacanian full-stack developer — arts, culture, and technology.",
+    url: baseUrl,
+    images: [{ url: `${baseUrl}/api/og?title=Abdul%20Hamid` }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    creator: "@abdulachik",
+    title: "Abdul Hamid",
+    description: "A Lacanian full-stack developer — arts, culture, and technology.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
 }

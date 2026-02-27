@@ -75,6 +75,21 @@ export const projects: Project[] = [
       "Built-in validation, pagination & error handling",
     ],
   },
+  {
+    name: "Tarot Agent",
+    description: "Free AI-powered tarot card readings with Claude",
+    longDescription:
+      "Get free AI tarot readings with 6 spread types — Single Card, Yes/No, Three Card, Love, Career, and Celtic Cross. Features custom pixel-art Major Arcana illustrations and streaming interpretations powered by Claude AI.",
+    category: "product",
+    tech: ["Nuxt 3", "Vue 3", "Tailwind CSS", "Claude AI"],
+    website: "https://tarotagent.app",
+    featured: true,
+    features: [
+      "6 spread types including Celtic Cross",
+      "Streaming AI interpretations by Claude",
+      "Custom pixel-art Major Arcana illustrations",
+    ],
+  },
   // Open Source Tools
   {
     name: "noted",

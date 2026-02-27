@@ -8,6 +8,7 @@ interface ArticleJsonLdProps {
   slug: string
   locale: string
   tags?: string[]
+  type?: "posts" | "paintings"
 }
 
 export function ArticleJsonLd({
@@ -18,9 +19,10 @@ export function ArticleJsonLd({
   slug,
   locale,
   tags,
+  type = "posts",
 }: ArticleJsonLdProps) {
   const baseUrl = getBaseURL()
-  const url = `${baseUrl}/${locale}/posts/${slug}`
+  const url = `${baseUrl}/${locale}/${type}/${slug}`
 
   const jsonLd = {
     "@context": "https://schema.org",
