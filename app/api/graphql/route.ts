@@ -1,6 +1,8 @@
-import { ApolloServer } from "@apollo/server";
-import { ApolloServerPluginUsageReportingDisabled } from '@apollo/server/plugin/disabled';
-import { ApolloServerPluginInlineTrace } from "@apollo/server/plugin/inlineTrace";
+import { ApolloServer, HeaderMap } from "@apollo/server";
+import {
+  ApolloServerPluginInlineTraceDisabled,
+  ApolloServerPluginUsageReportingDisabled,
+} from "@apollo/server/plugin/disabled";
 import {
   ApolloServerPluginLandingPageLocalDefault,
   ApolloServerPluginLandingPageProductionDefault,
@@ -10,7 +12,6 @@ import { env } from "@/env.mjs";
 import { buildSubgraphSchema } from "@apollo/subgraph";
 import { GraphQLResolverMap } from "@apollo/subgraph/dist/schema-helper";
 import { KeyvAdapter } from '@apollo/utils.keyvadapter';
-import { startServerAndCreateNextHandler } from "@as-integrations/next";
 import KeyvRedis from '@keyv/redis';
 import status from "http-status";
 import Keyv from 'keyv';
@@ -27,44 +28,31 @@ const schema = buildSubgraphSchema({
 })
 
 const MAX_BATCH_SIZE = 5
+const shouldUseRedisCache = isProduction && process.env.VERCEL === "1"
 
-// Use in-memory cache in development to avoid Redis connection issues.
 let cache: KeyvAdapter | undefined;
-if (isProduction) {
-  // The store is being created here to connect to the Redis database.
-  // If the URL includes 'vercel-storage', it means we are in a production environment and we need to use 'rediss://' instead of 'redis://'.
-  // Otherwise, we use the local URL as it is.
-  const store = new KeyvRedis(
-    env.KV_URL.includes('vercel-storage')
-      ? env.KV_URL.replace('redis://', 'rediss://')
-      : env.KV_URL
-  );
-  const keyv = new Keyv<string>({ store, namespace: 'api' });
-  cache = new KeyvAdapter(keyv as any);
-}
+let serverPromise: Promise<ApolloServer<Context>> | undefined;
 
-const server = new ApolloServer<Context>({
-  schema,
-  allowBatchedHttpRequests: true,
-  introspection: !isProduction,
-  cache,
-  plugins: [
-    ApolloServerPluginUsageReportingDisabled(),
-    ...(isProduction
-      ? []
-      : [ApolloServerPluginInlineTrace({
-          includeErrors: { unmodified: true },
-        })]),
-    isProduction
-      ? ApolloServerPluginLandingPageProductionDefault({
-        graphRef: `abdulachik-blog@current`,
-        footer: false,
-      })
-      : ApolloServerPluginLandingPageLocalDefault({
-        footer: false
-      }),
-  ],
-}) as any
+function getCache() {
+  if (!shouldUseRedisCache) {
+    return undefined
+  }
+
+  if (!cache) {
+    // Delay the Redis connection until the route receives traffic, and only
+    // enable it in the deployed runtime. Local `next start` should stay
+    // functional even if the hosted Redis endpoint is unavailable.
+    const store = new KeyvRedis(
+      env.KV_URL.includes('vercel-storage')
+        ? env.KV_URL.replace('redis://', 'rediss://')
+        : env.KV_URL
+    );
+    const keyv = new Keyv<string>({ store, namespace: 'api' });
+    cache = new KeyvAdapter(keyv as any);
+  }
+
+  return cache
+}
 
 const options = {
   context: async (req: NextRequest) => {
@@ -75,10 +63,97 @@ const options = {
   },
 }
 
-const handler = startServerAndCreateNextHandler<NextRequest, Context>(
-  server,
-  options
-)
+function createServer() {
+  const server = new ApolloServer<Context>({
+    schema,
+    allowBatchedHttpRequests: true,
+    introspection: !isProduction,
+    cache: getCache(),
+    plugins: [
+      ApolloServerPluginUsageReportingDisabled(),
+      ApolloServerPluginInlineTraceDisabled(),
+      isProduction
+        ? ApolloServerPluginLandingPageProductionDefault({
+            graphRef: `abdulachik-blog@current`,
+            footer: false,
+          })
+        : ApolloServerPluginLandingPageLocalDefault({
+            footer: false
+          }),
+    ],
+  }) as any
+
+  server.startInBackgroundHandlingStartupErrorsByLoggingAndFailingAllRequests()
+
+  return server
+}
+
+function getServer() {
+  if (!serverPromise) {
+    serverPromise = Promise.resolve(createServer())
+  }
+
+  return serverPromise
+}
+
+async function getRequestBody(request: NextRequest) {
+  const contentType = request.headers.get("content-type") ?? ""
+
+  return contentType.startsWith("application/json")
+    ? await request.json()
+    : await request.text()
+}
+
+function getRequestHeaders(request: NextRequest) {
+  const headers = new HeaderMap()
+  request.headers.forEach((value, key) => {
+    headers.set(key, value)
+  })
+  return headers
+}
+
+async function executeGraphQLRequest(request: NextRequest) {
+  const server = await getServer()
+  const httpGraphQLResponse = await server.executeHTTPGraphQLRequest({
+    context: () => options.context(request),
+    httpGraphQLRequest: {
+      body: await getRequestBody(request),
+      headers: getRequestHeaders(request),
+      method: request.method || "POST",
+      search: request.nextUrl.search,
+    },
+  })
+
+  const headers: Record<string, string> = {}
+  for (const [key, value] of httpGraphQLResponse.headers) {
+    headers[key] = value
+  }
+
+  return new Response(
+    httpGraphQLResponse.body.kind === "complete"
+      ? httpGraphQLResponse.body.string
+      : new ReadableStream({
+          async pull(controller) {
+            if (httpGraphQLResponse.body.kind !== "chunked") {
+              controller.close()
+              return
+            }
+
+            const { value, done } = await httpGraphQLResponse.body.asyncIterator.next()
+            if (done) {
+              controller.close()
+              return
+            }
+
+            controller.enqueue(value)
+          },
+        }),
+    {
+      headers,
+      status: httpGraphQLResponse.status || status.OK,
+    }
+  )
+}
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
@@ -88,7 +163,7 @@ export function OPTIONS(_request: Request) {
 }
 
 export async function GET(request: NextRequest) {
-  return await handler(request)
+  return await executeGraphQLRequest(request)
 }
 
 export async function POST(request: NextRequest) {
@@ -101,7 +176,7 @@ export async function POST(request: NextRequest) {
   ])
 
   if (!allowedMediaTypes.has(mediaType)) {
-    return await handler(request)
+    return await executeGraphQLRequest(request)
   }
 
   const clonedRequest = request.clone()
@@ -117,7 +192,7 @@ export async function POST(request: NextRequest) {
     console.warn(
       `Failed to parse GraphQL request body for batch validation (${errorMessage}); forwarding to handler. requestId=${requestId}`
     )
-    return await handler(request)
+    return await executeGraphQLRequest(request)
   }
 
   if (Array.isArray(requestBody) && requestBody.length > MAX_BATCH_SIZE) {
@@ -133,5 +208,5 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  return await handler(request)
+  return await executeGraphQLRequest(request)
 }

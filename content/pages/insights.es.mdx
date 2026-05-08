@@ -1,19 +1,22 @@
 ---
-title: Perspectivas
-description: Esta página proporciona perspectivas sobre el contenido del blog. Incluye gráficos que visualizan el número de publicaciones a lo largo del tiempo y la distribución de los tiempos de lectura de todas las publicaciones.
+title: Ritmos del archivo
+description: Una manera de leer el archivo a través de sus ritmos, proporciones y hábitos recurrentes.
 ---
 
-# Publicaciones a lo largo del tiempo
+Todo archivo desarrolla hábitos antes de que su autor los note. Se agrupa alrededor de ciertos años, vuelve compulsivamente a ciertos estados de ánimo, se alarga cuando un asunto importa y se vuelve breve cuando solo está de paso. Esta página intenta mirar el blog desde una pequeña distancia.
 
-Este gráfico muestra el número de publicaciones publicadas a lo largo del tiempo. Los datos se obtienen utilizando una consulta GraphQL definida en `components/charts.tsx` que recupera el campo `postsOverTime` del servidor GraphQL. Cada punto de datos representa un mes y el número de publicaciones publicadas en ese mes.
+Los gráficos de abajo no son la verdad del archivo. No pueden medir la fuerza, solo el ritmo. Aun así, muestran algo útil: cuándo la escritura llegó en ráfagas, cuándo se ralentizó y con qué frecuencia un texto pidió más espacio del que una nota rápida podía darle.
+
+## Publicaciones a lo largo del tiempo
+
+Este gráfico muestra el ritmo visible de publicación: períodos de compresión, retorno y silencio. En este blog el silencio no siempre significa ausencia. A menudo significa que un texto está tardando más de lo esperado, o que una idea todavía no ha encontrado su forma.
 
 <PostsOverTimeChart />
 
-# Distribución del tiempo de lectura
+## Distribución del tiempo de lectura
 
-Este gráfico muestra la distribución de los tiempos de lectura de todas las publicaciones. Los datos se obtienen utilizando una consulta GraphQL definida en `components/charts.tsx` que recupera el campo `readingTimeDistribution` del servidor GraphQL. Cada punto de datos representa una categoría de tiempo de lectura (por ejemplo, "1-2 minutos", "2-3 minutos", etc.) y el número de publicaciones que caen en esa categoría.
+Este gráfico muestra algo más cercano al temperamento. Rara vez confío en una idea que se resuelve demasiado rápido, y por eso el archivo se desplaza una y otra vez hacia ensayos más largos. Incluso las piezas breves suelen orbitar el tema antes de abandonarlo.
 
 <ReadingTimeDistributionChart />
 
-El esquema del servidor GraphQL se define en `/api/graphql`. Los tipos `PostsOverTime` y `ReadingTimeDistribution` son parte de este esquema. `PostsOverTime` tiene dos campos: `month` (una cadena que representa el mes) y `count` (un entero que representa el número de publicaciones). `ReadingTimeDistribution` también tiene dos campos: `category` (una cadena que representa la categoría de tiempo de lectura) y `count` (un entero que representa el número de publicaciones en esa categoría).
-
+Si quieres que los números vuelvan a convertirse en escritura, pasa de aquí a [Ensayos](/essays) y [Estudios](/studies). Las estadísticas pueden mostrar la recurrencia, pero solo el texto revela qué es lo que regresa.

@@ -24,7 +24,7 @@ const posts = defineCollection({
 
         const mdx = await compileMDX(context, document);
 
-        const slugWithoutLocale = document._meta.path.replace(/\.(ru|ar|es)$/, "");
+        const slugWithoutLocale = document._meta.path.replace(/\.(en|ru|ar|es)$/, "");
 
         return {
             ...document,
@@ -61,7 +61,7 @@ const pages = defineCollection({
 
         const mdx = await compileMDX(context, document);
 
-        const slugWithoutLocale = document._meta.path.replace(/\.(ru|ar|es)$/, "");
+        const slugWithoutLocale = document._meta.path.replace(/\.(en|ru|ar|es)$/, "");
 
         return {
             ...document,
@@ -97,7 +97,7 @@ const paintings = defineCollection({
 
         const mdx = await compileMDX(context, document);
 
-        const slugWithoutLocale = document._meta.path.replace(/\.(ru|ar|es)$/, "");
+        const slugWithoutLocale = document._meta.path.replace(/\.(en|ru|ar|es)$/, "");
 
         return {
             ...document,
@@ -130,7 +130,7 @@ const prompts = defineCollection({
 
         const mdx = await compileMDX(context, document);
 
-        const slugWithoutLocale = document._meta.path.replace(/\.(ru|ar|es)$/, "");
+        const slugWithoutLocale = document._meta.path.replace(/\.(en|ru|ar|es)$/, "");
 
         return {
             ...document,

@@ -17,7 +17,11 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "www.abdulachik.dev",
+        hostname: "abdulachik.dev",
+      },
+      {
+        protocol: "https",
+        hostname: "**.abdulachik.dev",
       },
       ...(process.env.NODE_ENV !== "production"
         ? [

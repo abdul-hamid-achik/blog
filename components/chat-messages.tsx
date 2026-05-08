@@ -3,6 +3,7 @@
 import { useEffect, useRef, useMemo } from "react";
 import { Loader2, ExternalLink, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 import Link from "next/link";
 import { ChatAuth } from "@/components/chat-auth";
 import Markdown from "react-markdown";
@@ -77,6 +78,21 @@ function isSafeImage(src: string | undefined): boolean {
     }
 }
 
+function parseDimension(value: string | number | undefined): number | undefined {
+    if (typeof value === "number" && Number.isFinite(value) && value > 0) {
+        return value;
+    }
+
+    if (typeof value === "string") {
+        const parsed = Number.parseInt(value, 10);
+        if (Number.isFinite(parsed) && parsed > 0) {
+            return parsed;
+        }
+    }
+
+    return undefined;
+}
+
 // Extract a readable label from a navigation path
 function getNavLabel(path: string): string {
     const segments = path.split('/').filter(Boolean);
@@ -146,19 +162,28 @@ function AssistantMessageContent({ content }: { content: string }) {
                                 );
                             },
                             // Only allow internal images to prevent tracking/privacy leaks
-                            img: ({ src, alt }) => {
+                            img: ({ src, alt, width, height }) => {
                                 if (!isSafeImage(src)) {
                                     // Show blocked image indicator for accessibility
                                     // React automatically escapes JSX content, preventing XSS
                                     const label = alt ? `[Image: ${alt}]` : '[Image]';
                                     return <span className="text-muted-foreground italic">{label}</span>;
                                 }
+
+                                const safeSrc = src as string;
+                                const imageWidth = parseDimension(width) ?? 1200;
+                                const imageHeight = parseDimension(height) ?? 900;
+
                                 return (
-                                    <img 
-                                        src={src} 
-                                        alt={alt || 'Image'} 
+                                    <Image
+                                        src={safeSrc}
+                                        alt={alt || 'Image'}
+                                        width={imageWidth}
+                                        height={imageHeight}
+                                        sizes="(max-width: 768px) 100vw, 85vw"
+                                        unoptimized
                                         className="max-w-full rounded border border-border my-1"
-                                        loading="lazy"
+                                        style={{ width: "100%", height: "auto" }}
                                     />
                                 );
                             },

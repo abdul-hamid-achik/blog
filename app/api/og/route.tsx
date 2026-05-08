@@ -1,11 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
-import { ImageResponse } from "@vercel/og"
+import { readFile } from "node:fs/promises"
+import { join } from "node:path"
+import { ImageResponse } from "next/og"
 import { allPages, allPaintings, allPosts } from "content-collections"
 
 // Create allDocuments by combining all collections
 const allDocuments = [...allPosts, ...allPages, ...allPaintings]
-
-export const runtime = "edge"
 
 export async function GET(request: Request) {
   try {
@@ -19,9 +19,10 @@ export async function GET(request: Request) {
     const document = allDocuments.find(
       (document) => document.title === searchParams.get("title")
     )
-    const src = await fetch(new URL("./logo.png", import.meta.url)).then(
-      (res) => res.arrayBuffer()
-    )
+    const src = `data:image/png;base64,${await readFile(
+      join(process.cwd(), "app/api/og/logo.png"),
+      "base64"
+    )}`
 
     return new ImageResponse(
       (
