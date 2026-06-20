@@ -61,6 +61,12 @@
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
 
+  /* Project category accents (theme-tuned for contrast) */
+  --color-cat-product: var(--cat-product);
+  --color-cat-cli: var(--cat-cli);
+  --color-cat-library: var(--cat-library);
+  --color-cat-neovim: var(--cat-neovim);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -98,6 +104,12 @@
   --success-foreground: #FFFFFF;
   --warning: #7D6528;            /* darkened nord13 — 5.77:1 on white */
   --warning-foreground: #FFFFFF;
+
+  /* Category accents — Aurora hues darkened for AA contrast on white */
+  --cat-product: #5E81AC;        /* nord10 — frost */
+  --cat-cli: #4F7042;            /* darkened nord14 — green */
+  --cat-library: #8A5A82;        /* darkened nord15 — purple */
+  --cat-neovim: #B0562C;         /* darkened nord12 — orange */
 }
 
 /* ============================================
@@ -129,6 +141,23 @@
   --success-foreground: #2E3440;  /* nord0 */
   --warning: #EBCB8B;            /* nord13 — 8.00:1 on bg */
   --warning-foreground: #2E3440;  /* nord0 */
+
+  /* Category accents — bright Aurora hues read well on Polar Night */
+  --cat-product: #88C0D0;        /* nord8 — frost */
+  --cat-cli: #A3BE8C;            /* nord14 — green */
+  --cat-library: #B48EAD;        /* nord15 — purple */
+  --cat-neovim: #D08770;         /* nord12 — orange */
+}
+
+/* ============================================
+   Wider, centered breakout for grid-heavy pages (projects).
+   The site shell is max-w-2xl (42rem); this lets a page span up to
+   64rem while staying centered in the viewport and scrollbar-safe
+   (never wider than 100vw - 2rem, so it can't cause horizontal scroll).
+   ============================================ */
+@utility breakout-wide {
+  width: min(64rem, 100vw - 2rem);
+  margin-left: calc((min(42rem, 100vw - 2rem) - min(64rem, 100vw - 2rem)) / 2);
 }
 
 @layer base {

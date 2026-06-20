@@ -375,21 +375,6 @@ export const projects: Project[] = [
     ],
   },
   {
-    name: "noted.nvim",
-    description: "Contextual note-taking for Neovim",
-    longDescription:
-      "Note-taking plugin with wiki-links, daily notes, quick capture, and Telescope integration. Notes live in a centralized vault accessible from any project.",
-    category: "neovim-plugin",
-    tech: ["Lua", "Neovim"],
-    github: "https://github.com/abdul-hamid-achik/noted.nvim",
-    featured: false,
-    features: [
-      "Wiki-style [[links]] with autocomplete",
-      "Daily notes & quick capture window",
-      "Telescope & nvim-cmp integration",
-    ],
-  },
-  {
     name: "rosewood",
     description: "Native macOS code editor in Swift and SwiftUI (docs coming soon)",
     longDescription:
