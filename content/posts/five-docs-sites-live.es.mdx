@@ -1,0 +1,51 @@
+---
+title: "cinco sitios de documentación, un fin de semana"
+description: "desplegando la capa de documentación de vidtrace, codemap, glyphrun, cairntrace y monitor, todo en el equipo thelacanians, todo en una tarde."
+date: 2026-06-29
+image: /images/blog/five-docs-sites-hero.svg
+tags: [Código abierto, Documentación, VitePress, Vercel, vidtrace, codemap, glyphrun, cairntrace, monitor, thelacanians, MCP, Local-first, Agentes de IA, Herramientas para desarrolladores]
+---
+
+Una nota corta, no un ensayo. Este fin de semana envié a producción la capa completa de documentación de las cinco piezas del kit local-first que sigo construyendo unas sobre otras:
+
+- [vidtrace.dev](https://vidtrace.dev) — convierte grabaciones de pantalla de bugs en paquetes de evidencia con marcas de tiempo para humanos y agentes de código.
+- [codemap.tools](https://codemap.tools) — inteligencia de código: un grafo estructural del código más búsqueda semántica, expuesto mediante una CLI, un servidor MCP y una TUI studio.
+- [glyphrun.dev](https://glyphrun.dev) — corredor de comportamiento para aplicaciones de terminal. Maneja cualquier app basada en PTY desde specs YAML o JSON.
+- [cairntrace.dev](https://cairntrace.dev) — el hermano menor de cairn: corredor de comportamiento para *navegadores*, con el mismo contrato de intención más resultados.
+- [monitorcli.dev](https://monitorcli.dev) — centro de observabilidad local para macOS: una TUI Bubble Tea, una CLI JSON y un servidor MCP con siete herramientas detrás de un modelo compartido.
+
+Los cinco están ahora en línea en el equipo **the-lacanians** de Vercel, detrás de cinco dominios personalizados, con VitePress al fondo de todos. Esa era la pieza que faltaba. El código llevaba meses en repos con forma de monorepo y una carpeta `docs/` a medio escribir. Los nombres existían. Los dominios existían. El `vercel.json` existía para dos de ellos. Lo que faltaba era el tejido conectivo que toma una carpeta `docs/` llena de markdown y la convierte en algo con página de inicio, sidebar, caja de búsqueda y URL.
+
+## lo que se envió, concretamente
+
+- **vidtrace** — ya tenía un `vercel.json` y un sitio `docs/` completo; solo hizo falta `vercel deploy` desde la raíz del repo. El más rápido de los cinco.
+- **codemap** — igual. El código base tenía un sitio hermoso de VitePress listo para salir; el comando de compilación era literalmente `bun run site:build`. Sin vueltas.
+- **glyphrun** — necesitó el scaffolding completo de VitePress. Ya tenía contenido markdown excelente (`overview.md`, `authoring.md`, todo el vocabulario de steps y verifiers, un doc de diseño `cairntrace-comparison.md`), pero sin sidebar, sin nav, y con una etiqueta HTML `<spec-or-name>` sin cerrar que estaba rompiendo el compilador de Vue en la línea 942 de un archivo. Arreglé la etiqueta, escribí la configuración, desplegué.
+- **cairntrace** — la menor superficie de contenido, así que monté desde cero un sitio VitePress completo. Tres páginas: una home, un overview y un quickstart. En commits posteriores portaré el contenido markdown desde `cairntrace/docs/` en lugar de volcar toda la librería de golpe.
+- **monitor** — ya tenía una carpeta `docs/` con su propio `package.json` y un script `vitepress dev` que funcionaba localmente. Solo hizo falta un `vercel.json` y un `.vercelignore` porque monitor es un proyecto Go y el repo tiene más de 30 mil archivos que el uploader de Vercel rechaza por defecto. El truco fue `--archive=tgz`, que empaqueta la subida antes de contar.
+
+## por qué importa
+
+Durante dos años el comentario más común sobre cada uno de estos proyectos ha sido el mismo: "me encanta la CLI, ¿dónde está la documentación?" Y la respuesta era siempre: "en el repo, a veces en la web, sobre todo en el README y en el AGENTS.md que me digo a mí mismo que un día voy a separar en un sitio real." Ese día terminó siendo este fin de semana.
+
+Las herramientas local-first son fáciles de instalar pero lentas de generar confianza. Un binario funcional que nadie puede leer es una peor historia de marketing que un SaaS a medio hacer con una landing page hermosa. Enviar cinco sitios de documentación a la vez no cambia el producto. Cambia lo que la gente cree que es el producto. Es el mismo trabajo hecho dos veces.
+
+Un sitio de documentación también fuerza decisiones de vocabulario que el código base sigue posponiendo. Mientras escribía el sidebar de cairntrace tuve que poner por escrito qué tipos de step y qué tipos de verifier son *realmente* el contrato y cuáles son aspiracionales. Esa diferencia entre "lo que el parser del spec acepta" y "lo que el sidebar promete" es exactamente el tipo de pequeña rendición de cuentas que el ecosistema necesitaba.
+
+## qué sigue
+
+Cada uno de estos sitios va a seguir creciendo. Las guías de autoría de cairntrace y glyphrun son el siguiente puerto — extensas, opinadas, con la misma taxonomía de intención más resultados que ya estructura los runtimes. El sitio de codemap es el más completo y se va a volver la referencia para los demás: indexadores precisos, anotaciones de capa de conocimiento, las consultas entre proyectos que son la verdadera razón de existir del grafo.
+
+La historia entre proyectos es lo que en realidad importa. vidtrace, codemap, glyphrun, cairntrace y monitor son cinco herramientas distintas que comparten un vocabulario:
+
+- Un **loop de agente** — cada comando CLI tiene `--json`, cada binario CLI tiene un servidor MCP, cada spec es algo durable que un agente puede escribir, ejecutar y leer.
+- Un **contrato de comportamiento** — intención más resultados para comportamiento de navegador y terminal, anotaciones de conocimiento sobre el grafo de código, JSON de perfil para procesos monitoreados, paquetes de evidencia para reportes de bugs en video.
+- Un **modelo de ejecución local-first** — sin cuentas, sin servidores, sin telemetría, sin datos saliendo de la laptop. Cada sitio de documentación hace énfasis en esto incluso cuando el copy de marketing suena a nube.
+
+Los cinco sitios parecen cinco side projects. Son un solo proyecto: la infraestructura de comportamiento local-first que llevo dos años armando silenciosamente y que por fin recibió una superficie pública.
+
+## notas de lectura
+
+- [vidtrace.dev](https://vidtrace.dev) · [codemap.tools](https://codemap.tools) · [glyphrun.dev](https://glyphrun.dev) · [cairntrace.dev](https://cairntrace.dev) · [monitorcli.dev](https://monitorcli.dev)
+- Toda la pila aterriza bajo [the-lacanians](https://www.thelacanians.com) como la empresa operadora.
+- Todo es código abierto en [github.com/abdul-hamid-achik](https://github.com/abdul-hamid-achik).

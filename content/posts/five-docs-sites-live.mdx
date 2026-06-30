@@ -1,0 +1,51 @@
+---
+title: "five docs sites, one weekend"
+description: "shipping the documentation layer across vidtrace, codemap, glyphrun, cairntrace, and monitor — all on thelacanians team, all on one afternoon."
+date: 2026-06-29
+image: /images/blog/five-docs-sites-hero.svg
+tags: [Open source, Documentation, VitePress, Vercel, vidtrace, codemap, glyphrun, cairntrace, monitor, thelacanians, MCP, Local-first, AI agents, Developer tools]
+---
+
+A short note, not an essay. This weekend I shipped the full documentation layer for the five pieces of the local-first toolkit I keep building on top of each other:
+
+- [vidtrace.dev](https://vidtrace.dev) — turn bug screen recordings into timestamped evidence bundles for humans and coding agents.
+- [codemap.tools](https://codemap.tools) — code intelligence: a structural code graph plus semantic search, surfaced through a CLI, an MCP server, and a studio TUI.
+- [glyphrun.dev](https://glyphrun.dev) — behavior runner for terminal applications. Drives any PTY-based app from YAML or JSON specs.
+- [cairntrace.dev](https://cairntrace.dev) — cairn's younger sibling: behavior runner for *browsers*, with the same intent-plus-outcomes contract.
+- [monitorcli.dev](https://monitorcli.dev) — local observability hub for macOS: a Bubble Tea TUI, a JSON CLI, and a seven-tool MCP server behind one shared model.
+
+All five are now live on the **the-lacanians** Vercel team, behind five custom domains, with VitePress at the bottom of every one. That was the missing piece. The code had all lived for months in monorepo-shaped repos with a `docs/` folder sitting half-written. The names existed. The domains existed. The `vercel.json` existed for two of them. What was missing was the connective tissue that takes a `docs/` folder full of markdown and turns it into a thing with a homepage, a sidebar, a search box, and a URL.
+
+## what shipped, concretely
+
+- **vidtrace** — already had a `vercel.json` and a full `docs/` site; just needed `vercel deploy` from the repo root. The fastest of the five.
+- **codemap** — same. The codebase had a beautiful VitePress site ready to go; the build command was literally `bun run site:build`. No fuss.
+- **glyphrun** — needed the full VitePress scaffolding. Had excellent markdown content already (`overview.md`, `authoring.md`, the whole step and verifier vocabularies, a `cairntrace-comparison.md` design doc), but no sidebar, no nav, and a stray unclosed `<spec-or-name>` HTML tag that was crashing Vue's compiler at line 942 of one file. Fixed the tag, wrote the config, deployed.
+- **cairntrace** — the smallest content surface, so I scaffolded a complete VitePress site from scratch. Three pages: a homepage, an overview, and a quickstart. I will port the markdown content from `cairntrace/docs/` in subsequent commits rather than dumping the whole library at once.
+- **monitor** — had a `docs/` folder with its own `package.json` and a `vitepress dev` script that already worked locally. Just needed a `vercel.json` and a `.vercelignore` because monitoring is a Go project and the repo has 30k+ files that Vercel's uploader rejects by default. The fix was `--archive=tgz`, which packs the upload before counting.
+
+## why this matters
+
+For two years now, the most common piece of feedback on every one of these projects has been the same: "I love the CLI, where are the docs?" And the answer was always: "in the repo, sometimes on the web, mostly in the README and in the AGENTS.md I keep telling myself I will split out into a real site one day." That day ended up being this weekend.
+
+Local-first tools are easy to install but slow to trust. A working binary that no one can read about is a worse marketing story than a half-baked SaaS with a beautiful landing page. Shipping five documentation sites at once does not change the product. It changes what people think the product is. That is the same work, done twice.
+
+A docs site also forces vocabulary decisions that the codebase keeps deferring. While writing the cairntrace sidebar I had to write down which step kinds and which verifier types are *actually* the contract versus which ones are aspirational. That diff between "what the spec parser accepts" and "what the sidebar promises" is exactly the kind of small accountability the ecosystem needed.
+
+## what is next
+
+Each of these sites will keep growing. The cairntrace and glyphrun authoring guides are the next port — long-form, opinionated, with the same intent-plus-outcomes taxonomy that already structures the runtimes. The codemap site is the most complete and will become the reference for the rest: precise indexers, knowledge-layer annotations, and the cross-project queries that are the actual reason the graph exists.
+
+The cross-project story is what is actually interesting. vidtrace, codemap, glyphrun, cairntrace, and monitor are five different tools that share a vocabulary:
+
+- An **agent loop** — every CLI command has `--json`, every CLI binary has an MCP server, every spec is a durable thing an agent can author, run, and read.
+- A **behavior contract** — intent plus outcomes for browser and terminal behavior, knowledge annotations on the code graph, profile JSON for monitored processes, evidence bundles for video bug reports.
+- A **local-first execution model** — no accounts, no servers, no telemetry, no data leaving the laptop. Every doc site emphasizes this even when the marketing copy elsewhere sounds cloud-native.
+
+The five sites look like five side projects. They are one project: the local-first behavior infrastructure I have been quietly assembling for two years and finally gave a public surface.
+
+## reading notes
+
+- [vidtrace.dev](https://vidtrace.dev) · [codemap.tools](https://codemap.tools) · [glyphrun.dev](https://glyphrun.dev) · [cairntrace.dev](https://cairntrace.dev) · [monitorcli.dev](https://monitorcli.dev)
+- The whole stack lands under [the-lacanians](https://www.thelacanians.com) as the operating company.
+- Everything is open source on [github.com/abdul-hamid-achik](https://github.com/abdul-hamid-achik).
