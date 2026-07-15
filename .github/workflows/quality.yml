@@ -8,6 +8,15 @@ on:
 permissions:
   contents: read
 
+env:
+  SKIP_ENV_VALIDATION: "1"
+  NEXT_PUBLIC_APP_URL: http://localhost:3000
+  DATABASE_URL: postgresql://ci:ci@db.invalid/ci
+  LASTFM_API_KEY: ci-placeholder
+  LASTFM_API_SECRET: ci-placeholder
+  LASTFM_USERNAME: ci-placeholder
+  RESEND_API_KEY: re_ci_placeholder
+
 jobs:
   unit-and-coverage:
     name: Unit tests and coverage
@@ -21,9 +30,6 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run check
       - run: bun run build
-        env:
-          SKIP_ENV_VALIDATION: "1"
-          NEXT_PUBLIC_APP_URL: http://localhost:3000
       - uses: actions/upload-artifact@v5
         if: ${{ !cancelled() }}
         with:
