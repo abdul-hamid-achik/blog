@@ -3,10 +3,10 @@
   "style": "default",
   "tailwind": {
     "css": "app/globals.css",
-    "baseColor": "nord",
+    "baseColor": "stone",
     "cssVariables": true
   },
-  "rsc": false,
+  "rsc": true,
   "aliases": {
     "utils": "@/lib/utils",
     "components": "@/components"

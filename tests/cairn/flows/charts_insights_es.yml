@@ -1,0 +1,81 @@
+version: 1
+name: charts_insights_es
+intent: Spanish archive insight charts render deterministic localized data
+  accessibly within a mobile viewport
+backend: agent-browser
+coldStart: guest
+viewport: { width: 390, height: 844 }
+metadata: { feature: charts, priority: critical, tags: [i18n, mobile, a11y] }
+artifacts:
+  capture:
+    screenshots: always
+    snapshots: always
+    trace: on-failure
+
+outcomes:
+  - id: localized_insight_charts_are_complete
+    description: both Spanish figures expose their expected accessible rows and
+      responsive chart regions
+    verify:
+      script:
+        run: |
+          const expected = [
+            ["Ensayos publicados a lo largo del tiempo", 3],
+            ["Distribución del tiempo de lectura de los ensayos", 4]
+          ];
+          const checks = expected.map(([title, rows]) => {
+            const figure = Array.from(document.querySelectorAll("figure")).find(
+              (candidate) => candidate.querySelector("h3")?.textContent?.trim() === title
+            );
+            const chart = figure?.querySelector('[role="group"]');
+            const figureBox = figure?.getBoundingClientRect();
+            const chartBox = chart?.getBoundingClientRect();
+            const actualRows = figure?.querySelectorAll("ol > li").length ?? 0;
+            return {
+              title,
+              rows: actualRows,
+              chartWidth: chartBox?.width ?? 0,
+              figureWidth: figureBox?.width ?? 0,
+              ok: Boolean(
+                figure && chart && actualRows === rows && chartBox && figureBox &&
+                chartBox.width > 200 && chartBox.width <= figureBox.width + 1
+              )
+            };
+          });
+          const overflow = document.documentElement.scrollWidth -
+            document.documentElement.clientWidth;
+          return {
+            ok: checks.every((check) => check.ok) && overflow <= 1,
+            evidence: { checks, overflow }
+          };
+  - id: insight_graphql_fixtures_were_consumed
+    description: the page requested both deterministic insight operations
+    verify:
+      script:
+        run: |
+          const operations = (globalThis.__CAIRN_REQUESTS__ ?? [])
+            .filter(({ path }) => path === "/api/graphql")
+            .flatMap(({ body }) => Array.isArray(body) ? body : [body])
+            .map(({ operationName }) => operationName);
+          return {
+            ok: operations.includes("PostsOverTime") &&
+              operations.includes("ReadingTimeDistribution"),
+            evidence: { operations }
+          };
+  - id: insight_charts_have_no_blocking_wcag_issues
+    description: the rendered chart page has no serious or critical A or AA violations
+    verify:
+      script: { runtime: browser, file: ../verifiers/axe-wcag.js }
+  - id: insight_charts_have_no_console_errors
+    description: loading the chart fixtures produces no browser console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open: { path: /es/insights, waitUntil: networkidle, timeoutMs: 30000 }
+  - wait: { text: "Ritmos del archivo", timeoutMs: 10000 }
+  - wait:
+      selector: "figure:not([aria-busy]) ol > li"
+      timeoutMs: 10000
+  - snapshot: { interactive: false, label: spanish_insight_charts }
+contractHash: sha256:bceb70bd1604fb0e1a26f7960dbbd23791323e2b528020994d1a13b100c958d7

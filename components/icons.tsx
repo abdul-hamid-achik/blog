@@ -15,7 +15,6 @@ import {
   Image,
   Laptop,
   Loader2,
-  LucideProps,
   MessageCircle,
   Moon,
   MoreVertical,
@@ -24,13 +23,10 @@ import {
   Settings,
   SunMedium,
   Trash,
-  Twitter,
   User,
   X,
-  type Icon as LucideIcon,
-} from "lucide-react"
-
-export type Icon = LucideIcon
+  type LucideProps,
+} from "lucide-react";
 
 export const Icons = {
   alert: AlertCircle,
@@ -99,6 +95,13 @@ export const Icons = {
       />
     </svg>
   ),
-  twitter: Twitter,
+  twitter: ({ ...props }: LucideProps) => (
+    <svg viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <path
+        fill="currentColor"
+        d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817-5.967 6.817H1.68l7.73-8.835L1.254 2.25h6.826l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77Z"
+      />
+    </svg>
+  ),
   check: Check,
-}
+};

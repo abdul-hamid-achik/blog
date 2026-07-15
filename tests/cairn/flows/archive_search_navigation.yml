@@ -1,0 +1,42 @@
+version: 1
+name: archive_search_navigation
+intent: Spanish archive search finds cortex, navigates to its localized deep
+  link, and reveals the project
+backend: agent-browser
+coldStart: guest
+viewport: { width: 1440, height: 900 }
+metadata: { feature: search, priority: critical, tags: [i18n, routing] }
+
+outcomes:
+  - id: search_navigates_to_localized_project
+    description: selecting cortex lands on the Spanish project hash
+    verify:
+      url: { endsWith: "/es/projects#project-cortex" }
+  - id: search_retains_spanish_locale
+    description: the destination document remains Spanish
+    verify:
+      count: { selector: 'html[lang="es"]', equals: 1 }
+  - id: searched_project_is_revealed
+    description: the cortex disclosure is open after search navigation
+    verify:
+      count: { selector: "#project-cortex[open]", equals: 1 }
+  - id: search_navigation_has_no_console_errors
+    description: opening and selecting search results produces no console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open: { path: /es, waitUntil: networkidle, timeoutMs: 30000 }
+  - click: { by: role, role: button, name: "Buscar" }
+  - wait: { selector: '[role="dialog"]', timeoutMs: 10000 }
+  - fill:
+      by: label
+      name: Buscar en el archivo
+      value: cortex
+  - wait:
+      selector: '[cmdk-item][data-value^="cortex"]'
+      timeoutMs: 10000
+  - click: { by: selector, selector: '[cmdk-item][data-value^="cortex"]' }
+  - wait: { selector: "#project-cortex[open]", timeoutMs: 10000 }
+  - snapshot: { interactive: true, label: search_project_destination }
+contractHash: sha256:5a533f0622828731b6b586725ef79828cc8d7e1c973a28e5bba31d400dd18133

@@ -2,6 +2,7 @@
   "Home": "Home",
   "About": "About",
   "Insights": "Insights",
+  "Essays": "Essays",
   "Contact": "Contact",
   "Paintings": "Paintings",
   "Uh oh! Not Found": "Uh oh! Not Found",
@@ -14,5 +15,230 @@
   "Music": "Music",
   "Related Posts": "Related Posts",
   "Projects": "Projects",
-  "Skip to main content": "Skip to main content"
+  "Skip to main content": "Skip to main content",
+  "Search": "Search",
+  "Search the archive": "Search the archive",
+  "Navigation": {
+    "brandSubtitle": "Software / writing",
+    "homeLabel": "Abdul Hamid Achik — home",
+    "primaryLabel": "Primary navigation",
+    "mobileLabel": "Mobile navigation",
+    "changeLanguage": "Change language",
+    "selectLanguage": "Select a language",
+    "toggleTheme": "Toggle color theme"
+  },
+  "SearchDialog": {
+    "title": "Search",
+    "description": "Search projects, essays, paintings, and pages. Type to filter the archive.",
+    "close": "Close search",
+    "loading": "Loading the search index…",
+    "groups": {
+      "Writing": "Writing",
+      "Page": "Pages",
+      "Painting": "Paintings",
+      "Project": "Projects"
+    }
+  },
+  "Footer": {
+    "statement": "Building serious tools for agent work. Writing about everything that resists becoming a tool.",
+    "index": "Index",
+    "selectedSystems": "Selected systems"
+  },
+  "ProjectsPage": {
+    "metadataTitle": "Projects & Systems",
+    "metadataDescription": "Agent-native systems, local-first developer tools, products, and open-source work by Abdul Hamid Achik.",
+    "metadataKeywords": "Abdul Hamid Achik, projects, open source, agent tools, MCP, Cortex, Cairntrace, Glyphrun, TinyVault, MCPHub, Bob, CLI tools, Go",
+    "kicker": "Portfolio / active systems",
+    "title": "Independent systems, not isolated demos.",
+    "description": "A working catalogue of agent infrastructure, local-first command-line tools, product experiments, libraries, and editors. The newest work forms one connected evidence stack—from repository creation to browser and terminal verification.",
+    "browseRepositories": "Browse every repository",
+    "stats": {
+      "projects": "Projects & tools",
+      "mcp": "MCP-native",
+      "sites": "Live sites",
+      "types": "Project types"
+    },
+    "selectedKicker": "Current system",
+    "selectedTitle": "Selected agent-native work",
+    "selectedDescription": "Five independent tools that connect planning, context, and behavioral evidence.",
+    "searchLabel": "Search the project directory",
+    "searchPlaceholder": "Try MCP, Go, browser, secrets…",
+    "filterLabel": "Filter projects",
+    "directoryTitle": "Project directory",
+    "shown": "{count, plural, =1 {# shown} other {# shown}}",
+    "empty": "No project matches that combination.",
+    "reset": "Reset the directory",
+    "source": "Source",
+    "filters": {
+      "all": "All work",
+      "cli": "Command line",
+      "product": "Products",
+      "library": "Libraries",
+      "neovim-plugin": "Neovim"
+    },
+    "categories": {
+      "cli": "Command line",
+      "product": "Product",
+      "library": "Library",
+      "neovim-plugin": "Neovim"
+    }
+  },
+  "Article": {
+    "essay": "Essay",
+    "filedUnder": "Filed under",
+    "keepReading": "Keep reading",
+    "relatedPosts": "Related posts",
+    "onThisPage": "On this page"
+  },
+  "Archive": {
+    "kicker": "Archive",
+    "tagKicker": "Archive tag",
+    "postCount": "{count, plural, =1 {# essay} other {# essays}}",
+    "tagMetadataDescription": "Essays tagged with {tag}"
+  },
+  "PaintingPage": {
+    "kicker": "Painting",
+    "artist": "Artist",
+    "country": "Country",
+    "year": "Year"
+  },
+  "NotFound": {
+    "title": "Nothing here",
+    "page": "This page could not be found.",
+    "post": "This essay could not be found.",
+    "tag": "This archive tag could not be found.",
+    "painting": "This painting could not be found.",
+    "home": "Return home"
+  },
+  "Chat": {
+    "title": "Concierge",
+    "personaName": "Mr. Smerdyakov",
+    "status": "Archive guide · Context-aware",
+    "welcome": "You are speaking with Mr. Smerdyakov, Dostoevsky's character. I suppose you have questions about this archive. What would you like to discuss?",
+    "open": "Open the concierge",
+    "bubbleLabel": "Ask the archive",
+    "clear": "Clear",
+    "clearLabel": "Clear conversation",
+    "closeLabel": "Close conversation",
+    "placeholder": "Ask about the archive…",
+    "inputLabel": "Message the concierge",
+    "send": "Send message",
+    "inputHint": "Enter to send · Shift+Enter for a new line",
+    "charactersLeft": "{count, plural, =1 {# character left} other {# characters left}}",
+    "disclaimer": "Responses are generated from the archive and may contain mistakes.",
+    "empty": "Ask me anything about this archive.",
+    "suggestionsLabel": "Suggested questions",
+    "suggestionStart": "Where should I begin?",
+    "suggestionProjects": "What are you building right now?",
+    "suggestionEssay": "Recommend an essay for me.",
+    "thinking": "Thinking…",
+    "jumpLatest": "Latest message",
+    "error": "Sorry, something went wrong. Please try again.",
+    "authRequired": "Verification required",
+    "tokensUsed": "Tokens used: {count}",
+    "blockedImage": "[Image{description}]",
+    "imageAlt": "Image",
+    "pageLink": "Page",
+    "authTitle": "Email verification required",
+    "authDescription": "You have used all {count} free messages. Enter your email to continue the conversation.",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "Email address",
+    "sendLink": "Send verification link",
+    "sending": "Sending…",
+    "authSuccessTitle": "Check your email",
+    "authSuccessDescription": "We sent you a sign-in link. Open it to continue the conversation.",
+    "authError": "We could not send the verification email. Please try again."
+  },
+  "ErrorPage": {
+    "title": "Something interrupted the page",
+    "description": "The page could not finish loading. You can try again or return home.",
+    "retry": "Try again",
+    "home": "Return home"
+  },
+  "ArticleLoading": {
+    "status": "Loading the page"
+  },
+  "EssaysPage": {
+    "kicker": "Writing archive",
+    "title": "Essays, notes, and unfinished arguments.",
+    "description": "Long-form writing on software, literature, psychoanalysis, painting, politics, exile, and the unconscious—in English, Spanish, and Russian.",
+    "count": "{count, plural, =1 {# essay} other {# essays}}",
+    "searchLabel": "Search the writing archive",
+    "searchPlaceholder": "Search by title, idea, or tag…",
+    "empty": "No essay matches this search."
+  },
+  "Charts": {
+    "unavailable": "This chart is temporarily unavailable.",
+    "loading": "Loading chart data…",
+    "empty": "No data is available yet.",
+    "postsOverTime": "Published essays over time",
+    "readingTime": "Essay reading-time distribution",
+    "topArtists": "Most-played artists",
+    "topTags": "Most-used music tags",
+    "topTracks": "Most-played tracks",
+    "posts": "Published essays",
+    "peak": "Peak month",
+    "mostCommon": "Largest group",
+    "scrobbles": "Scrobbles",
+    "plays": "Plays",
+    "uses": "Uses",
+    "leader": "Leading entry",
+    "minuteRange": "{start}–{end} min",
+    "minutesOrMore": "{count}+ min"
+  },
+  "HomePage": {
+    "kicker": "Independent software workshop · Guadalajara",
+    "title": "Tools for agents. Essays for humans.",
+    "description": "I build local-first systems that make software agents more capable, observable, and accountable. I also write about literature, psychoanalysis, painting, politics, and the things no tool can resolve.",
+    "authVerified": "Your email is verified. The concierge is ready to continue the conversation.",
+    "authInvalidToken": "This verification link is invalid or has expired. Request a new one from the concierge.",
+    "authVerificationFailed": "We could not verify that link. Please request a new one from the concierge.",
+    "dismissNotice": "Dismiss notification",
+    "primaryCta": "Explore the workshop",
+    "secondaryCta": "Read the notebook",
+    "projectsLabel": "Projects & tools",
+    "languagesLabel": "Writing languages",
+    "principleLabel": "Default",
+    "principleValue": "Local first",
+    "workshopIndex": "Current build graph",
+    "active": "Active",
+    "workshopFooter": "{shown} featured here · {count} live deployments below",
+    "deployedKicker": "Live directory",
+    "deployedTitle": "The workshop extends beyond the featured build graph.",
+    "deployedDescription": "The opening index shows one active toolchain. This is the complete public deployment map: agent infrastructure, developer tools, products, libraries, and experiments you can use now.",
+    "deployedCount": "{count, plural, =1 {# live site} other {# live sites}}",
+    "visitProject": "Visit {name}",
+    "systemKicker": "One connected practice",
+    "systemTitle": "A toolchain for work that has to prove itself.",
+    "systemDescription": "The projects are designed as a system: frame the work, coordinate context, verify behavior, and keep the runtime legible. Each tool stays useful alone; together they close the evidence loop.",
+    "steps": {
+      "frame": {
+        "title": "Frame the work",
+        "description": "Turn a small product contract into a deterministic, reviewable foundation with explicit ownership."
+      },
+      "coordinate": {
+        "title": "Coordinate context",
+        "description": "Keep goals, evidence, memory, and MCP infrastructure coherent across long-running agent sessions."
+      },
+      "verify": {
+        "title": "Verify behavior",
+        "description": "Run browser and terminal behavior contracts against real interfaces and preserve the resulting evidence."
+      },
+      "operate": {
+        "title": "Operate locally",
+        "description": "Observe the machine, protect secrets, retain artifacts, and run agents without surrendering the whole workflow to a cloud service."
+      }
+    },
+    "writingKicker": "Latest writing",
+    "writingTitle": "The other half of the work.",
+    "writingDescription": "Long-form notes where software gives way to art, language, politics, exile, and the unconscious. Written in English, Spanish, and Russian.",
+    "allWriting": "Enter the essay archive",
+    "essay": "Essay",
+    "latest": "Latest essay",
+    "emptyWriting": "The next essay is still taking shape.",
+    "aboutKicker": "About this practice",
+    "aboutTitle": "Software needs evidence. Writing needs pressure.",
+    "aboutDescription": "I am a developer and writer based in Guadalajara. The software work is concerned with durable agent systems; the archive follows literature, psychoanalysis, painting, and political life wherever they touch the same nerve.",
+    "aboutCta": "Read the full note"
+  }
 }

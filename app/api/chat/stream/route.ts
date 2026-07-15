@@ -1,593 +1,911 @@
-import { NextRequest } from 'next/server';
-import { z } from 'zod';
-import { getAuthenticatedUser, getMessageCount } from '@/lib/auth';
-import { FREE_MESSAGE_LIMIT } from '@/lib/constants';
-import { checkRateLimit, checkIpRateLimit, isUserBlocked, isIpBlocked, recordAbuseStrike } from '@/lib/rate-limit';
-import { moderateInput, ModerationResult } from '@/lib/moderation';
-import { chatModel, searchSimilarContent } from '@/lib/ai';
-import { getContent, ContentType, Locale } from '@/lib/data';
-import { streamText, tool, stepCountIs } from 'ai';
-import { isProduction } from '@/lib/utils';
-import { db } from '@/lib/db';
-import { chatMessages, chatSessions } from '@/db/schema';
-import { eq, desc } from 'drizzle-orm';
-import { getPromptWithParams, getDefaultPromptParams } from '@/lib/prompts';
+import { chatMessages, chatSessions } from "@/db/schema";
+import {
+  conciergeModel,
+  getConciergeProviderOptions,
+  searchSimilarContent,
+} from "@/lib/ai";
+import { getAuthenticatedUser, getMessageCount, isSiteOwner } from "@/lib/auth";
+import { FREE_MESSAGE_LIMIT } from "@/lib/constants";
+import {
+  getCrisisSupportMessage,
+  getModerationBlockMessage,
+} from "@/lib/chat-safety";
+import { ContentType, getContent, Locale } from "@/lib/data";
+import { db } from "@/lib/db";
+import { ModerationResult, moderateInput } from "@/lib/moderation";
+import {
+  findProjects,
+  formatCurrentProjectContext,
+  formatProjectSearchResults,
+  getCurrentProjects,
+  isCurrentProjectQuery,
+} from "@/lib/project-search";
+import {
+  getDefaultPromptParams,
+  getIdentityContext,
+  getPromptWithParams,
+} from "@/lib/prompts";
+import {
+  checkIpRateLimit,
+  checkRateLimit,
+  isIpBlocked,
+  isUserBlocked,
+  recordAbuseStrike,
+} from "@/lib/rate-limit";
+import { getLocalizedPath } from "@/lib/site-url";
+import { isProduction } from "@/lib/utils";
+import type { Page, Painting, Post } from "content-collections";
+import { eq } from "drizzle-orm";
+import { isStepCount, type ModelMessage, streamText, tool } from "ai";
+import { type NextRequest } from "next/server";
+import { z } from "zod";
 
 // Allow up to 60s for streaming responses (Vercel Pro) or signal intent on Hobby.
-// On Hobby plan, streaming functions get ~30s. Reducing step count keeps us within budget.
+// On Hobby, the three-step tool limit keeps generation within the shorter budget.
 export const maxDuration = 60;
 
-// Allowed CORS origins
 const ALLOWED_ORIGINS = [
-    'https://www.abdulachik.dev',
-    'https://abdulachik.dev',
-    ...(isProduction ? [] : ['http://localhost:3000']),
+  "https://www.abdulachik.dev",
+  "https://abdulachik.dev",
+  ...(isProduction ? [] : ["http://localhost:3000"]),
 ];
 
-// Valid locales for validation
-const VALID_LOCALES = Object.values(Locale) as string[];
+const VALID_LOCALES = new Set<string>(Object.values(Locale));
+const TEXT_ENCODER = new TextEncoder();
+
+const LANGUAGE_INSTRUCTIONS: Record<Locale, string> = {
+  [Locale.EN]:
+    "LANGUAGE REQUIREMENT: Always answer in English, even when source material or tool results use another language.",
+  [Locale.ES]:
+    "REQUISITO DE IDIOMA: Responde siempre en español, aunque las fuentes o los resultados de las herramientas estén en otro idioma.",
+  [Locale.RU]:
+    "ЯЗЫКОВОЕ ТРЕБОВАНИЕ: Всегда отвечай по-русски, даже если источники или результаты инструментов даны на другом языке.",
+};
+
+const STREAM_RESPONSE_COPY = {
+  [Locale.EN]: {
+    accessDenied: "Access denied",
+    rateLimitExceeded: "Rate limit exceeded",
+    authenticationRequired: "Authentication required",
+    invalidInput: "Invalid input",
+    internalError: "Internal server error",
+    generationFailed: "Failed to generate response",
+  },
+  [Locale.ES]: {
+    accessDenied: "Acceso denegado",
+    rateLimitExceeded: "Se superó el límite de solicitudes",
+    authenticationRequired: "Se requiere verificación",
+    invalidInput: "Entrada no válida",
+    internalError: "Error interno del servidor",
+    generationFailed: "No se pudo generar la respuesta",
+  },
+  [Locale.RU]: {
+    accessDenied: "Доступ запрещён",
+    rateLimitExceeded: "Превышен лимит запросов",
+    authenticationRequired: "Требуется подтверждение",
+    invalidInput: "Некорректные входные данные",
+    internalError: "Внутренняя ошибка сервера",
+    generationFailed: "Не удалось сформировать ответ",
+  },
+} satisfies Record<
+  Locale,
+  {
+    accessDenied: string;
+    rateLimitExceeded: string;
+    authenticationRequired: string;
+    invalidInput: string;
+    internalError: string;
+    generationFailed: string;
+  }
+>;
+
+const TOOL_COPY = {
+  [Locale.EN]: {
+    noRelevantContent: "No relevant content found.",
+    noAuthorContent: "No matching content by Abdul Hamid was found.",
+    noDescription: "No description",
+    unknownAuthor: "Unknown artist",
+    by: "by",
+    result: (index: number) => `Result ${index}`,
+    postCount: (count: number) => `${count} posts`,
+    homepage: "The visitor is on the homepage.",
+    currentPage: "Current page",
+    description: "Description",
+    type: "Type",
+    author: "Author",
+    year: "Year",
+    tags: "Tags",
+    content: "Content",
+    related: (url: string, content: string) =>
+      `The visitor is viewing ${url}. Related archive content: ${content}`,
+    page: (url: string) => `The visitor is viewing the page at ${url}.`,
+    lookupError: (url: string) =>
+      `The page content for ${url} could not be retrieved.`,
+  },
+  [Locale.ES]: {
+    noRelevantContent: "No se encontró contenido relevante.",
+    noAuthorContent: "No se encontró contenido de Abdul Hamid que coincida.",
+    noDescription: "Sin descripción",
+    unknownAuthor: "Artista desconocido",
+    by: "de",
+    result: (index: number) => `Resultado ${index}`,
+    postCount: (count: number) => `${count} publicaciones`,
+    homepage: "La persona visitante está en la página de inicio.",
+    currentPage: "Página actual",
+    description: "Descripción",
+    type: "Tipo",
+    author: "Autoría",
+    year: "Año",
+    tags: "Etiquetas",
+    content: "Contenido",
+    related: (url: string, content: string) =>
+      `La persona visitante está viendo ${url}. Contenido relacionado del archivo: ${content}`,
+    page: (url: string) => `La persona visitante está viendo la página ${url}.`,
+    lookupError: (url: string) =>
+      `No se pudo recuperar el contenido de la página ${url}.`,
+  },
+  [Locale.RU]: {
+    noRelevantContent: "Подходящие материалы не найдены.",
+    noAuthorContent: "Подходящие материалы Абдула Хамида не найдены.",
+    noDescription: "Без описания",
+    unknownAuthor: "Неизвестный автор",
+    by: "—",
+    result: (index: number) => `Результат ${index}`,
+    postCount: (count: number) => `${count} публикаций`,
+    homepage: "Посетитель находится на главной странице.",
+    currentPage: "Текущая страница",
+    description: "Описание",
+    type: "Тип",
+    author: "Автор",
+    year: "Год",
+    tags: "Теги",
+    content: "Содержание",
+    related: (url: string, content: string) =>
+      `Посетитель просматривает ${url}. Связанный материал архива: ${content}`,
+    page: (url: string) => `Посетитель просматривает страницу ${url}.`,
+    lookupError: (url: string) =>
+      `Не удалось получить содержимое страницы ${url}.`,
+  },
+} satisfies Record<
+  Locale,
+  {
+    noRelevantContent: string;
+    noAuthorContent: string;
+    noDescription: string;
+    unknownAuthor: string;
+    by: string;
+    result: (index: number) => string;
+    postCount: (count: number) => string;
+    homepage: string;
+    currentPage: string;
+    description: string;
+    type: string;
+    author: string;
+    year: string;
+    tags: string;
+    content: string;
+    related: (url: string, content: string) => string;
+    page: (url: string) => string;
+    lookupError: (url: string) => string;
+  }
+>;
+
+const historyMessageSchema = z.object({
+  role: z.enum(["user", "assistant"]),
+  content: z.string().max(4000),
+});
+
+const inputSchema = z.object({
+  message: z.string().trim().min(1).max(2000),
+  sessionId: z.string().uuid(),
+  history: z.array(historyMessageSchema).max(50),
+  currentPageUrl: z.string().max(500).optional(),
+});
+
+type StoredContent<T> = T & { _id: string };
+type BlogContent =
+  StoredContent<Post> | StoredContent<Page> | StoredContent<Painting>;
+type ChatRole = "user" | "assistant" | "system";
+
+interface RoutableContent {
+  slug: string;
+  slugAsParams: string;
+  title: string;
+}
+
+function isLocale(value: string): value is Locale {
+  return VALID_LOCALES.has(value);
+}
 
 function getCorsOrigin(request: NextRequest): string {
-    const origin = request.headers.get('origin');
-    if (origin && ALLOWED_ORIGINS.includes(origin)) {
-        return origin;
-    }
-    return ALLOWED_ORIGINS[0];
+  const origin = request.headers.get("origin");
+  return origin && ALLOWED_ORIGINS.includes(origin)
+    ? origin
+    : ALLOWED_ORIGINS[0];
 }
 
-// Extract client IP from request headers (same logic as middleware)
 function getClientIp(request: NextRequest): string {
-    return request.headers.get('x-real-ip')
-        ?? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-        ?? '127.0.0.1';
+  return (
+    request.headers.get("x-real-ip") ??
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "127.0.0.1"
+  );
 }
 
-// Shared 403 response headers - now a function to include CORS headers
 function getDenyHeaders(request: NextRequest): Record<string, string> {
-    return {
-        'Content-Type': 'text/plain',
-        'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'DENY',
-        'Access-Control-Allow-Origin': getCorsOrigin(request),
-        'Vary': 'Origin'
-    };
+  return {
+    "Content-Type": "text/plain; charset=utf-8",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Access-Control-Allow-Origin": getCorsOrigin(request),
+    Vary: "Origin",
+  };
 }
 
-// Input validation schema
-const inputSchema = z.object({
-    message: z.string().min(1).max(2000),
-    sessionId: z.string().uuid(),
-    history: z.array(z.object({
-        role: z.enum(['user', 'assistant']),
-        content: z.string()
-    })).max(50),
-    currentPageUrl: z.string().optional()
-});
+function getStreamHeaders(request: NextRequest): Record<string, string> {
+  return {
+    "Content-Type": "text/event-stream; charset=utf-8",
+    "Cache-Control": "no-cache, no-transform",
+    Connection: "keep-alive",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Access-Control-Allow-Origin": getCorsOrigin(request),
+    "Access-Control-Allow-Methods": "POST",
+    "Access-Control-Allow-Headers": "Content-Type, locale",
+    Vary: "Origin",
+  };
+}
 
-// Define tools for the AI assistant (reused from GraphQL resolver)
+function createStaticStreamResponse(
+  request: NextRequest,
+  message: string,
+): Response {
+  const body = [
+    `data: ${JSON.stringify({ type: "start" })}`,
+    `data: ${JSON.stringify(message)}`,
+    "data: [DONE]",
+    "",
+  ].join("\n\n");
+
+  return new Response(body, { headers: getStreamHeaders(request) });
+}
+
+function safeDecodePathSegment(segment: string): string {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+}
+
+function encodePathSegment(segment: string): string {
+  return encodeURIComponent(safeDecodePathSegment(segment));
+}
+
+function getPathSegments(value: string): string[] {
+  let pathname: string;
+
+  try {
+    pathname = new URL(value, "https://abdulachik.dev").pathname;
+  } catch {
+    pathname = value.split(/[?#]/, 1)[0] ?? value;
+  }
+
+  const segments = pathname
+    .split("/")
+    .filter(Boolean)
+    .map(safeDecodePathSegment);
+
+  if (segments[0] && isLocale(segments[0])) {
+    return segments.slice(1);
+  }
+
+  return segments;
+}
+
+function normalizeCollectionSlug(slug: string, collection: string): string {
+  const segments = getPathSegments(slug);
+  const contentSegments =
+    segments[0] === collection ? segments.slice(1) : segments;
+
+  return contentSegments.map(encodePathSegment).join("/");
+}
+
+function navigationToken(locale: Locale, pathname: string): string {
+  return `[NAVIGATE:${getLocalizedPath(locale, pathname)}]`;
+}
+
+function collectionNavigationToken(
+  locale: Locale,
+  collection: "posts" | "paintings",
+  slug: string,
+): string {
+  const normalizedSlug = normalizeCollectionSlug(slug, collection);
+  const pathname = normalizedSlug
+    ? `/${collection}/${normalizedSlug}`
+    : `/${collection}`;
+
+  return navigationToken(locale, pathname);
+}
+
+function getPosts(locale: Locale): Array<StoredContent<Post>> {
+  return getContent([], ContentType.POST, locale) as Array<StoredContent<Post>>;
+}
+
+function getPaintings(locale: Locale): Array<StoredContent<Painting>> {
+  return getContent([], ContentType.PAINTING, locale) as Array<
+    StoredContent<Painting>
+  >;
+}
+
+function getPages(locale: Locale): Array<StoredContent<Page>> {
+  return getContent([], ContentType.PAGE, locale) as Array<StoredContent<Page>>;
+}
+
+function findContentBySlug<T extends RoutableContent>(
+  content: readonly T[],
+  slug: string,
+  fullSlug: string,
+): T | undefined {
+  const exactMatch = content.find(
+    (item) =>
+      item.slugAsParams === slug ||
+      item.slugAsParams === fullSlug ||
+      item.slug === `/${slug}` ||
+      item.slug === `/${fullSlug}`,
+  );
+
+  if (exactMatch) return exactMatch;
+
+  const normalizedSlug = slug.toLocaleLowerCase();
+  return content.find(
+    (item) =>
+      item.slugAsParams.includes(slug) ||
+      item.slug.includes(slug) ||
+      item.title.toLocaleLowerCase().includes(normalizedSlug),
+  );
+}
+
+function formatCurrentPageContent(
+  content: BlogContent,
+  locale: Locale,
+): string {
+  const copy = TOOL_COPY[locale];
+  const author = "author" in content ? content.author : null;
+  const year = "year" in content ? content.year : null;
+  const lines = [
+    `**${copy.currentPage}: ${content.title}**`,
+    content.description ? `${copy.description}: ${content.description}` : null,
+    content.type ? `${copy.type}: ${content.type}` : null,
+    author ? `${copy.author}: ${author}` : null,
+    year ? `${copy.year}: ${year}` : null,
+    content.tags?.length ? `${copy.tags}: ${content.tags.join(", ")}` : null,
+    content.content
+      ? `\n${copy.content}:\n${content.content.substring(0, 1000)}...`
+      : null,
+  ];
+
+  return lines
+    .filter((line): line is string => typeof line === "string")
+    .join("\n");
+}
+
 const createTools = (locale: Locale) => ({
-    searchContent: tool({
-        description: 'Search the blog content for relevant information about posts, paintings, and pages. Use this tool to find specific information before answering questions.',
-        inputSchema: z.object({
-            query: z.string().describe('The search query to find relevant content'),
-            limit: z.number().optional().default(5).describe('Maximum number of results to return')
-        }),
-        execute: async ({ query, limit }) => {
-            const results = await searchSimilarContent(query, limit);
-            if (results.length === 0) {
-                return 'No relevant content found.';
-            }
-            return results.map((r: any, i: number) =>
-                `[Result ${i + 1}]\n${r.content}\n---`
-            ).join('\n\n');
-        }
+  searchContent: tool({
+    description:
+      "Search the blog content for relevant information about posts, paintings, and pages. Use this tool to find specific information before answering questions.",
+    inputSchema: z.object({
+      query: z.string().describe("The search query to find relevant content"),
+      limit: z
+        .number()
+        .optional()
+        .default(5)
+        .describe("Maximum number of results to return"),
     }),
+    execute: async ({ query, limit }) => {
+      const results = await searchSimilarContent(query, locale, limit);
+      if (results.length === 0) return TOOL_COPY[locale].noRelevantContent;
 
-    navigateToPost: tool({
-        description: 'Provide a clickable navigation link to a specific blog post. Use when user wants to read a post.',
-        inputSchema: z.object({
-            slug: z.string().describe('The post slug/URL path')
-        }),
-        execute: ({ slug }) => {
-            return `[NAVIGATE:/posts/${slug}]`;
-        }
+      return results
+        .map(
+          (result, index) =>
+            `[${TOOL_COPY[locale].result(index + 1)}]\n${result.content}\n---`,
+        )
+        .join("\n\n");
+    },
+  }),
+
+  searchProjects: tool({
+    description:
+      "Search Abdul Hamid's real project catalog. You MUST use this before answering any question about a named project, product, tool, CLI, library, live deployment, or something Abdul Hamid built. Never infer a project from the ordinary meaning of its name.",
+    inputSchema: z.object({
+      query: z
+        .string()
+        .describe(
+          "The user's project question or the exact project, product, tool, or domain name",
+        ),
+      limit: z
+        .number()
+        .int()
+        .min(1)
+        .max(10)
+        .optional()
+        .default(5)
+        .describe("Maximum number of catalog matches to return"),
     }),
+    execute: ({ query, limit }) =>
+      formatProjectSearchResults(findProjects(query, locale, limit), locale),
+  }),
 
-    navigateToPainting: tool({
-        description: 'Provide a clickable navigation link to a specific painting. Use when user wants to view a painting.',
-        inputSchema: z.object({
-            slug: z.string().describe('The painting slug/URL path')
-        }),
-        execute: ({ slug }) => {
-            return `[NAVIGATE:/paintings/${slug}]`;
-        }
+  listCurrentProjects: tool({
+    description:
+      "Return Abdul Hamid's authoritative current-work sequence. You MUST use this when a visitor asks what he is building, working on, developing, or shipping now, including paraphrases in English, Spanish, or Russian.",
+    inputSchema: z.object({
+      limit: z.number().int().min(1).max(10).optional().default(5),
     }),
+    execute: ({ limit }) =>
+      formatProjectSearchResults(getCurrentProjects(locale, limit), locale),
+  }),
 
-    navigateToTag: tool({
-        description: 'Provide a clickable navigation link to view all content with a specific tag.',
-        inputSchema: z.object({
-            tag: z.string().describe('The tag name')
-        }),
-        execute: ({ tag }) => {
-            return `[NAVIGATE:/tags/${tag}]`;
-        }
+  navigateToPost: tool({
+    description:
+      "Provide a clickable navigation link to a specific blog post. Use when the user wants to read a post.",
+    inputSchema: z.object({
+      slug: z.string().describe("The post slug or URL path"),
     }),
+    execute: ({ slug }) => collectionNavigationToken(locale, "posts", slug),
+  }),
 
-    listRecentPosts: tool({
-        description: 'Get a list of recent blog posts with titles and summaries.',
-        inputSchema: z.object({
-            limit: z.number().optional().default(5).describe('Number of posts to return')
-        }),
-        execute: ({ limit }) => {
-            const posts = getContent([], ContentType.POST, locale);
-            const recentPosts = posts.slice(0, limit);
-            return recentPosts.map((p: any) =>
-                `- **${p.title}** [NAVIGATE:${p.slug}]\n  ${p.description || 'No description'}`
-            ).join('\n\n');
-        }
+  navigateToPainting: tool({
+    description:
+      "Provide a clickable navigation link to a specific painting. Use when the user wants to view a painting.",
+    inputSchema: z.object({
+      slug: z.string().describe("The painting slug or URL path"),
     }),
+    execute: ({ slug }) => collectionNavigationToken(locale, "paintings", slug),
+  }),
 
-    listPaintings: tool({
-        description: 'Get a list of paintings in the gallery.',
-        inputSchema: z.object({
-            limit: z.number().optional().default(5).describe('Number of paintings to return')
-        }),
-        execute: ({ limit }) => {
-            const paintings = getContent([], ContentType.PAINTING, locale);
-            const recentPaintings = paintings.slice(0, limit);
-            return recentPaintings.map((p: any) =>
-                `- **${p.title}** by ${p.author || 'Unknown'} [NAVIGATE:${p.slug}]\n  ${p.description || 'No description'}`
-            ).join('\n\n');
-        }
+  navigateToTag: tool({
+    description:
+      "Provide a clickable navigation link to view all content with a specific tag.",
+    inputSchema: z.object({
+      tag: z.string().describe("The tag name"),
     }),
+    execute: ({ tag }) =>
+      navigationToken(locale, `/tags/${encodePathSegment(tag)}`),
+  }),
 
-    listPopularTags: tool({
-        description: 'Get a list of popular/available tags in the blog.',
-        inputSchema: z.object({}),
-        execute: () => {
-            const posts = getContent([], ContentType.POST, locale);
-            const tagCounts = posts.reduce((acc: Record<string, number>, post: any) => {
-                post.tags?.forEach((tag: string) => {
-                    acc[tag] = (acc[tag] || 0) + 1;
-                });
-                return acc;
-            }, {});
-
-            return Object.entries(tagCounts)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 10)
-                .map(([tag, count]) => `- ${tag} (${count} posts) [NAVIGATE:/tags/${tag}]`)
-                .join('\n');
-        }
+  listRecentPosts: tool({
+    description: "Get a list of recent blog posts with titles and summaries.",
+    inputSchema: z.object({
+      limit: z
+        .number()
+        .optional()
+        .default(5)
+        .describe("Number of posts to return"),
     }),
+    execute: ({ limit }) =>
+      getPosts(locale)
+        .slice(0, limit)
+        .map(
+          (post) =>
+            `- **${post.title}** ${collectionNavigationToken(locale, "posts", post.slugAsParams)}\n  ${post.description || TOOL_COPY[locale].noDescription}`,
+        )
+        .join("\n\n"),
+  }),
 
-    searchAuthorContent: tool({
-        description: 'Search for content by Abdul Hamid, the blog author. Use this to find his posts, thoughts, and writings.',
-        inputSchema: z.object({
-            query: z.string().describe('Search query related to Abdul Hamid or his content')
-        }),
-        execute: async ({ query }) => {
-            const results = await searchSimilarContent(`Abdul Hamid ${query}`, 5);
-            if (results.length === 0) {
-                return 'No content found by Abdul Hamid matching that query.';
-            }
-            return results.map((r: any, i: number) =>
-                `[Result ${i + 1}]\n${r.content}\n---`
-            ).join('\n\n');
-        }
+  listPaintings: tool({
+    description: "Get a list of paintings in the gallery.",
+    inputSchema: z.object({
+      limit: z
+        .number()
+        .optional()
+        .default(5)
+        .describe("Number of paintings to return"),
     }),
+    execute: ({ limit }) =>
+      getPaintings(locale)
+        .slice(0, limit)
+        .map(
+          (painting) =>
+            `- **${painting.title}** ${TOOL_COPY[locale].by} ${painting.author || TOOL_COPY[locale].unknownAuthor} ${collectionNavigationToken(locale, "paintings", painting.slugAsParams)}\n  ${painting.description || TOOL_COPY[locale].noDescription}`,
+        )
+        .join("\n\n"),
+  }),
 
-    getCurrentPageContent: tool({
-        description: 'Get detailed information about the page the user is currently viewing. Use this when the user asks about "this post", "this painting", or "the current page". CRITICAL: You must use the exact currentPageUrl provided in the system prompt (e.g., "/posts/city-a-poem-from-vladimir-kotlyarov"), NOT generic URLs like "/current-page".',
-        inputSchema: z.object({
-            url: z.string().describe('The current page URL path - MUST be the exact currentPageUrl from the system prompt (e.g., "/posts/city-a-poem-from-vladimir-kotlyarov")')
-        }),
-        execute: async ({ url }) => {
-            try {
-                if (!isProduction) {
-                    console.log('🔍 getCurrentPageContent called with URL:', url);
-                    console.log('🔍 Current locale:', locale);
+  listPopularTags: tool({
+    description: "Get a list of popular or available tags in the blog.",
+    inputSchema: z.object({}),
+    execute: () => {
+      const tagCounts = getPosts(locale).reduce<Record<string, number>>(
+        (counts, post) => {
+          post.tags?.forEach((tag) => {
+            counts[tag] = (counts[tag] ?? 0) + 1;
+          });
+          return counts;
+        },
+        {},
+      );
 
-                    // Warn if AI is using a generic URL instead of the actual page URL
-                    if (url === '/current-page' || url === 'current-page') {
-                        console.warn('⚠️ AI is using generic URL "/current-page" instead of the actual page URL. This suggests the AI is not properly reading the currentPageUrl from the system prompt.');
-                    }
+      return Object.entries(tagCounts)
+        .sort(([, firstCount], [, secondCount]) => secondCount - firstCount)
+        .slice(0, 10)
+        .map(
+          ([tag, count]) =>
+            `- ${tag} (${TOOL_COPY[locale].postCount(count)}) ${navigationToken(locale, `/tags/${encodePathSegment(tag)}`)}`,
+        )
+        .join("\n");
+    },
+  }),
 
-                    // Debug: show what content is available
-                    const allContent = getContent([], undefined, locale);
-                    console.log('🔍 Total content available:', allContent.length);
-                    console.log('🔍 Sample content:', allContent.slice(0, 3).map(c => ({ title: c.title, type: c.type, slugAsParams: c.slugAsParams })));
-                }
+  searchAuthorContent: tool({
+    description:
+      "Search for content by Abdul Hamid, the blog author. Use this to find his posts, thoughts, and writings.",
+    inputSchema: z.object({
+      query: z
+        .string()
+        .describe("Search query related to Abdul Hamid or his content"),
+    }),
+    execute: async ({ query }) => {
+      const results = await searchSimilarContent(
+        `Abdul Hamid ${query}`,
+        locale,
+        5,
+      );
+      if (results.length === 0) {
+        return TOOL_COPY[locale].noAuthorContent;
+      }
 
-                // Parse URL to extract content type and slug
-                // URLs can be like: /posts/slug, /paintings/slug, /about, or with locale: /en/posts/slug
-                let urlParts = url.split('/').filter(p => p);
+      return results
+        .map(
+          (result, index) =>
+            `[${TOOL_COPY[locale].result(index + 1)}]\n${result.content}\n---`,
+        )
+        .join("\n\n");
+    },
+  }),
 
-                if (!isProduction) {
-                    console.log('📍 URL parts:', urlParts);
-                }
+  getCurrentPageContent: tool({
+    description:
+      'Get detailed information about the page the user is currently viewing. Use this when the user asks about "this post", "this painting", or "the current page". You must use the exact currentPageUrl provided in the system prompt.',
+    inputSchema: z.object({
+      url: z
+        .string()
+        .describe(
+          'The exact current page URL from the system prompt, such as "/posts/city-a-poem-from-vladimir-kotlyarov"',
+        ),
+    }),
+    execute: async ({ url }) => {
+      try {
+        const urlParts = getPathSegments(url);
+        if (urlParts.length === 0) return TOOL_COPY[locale].homepage;
 
-                if (urlParts.length === 0) {
-                    return 'User is on the homepage.';
-                }
+        const contentType = urlParts[0];
+        const slug = urlParts.slice(1).join("/");
+        const fullSlug = urlParts.join("/");
+        let content: BlogContent | undefined;
 
-                // Check if first part is a locale (en, es, ru) and skip it
-                const locales = ['en', 'es', 'ru'];
-                if (locales.includes(urlParts[0])) {
-                    urlParts = urlParts.slice(1);
-                }
-
-                const contentType = urlParts[0]; // 'posts', 'paintings', or page name
-                const slug = urlParts.slice(1).join('/'); // rest of the path
-
-                // The full slug including content type (e.g., "posts/my-post")
-                const fullSlug = urlParts.join('/');
-
-                let content: any = null;
-
-                if (contentType === 'posts' && slug) {
-                    const posts = getContent([], ContentType.POST, locale);
-                    if (!isProduction) {
-                        console.log(`🔍 Searching for post with slug: "${slug}" or fullSlug: "${fullSlug}"`);
-                        console.log(`📚 Available post slugs:`, posts.slice(0, 3).map((p: any) => ({ slugAsParams: p.slugAsParams, slug: p.slug })));
-                    }
-                    // Try both with and without the content type prefix
-                    content = posts.find((p: any) =>
-                        p.slugAsParams === slug ||
-                        p.slugAsParams === fullSlug ||
-                        p.slug === `/${slug}` ||
-                        p.slug === `/${fullSlug}`
-                    );
-
-                    // Fallback: try partial matching if exact match fails
-                    if (!content) {
-                        content = posts.find((p: any) =>
-                            p.slugAsParams?.includes(slug) ||
-                            p.slug?.includes(slug) ||
-                            p.title?.toLowerCase().includes(slug.toLowerCase())
-                        );
-                    }
-                } else if (contentType === 'paintings' && slug) {
-                    const paintings = getContent([], ContentType.PAINTING, locale);
-                    if (!isProduction) {
-                        console.log(`🔍 Searching for painting with slug: "${slug}" or fullSlug: "${fullSlug}"`);
-                        console.log(`📚 Available painting slugs:`, paintings.slice(0, 3).map((p: any) => ({ slugAsParams: p.slugAsParams, slug: p.slug })));
-                    }
-                    content = paintings.find((p: any) =>
-                        p.slugAsParams === slug ||
-                        p.slugAsParams === fullSlug ||
-                        p.slug === `/${slug}` ||
-                        p.slug === `/${fullSlug}`
-                    );
-
-                    // Fallback: try partial matching if exact match fails
-                    if (!content) {
-                        content = paintings.find((p: any) =>
-                            p.slugAsParams?.includes(slug) ||
-                            p.slug?.includes(slug) ||
-                            p.title?.toLowerCase().includes(slug.toLowerCase())
-                        );
-                    }
-                } else {
-                    const pages = getContent([], ContentType.PAGE, locale);
-                    if (!isProduction) {
-                        console.log(`🔍 Searching for page with slug: "${contentType}"`);
-                    }
-                    content = pages.find((p: any) =>
-                        p.slugAsParams === contentType ||
-                        p.slug === `/${contentType}`
-                    );
-                }
-
-                if (!content) {
-                    if (!isProduction) {
-                        console.warn(`⚠️ Content not found for URL: ${url}`);
-                        console.warn(`📍 Parsed parts - contentType: "${contentType}", slug: "${slug}"`);
-                        console.warn(`📍 Full slug: "${fullSlug}"`);
-                    }
-
-                    // Last resort: try to find content using search
-                    try {
-                        const searchResults = await searchSimilarContent(slug || contentType, 1);
-                        if (searchResults.length > 0) {
-                            const foundContent = searchResults[0];
-                            return `User is viewing a page at ${url}. Found related content: ${foundContent.content.substring(0, 200)}...`;
-                        }
-                    } catch (error) {
-                        console.error('Error in fallback search:', error);
-                    }
-
-                    // Even if we can't find specific content, return basic page info
-                    return `User is currently viewing the ${contentType || 'page'} at ${url}. This appears to be ${contentType === 'about' ? 'the About page' : `a ${contentType} page`} on Abdul Hamid's blog.`;
-                }
-
-                if (!isProduction) {
-                    console.log('✅ Found content:', content.title);
-                }
-
-                const info = [
-                    `**Current Page: ${content.title}**`,
-                    content.description ? `Description: ${content.description}` : '',
-                    content.type ? `Type: ${content.type}` : '',
-                    content.author ? `Author: ${content.author}` : '',
-                    content.year ? `Year: ${content.year}` : '',
-                    content.tags ? `Tags: ${content.tags.join(', ')}` : '',
-                    content.body?.raw ? `\nContent:\n${content.body.raw.substring(0, 1000)}...` : ''
-                ].filter(Boolean).join('\n');
-
-                if (!isProduction) {
-                    console.log('📄 Tool returning content info:', info.substring(0, 200) + '...');
-                }
-
-                return info;
-            } catch (error) {
-                console.error('Error in getCurrentPageContent tool:', error);
-                return `Error retrieving page content for ${url}. Please try again or provide more specific information about what you're looking for.`;
-            }
+        if (contentType === "posts" && slug) {
+          content = findContentBySlug(getPosts(locale), slug, fullSlug);
+        } else if (contentType === "paintings" && slug) {
+          content = findContentBySlug(getPaintings(locale), slug, fullSlug);
+        } else {
+          content = getPages(locale).find(
+            (page) =>
+              page.slugAsParams === contentType ||
+              page.slug === `/${contentType}`,
+          );
         }
-    })
+
+        if (!content) {
+          const [relatedContent] = await searchSimilarContent(
+            slug || contentType,
+            locale,
+            1,
+          );
+
+          if (relatedContent) {
+            return TOOL_COPY[locale].related(
+              url,
+              `${relatedContent.content.substring(0, 200)}...`,
+            );
+          }
+
+          return TOOL_COPY[locale].page(url);
+        }
+
+        return formatCurrentPageContent(content, locale);
+      } catch (error) {
+        console.error("Current page lookup failed", error);
+        return TOOL_COPY[locale].lookupError(url);
+      }
+    },
+  }),
 });
 
-// Ensure chat session exists in database
-async function ensureChatSession(sessionId: string, userId: string | null = null) {
-    try {
-        // Check if session exists
-        const existing = await db.select()
-            .from(chatSessions)
-            .where(eq(chatSessions.sessionId, sessionId))
-            .limit(1);
+async function ensureChatSession(
+  sessionId: string,
+  userId: string | null = null,
+) {
+  try {
+    const existing = await db
+      .select()
+      .from(chatSessions)
+      .where(eq(chatSessions.sessionId, sessionId))
+      .limit(1);
 
-        if (existing.length === 0) {
-            // Create new session
-            await db.insert(chatSessions).values({
-                sessionId,
-                userId
-            });
-        }
-    } catch (error) {
-        // Silently fail - chat works without DB
-        if (!isProduction) {
-            console.log('ℹ️ Chat session not persisted');
-        }
+    if (existing.length === 0) {
+      await db.insert(chatSessions).values({ sessionId, userId });
     }
+  } catch {
+    // Persistence is optional; chat remains available if its tables are absent.
+  }
 }
 
-// Save chat message to database (optional - tables may not exist yet)
-async function saveChatMessage(sessionId: string, role: string, content: string, tokens?: number) {
-    try {
-        await db.insert(chatMessages).values({
-            sessionId,
-            role,
-            content,
-            tokens: tokens || null
-        });
-    } catch (error) {
-        // Silently fail if tables don't exist yet - chat still works without persistence
-        if (!isProduction) {
-            console.log('ℹ️ Chat messages not persisted');
-        }
-    }
+async function saveChatMessage(
+  sessionId: string,
+  role: ChatRole,
+  content: string,
+  tokens?: number,
+) {
+  try {
+    await db.insert(chatMessages).values({
+      sessionId,
+      role,
+      content,
+      tokens: tokens ?? null,
+    });
+  } catch {
+    // Persistence is optional; chat remains available if its tables are absent.
+  }
 }
 
 export async function POST(request: NextRequest) {
-    try {
-        // Parse and validate input
-        const body = await request.json();
-        const validatedInput = inputSchema.parse(body);
-        const { message, sessionId, history = [], currentPageUrl } = validatedInput;
+  const rawLocale = request.headers.get("locale") ?? Locale.EN;
+  const locale = isLocale(rawLocale) ? rawLocale : Locale.EN;
+  const responseCopy = STREAM_RESPONSE_COPY[locale];
 
-        // Get locale from headers with validation
-        const rawLocale = request.headers.get("locale") || Locale.EN;
-        const locale: Locale = VALID_LOCALES.includes(rawLocale) ? (rawLocale as Locale) : Locale.EN;
+  try {
+    const body: unknown = await request.json();
+    const { message, sessionId, history, currentPageUrl } =
+      inputSchema.parse(body);
 
-        // --- IP-level checks (prevents session-rotation abuse) ---
-        const clientIp = getClientIp(request);
+    const clientIp = getClientIp(request);
 
-        if (await isIpBlocked(clientIp)) {
-            return new Response('Access denied', { status: 403, headers: getDenyHeaders(request) });
-        }
-
-        const ipRateLimit = await checkIpRateLimit(clientIp);
-        if (!ipRateLimit.allowed) {
-            return new Response('Rate limit exceeded', {
-                status: 429,
-                headers: { ...getDenyHeaders(request), 'Retry-After': '60' }
-            });
-        }
-
-        // --- Content moderation (before auth so we don't waste DB queries on spam) ---
-        const moderation = moderateInput(message);
-
-        if (moderation.result === ModerationResult.BLOCK) {
-            // Record a strike against this IP for abuse escalation
-            await recordAbuseStrike(clientIp);
-
-            if (!isProduction) {
-                console.warn(`🛡️ Message blocked: ${moderation.reason} from IP ${clientIp}`);
-            }
-
-            return new Response('Message not allowed', { status: 400, headers: getDenyHeaders(request) });
-        }
-
-        // --- Authentication check ---
-        const user = await getAuthenticatedUser();
-
-        if (!user.isAuthenticated) {
-            // Check message count for unauthenticated users
-            const messageCount = await getMessageCount(sessionId);
-            if (messageCount >= FREE_MESSAGE_LIMIT) {
-                return new Response('Authentication required', {
-                    status: 401,
-                    headers: getDenyHeaders(request)
-                });
-            }
-        }
-
-        // Determine user ID for rate limiting
-        const userId = user.isAuthenticated ? user.id : `session-${sessionId}`;
-
-        // Check if user is blocked
-        if (await isUserBlocked(userId)) {
-            return new Response('Access denied', { status: 403, headers: getDenyHeaders(request) });
-        }
-
-        // Rate limiting per session/user (use stream rate limiter for stricter limits)
-        const rateLimitResult = await checkRateLimit(userId, 'stream');
-        if (!rateLimitResult.allowed) {
-            return new Response('Rate limit exceeded', {
-                status: 429,
-                headers: { ...getDenyHeaders(request), 'Retry-After': '60' }
-            });
-        }
-
-        // Ensure session exists in database
-        await ensureChatSession(sessionId, user.isAuthenticated ? userId : null);
-
-        // Create locale-aware tools
-        const tools = createTools(locale);
-
-        // Load personality prompt dynamically
-        const defaultParams = getDefaultPromptParams();
-        const systemPrompt = getPromptWithParams('smerdyakov-personality', locale, defaultParams);
-
-        if (!systemPrompt) {
-            console.warn('⚠️ System prompt is empty, using fallback');
-        }
-
-        // Add identity context so the AI knows who it's speaking to
-        let finalSystemPrompt = systemPrompt;
-        if (user.isAuthenticated) {
-            finalSystemPrompt += `\n\nIMPORTANT IDENTITY CONTEXT: You are speaking to the blog's author, ${defaultParams.authorName} (${user.email}). Address them as the blog owner. You may be more familiar and reference "your posts", "your paintings", etc.`;
-        } else {
-            finalSystemPrompt += `\n\nIMPORTANT IDENTITY CONTEXT: You are speaking to a visitor of ${defaultParams.authorName}'s blog, NOT the author himself. Refer to the blog author in the third person ("Abdul Hamid wrote...", "his latest post..."). Do NOT say "your blog" or "your posts" -- the visitor does not own the blog.`;
-        }
-
-        // Add current page context if available
-        if (currentPageUrl) {
-            const pageContextPrompt = getPromptWithParams('page-context', locale, {
-                ...defaultParams,
-                currentPageUrl
-            });
-            if (pageContextPrompt) {
-                finalSystemPrompt += `\n\n${pageContextPrompt}`;
-            } else {
-                // Fallback if page-context prompt not found
-                console.warn('⚠️ Page context prompt not found, using fallback');
-                finalSystemPrompt += `\n\nIMPORTANT: The user is currently viewing this page: ${currentPageUrl}. 
-
-When the user asks about "this page", "this post", "this article", or anything about what they're currently reading, you MUST call the getCurrentPageContent tool with the EXACT URL "${currentPageUrl}" (not /current-page or any other URL).
-
-Example: If user asks "what's this about?" or "tell me about this post", call getCurrentPageContent with url: "${currentPageUrl}"
-
-This is critical for providing relevant context about what they're actually viewing.`;
-            }
-        }
-
-        // Build conversation history  
-        const messages: any[] = [
-            {
-                role: 'system',
-                content: finalSystemPrompt
-            },
-            ...(history || []).map((h: any) => ({ role: h.role, content: h.content })),
-            { role: 'user', content: message }
-        ];
-
-        // Create streaming response
-        const encoder = new TextEncoder();
-        const stream = new ReadableStream({
-            async start(controller) {
-                try {
-                    // Send initial headers
-                    controller.enqueue(encoder.encode('data: {"type":"start"}\n\n'));
-
-                    // Generate streaming response with tools
-                    // stopWhen enables multi-step tool chaining (e.g. search -> getCurrentPage -> respond)
-                    const result = await streamText({
-                        model: chatModel,
-                        messages,
-                        tools,
-                        stopWhen: stepCountIs(3),
-                        onFinish: async (result) => {
-                            // Save complete response to database
-                            const promptTokens = 'promptTokens' in result.usage ? (result.usage.promptTokens as number) : 0;
-                            const completionTokens = 'completionTokens' in result.usage ? (result.usage.completionTokens as number) : 0;
-
-                            await saveChatMessage(sessionId, 'user', message, promptTokens);
-                            await saveChatMessage(sessionId, 'assistant', result.text, completionTokens);
-
-                            if (!isProduction) {
-                                console.log(`💬 Streamed chat response completed. Tokens: ${result.usage.totalTokens}`);
-                            }
-                        }
-                    });
-
-                    // Stream the response
-                    for await (const delta of result.textStream) {
-                        controller.enqueue(encoder.encode(`data: ${JSON.stringify(delta)}\n\n`));
-                    }
-
-                    // Send completion signal
-                    controller.enqueue(encoder.encode('data: [DONE]\n\n'));
-                    controller.close();
-
-                } catch (error) {
-                    console.error('Error in streaming chat:', error);
-                    controller.enqueue(encoder.encode('data: {"error":"Failed to generate response"}\n\n'));
-                    controller.close();
-                }
-            }
-        });
-
-        return new Response(stream, {
-            headers: {
-                'Content-Type': 'text/event-stream',
-                'Cache-Control': 'no-cache, no-transform',
-                'Connection': 'keep-alive',
-                'X-Content-Type-Options': 'nosniff',
-                'X-Frame-Options': 'DENY',
-                'Access-Control-Allow-Origin': getCorsOrigin(request),
-                'Access-Control-Allow-Methods': 'POST',
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Vary': 'Origin'
-            }
-        });
-
-    } catch (error) {
-        console.error('Error in chat stream endpoint:', error);
-
-        if (error instanceof z.ZodError) {
-            return new Response('Invalid input', {
-                status: 400,
-                headers: {
-                    'Content-Type': 'text/plain',
-                    'X-Content-Type-Options': 'nosniff',
-                    'X-Frame-Options': 'DENY'
-                }
-            });
-        }
-
-        return new Response('Internal server error', {
-            status: 500,
-            headers: {
-                'Content-Type': 'text/plain',
-                'X-Content-Type-Options': 'nosniff',
-                'X-Frame-Options': 'DENY'
-            }
-        });
+    if (await isIpBlocked(clientIp)) {
+      return new Response(responseCopy.accessDenied, {
+        status: 403,
+        headers: getDenyHeaders(request),
+      });
     }
+
+    const ipRateLimit = await checkIpRateLimit(clientIp);
+    if (!ipRateLimit.allowed) {
+      return new Response(responseCopy.rateLimitExceeded, {
+        status: 429,
+        headers: { ...getDenyHeaders(request), "Retry-After": "60" },
+      });
+    }
+
+    const moderation = moderateInput(message);
+    if (moderation.result === ModerationResult.SUPPORT) {
+      return createStaticStreamResponse(
+        request,
+        getCrisisSupportMessage(locale),
+      );
+    }
+
+    if (moderation.result === ModerationResult.BLOCK) {
+      await recordAbuseStrike(clientIp);
+      return createStaticStreamResponse(
+        request,
+        getModerationBlockMessage(locale),
+      );
+    }
+
+    const user = await getAuthenticatedUser();
+    if (!user.isAuthenticated) {
+      const messageCount = await getMessageCount(sessionId);
+      if (messageCount >= FREE_MESSAGE_LIMIT) {
+        return new Response(responseCopy.authenticationRequired, {
+          status: 401,
+          headers: getDenyHeaders(request),
+        });
+      }
+    }
+
+    const userId = user.isAuthenticated ? user.id : `session-${sessionId}`;
+    if (await isUserBlocked(userId)) {
+      return new Response(responseCopy.accessDenied, {
+        status: 403,
+        headers: getDenyHeaders(request),
+      });
+    }
+
+    const rateLimitResult = await checkRateLimit(userId, "stream");
+    if (!rateLimitResult.allowed) {
+      return new Response(responseCopy.rateLimitExceeded, {
+        status: 429,
+        headers: { ...getDenyHeaders(request), "Retry-After": "60" },
+      });
+    }
+
+    await ensureChatSession(sessionId, user.isAuthenticated ? userId : null);
+
+    const tools = createTools(locale);
+    const defaultParams = getDefaultPromptParams(locale);
+    const systemPrompt = getPromptWithParams(
+      "smerdyakov-personality",
+      locale,
+      defaultParams,
+    );
+    const toolInstructions = getPromptWithParams("tool-instructions", locale, {
+      ...defaultParams,
+      currentPageUrl: currentPageUrl ?? getLocalizedPath(locale, "/"),
+    });
+
+    if (!systemPrompt) {
+      console.warn("System prompt is empty; using the route fallback context.");
+    }
+
+    let finalSystemPrompt = [systemPrompt, toolInstructions]
+      .filter(Boolean)
+      .join("\n\n");
+    finalSystemPrompt += `\n\n${getIdentityContext(locale, isSiteOwner(user))}`;
+
+    if (isCurrentProjectQuery(message)) {
+      finalSystemPrompt += `\n\nAUTHORITATIVE CURRENT PROJECT CONTEXT:\n${formatCurrentProjectContext(locale)}\nUse this exact curated sequence when answering the current-work question.`;
+    }
+
+    if (currentPageUrl) {
+      const pageContextPrompt = getPromptWithParams("page-context", locale, {
+        ...defaultParams,
+        currentPageUrl,
+      });
+
+      if (pageContextPrompt) {
+        finalSystemPrompt += `\n\n${pageContextPrompt}`;
+      } else {
+        console.warn(
+          "Page context prompt is missing; using the route fallback context.",
+        );
+        finalSystemPrompt += `\n\nIMPORTANT: The user is currently viewing this page: ${currentPageUrl}.
+
+When the user asks about "this page", "this post", "this article", or anything about what they are currently reading, call getCurrentPageContent with the exact URL "${currentPageUrl}". Never substitute a generic URL such as "/current-page".`;
+      }
+    }
+
+    finalSystemPrompt += `\n\n${LANGUAGE_INSTRUCTIONS[locale]}`;
+
+    const messages: ModelMessage[] = [
+      ...history.map(({ role, content }) => ({ role, content })),
+      { role: "user", content: message },
+    ];
+
+    const generationAbortController = new AbortController();
+    const abortFromRequest = () =>
+      generationAbortController.abort(request.signal.reason);
+
+    if (request.signal.aborted) {
+      abortFromRequest();
+    } else {
+      request.signal.addEventListener("abort", abortFromRequest, {
+        once: true,
+      });
+    }
+
+    const stream = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        let closed = false;
+
+        const send = (payload: string): boolean => {
+          if (closed) return false;
+
+          try {
+            controller.enqueue(TEXT_ENCODER.encode(`data: ${payload}\n\n`));
+            return true;
+          } catch {
+            closed = true;
+            return false;
+          }
+        };
+
+        const close = () => {
+          if (closed) return;
+          closed = true;
+          try {
+            controller.close();
+          } catch {
+            // The client may have cancelled while generation was completing.
+          }
+        };
+
+        try {
+          if (generationAbortController.signal.aborted) return;
+
+          if (!send(JSON.stringify({ type: "start" }))) return;
+
+          const result = streamText({
+            model: conciergeModel,
+            instructions: finalSystemPrompt,
+            messages,
+            tools,
+            stopWhen: isStepCount(3),
+            abortSignal: generationAbortController.signal,
+            providerOptions: getConciergeProviderOptions({
+              feature: "concierge-stream",
+              user: userId,
+              locale,
+            }),
+            onEnd: async ({ text, usage }) => {
+              await saveChatMessage(
+                sessionId,
+                "user",
+                message,
+                usage.inputTokens ?? 0,
+              );
+              await saveChatMessage(
+                sessionId,
+                "assistant",
+                text,
+                usage.outputTokens ?? 0,
+              );
+            },
+          });
+
+          for await (const delta of result.textStream) {
+            if (!send(JSON.stringify(delta))) break;
+          }
+
+          if (!generationAbortController.signal.aborted) {
+            send("[DONE]");
+          }
+        } catch (error) {
+          if (!generationAbortController.signal.aborted) {
+            console.error("Chat generation stream failed", error);
+            send(
+              JSON.stringify({
+                type: "error",
+                error: responseCopy.generationFailed,
+              }),
+            );
+          }
+        } finally {
+          request.signal.removeEventListener("abort", abortFromRequest);
+          close();
+        }
+      },
+      cancel(reason) {
+        generationAbortController.abort(reason);
+      },
+    });
+
+    return new Response(stream, { headers: getStreamHeaders(request) });
+  } catch (error) {
+    if (error instanceof z.ZodError || error instanceof SyntaxError) {
+      return new Response(responseCopy.invalidInput, {
+        status: 400,
+        headers: getDenyHeaders(request),
+      });
+    }
+
+    console.error("Chat stream endpoint failed", error);
+    return new Response(responseCopy.internalError, {
+      status: 500,
+      headers: getDenyHeaders(request),
+    });
+  }
 }
 
-// Handle preflight requests
 export function OPTIONS(request: NextRequest) {
-    return new Response(null, {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': getCorsOrigin(request),
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            'Access-Control-Max-Age': '86400',
-            'Vary': 'Origin'
-        }
-    });
+  return new Response(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": getCorsOrigin(request),
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization, locale",
+      "Access-Control-Max-Age": "86400",
+      Vary: "Origin",
+    },
+  });
 }

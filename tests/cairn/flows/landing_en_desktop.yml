@@ -1,0 +1,53 @@
+version: 1
+name: landing_en_desktop
+intent: the English landing page exposes a usable localized desktop shell
+  without accessibility or overflow regressions
+backend: agent-browser
+coldStart: guest
+viewport: { width: 1440, height: 900 }
+metadata: { feature: landing, priority: critical, tags: [i18n, desktop, a11y] }
+artifacts:
+  capture:
+    screenshots: always
+    snapshots: always
+    trace: on-failure
+
+outcomes:
+  - id: english_hero_visible
+    description: the English hero heading is rendered
+    verify:
+      text: { contains: "Tools for agents. Essays for humans." }
+  - id: english_document_language
+    description: the document declares English
+    verify:
+      count: { selector: 'html[lang="en"]', equals: 1 }
+  - id: desktop_home_is_current
+    description: the visible desktop navigation marks Home as current
+    verify:
+      count:
+        selector: 'nav[aria-label="Primary navigation"] a[aria-current="page"]'
+        equals: 1
+  - id: layout_has_no_horizontal_overflow
+    description: the page fits the desktop viewport
+    verify:
+      script:
+        run: |
+          const overflow = Math.max(
+            document.body.scrollWidth,
+            document.documentElement.scrollWidth
+          ) - document.documentElement.clientWidth;
+          return { ok: overflow <= 1, evidence: { overflow } };
+  - id: landing_has_no_blocking_wcag_issues
+    description: axe-core reports no serious or critical A or AA violations
+    verify:
+      script: { runtime: browser, file: ../verifiers/axe-wcag.js }
+  - id: landing_has_no_console_errors
+    description: the landing page produces no browser console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open: { path: /, waitUntil: networkidle, timeoutMs: 30000 }
+  - wait: { text: "Tools for agents. Essays for humans.", timeoutMs: 10000 }
+  - snapshot: { interactive: true, label: english_landing }
+contractHash: sha256:ce4129af72a2d0635f4e9812f83036c1f6784a8e9ba514def25cca076833b2f2

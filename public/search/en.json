@@ -1,0 +1,499 @@
+[
+  {
+    "id": "project:cortex",
+    "title": "cortex",
+    "description": "Evidence-guided agent kernel for long-running software work",
+    "href": "/projects#project-cortex",
+    "kind": "Project"
+  },
+  {
+    "id": "project:bob",
+    "title": "bob",
+    "description": "Deterministic repository factory for agent-native tools",
+    "href": "/projects#project-bob",
+    "kind": "Project"
+  },
+  {
+    "id": "project:mcphub",
+    "title": "mcphub",
+    "description": "One local gateway for every MCP server and agent harness",
+    "href": "/projects#project-mcphub",
+    "kind": "Project"
+  },
+  {
+    "id": "project:LinkGlow",
+    "title": "LinkGlow",
+    "description": "Browser extension for link auditing and SEO analysis",
+    "href": "/projects#project-linkglow",
+    "kind": "Project"
+  },
+  {
+    "id": "project:hitspec",
+    "title": "hitspec",
+    "description": "File-based HTTP API testing framework",
+    "href": "/projects#project-hitspec",
+    "kind": "Project"
+  },
+  {
+    "id": "project:Vue Native",
+    "title": "Vue Native",
+    "description": "Build native iOS & Android apps with Vue 3",
+    "href": "/projects#project-vue-native",
+    "kind": "Project"
+  },
+  {
+    "id": "project:Blueprint",
+    "title": "Blueprint",
+    "description": "Declarative language for writing web services",
+    "href": "/projects#project-blueprint",
+    "kind": "Project"
+  },
+  {
+    "id": "project:Tarot Agent",
+    "title": "Tarot Agent",
+    "description": "Free AI-powered tarot card readings with Claude",
+    "href": "/projects#project-tarot-agent",
+    "kind": "Project"
+  },
+  {
+    "id": "project:noted",
+    "title": "noted",
+    "description": "CLI knowledge base & MCP server",
+    "href": "/projects#project-noted",
+    "kind": "Project"
+  },
+  {
+    "id": "project:noted.nvim",
+    "title": "noted.nvim",
+    "description": "Contextual note-taking for Neovim",
+    "href": "/projects#project-noted-nvim",
+    "kind": "Project"
+  },
+  {
+    "id": "project:haiku.nvim",
+    "title": "haiku.nvim",
+    "description": "AI code completion with Claude Haiku",
+    "href": "/projects#project-haiku-nvim",
+    "kind": "Project"
+  },
+  {
+    "id": "project:vecai",
+    "title": "vecai",
+    "description": "AI-powered codebase assistant",
+    "href": "/projects#project-vecai",
+    "kind": "Project"
+  },
+  {
+    "id": "project:veclite",
+    "title": "veclite",
+    "description": "Embeddable vector database with HNSW and hybrid search",
+    "href": "/projects#project-veclite",
+    "kind": "Project"
+  },
+  {
+    "id": "project:vecgrep",
+    "title": "vecgrep",
+    "description": "Semantic code search with vector embeddings",
+    "href": "/projects#project-vecgrep",
+    "kind": "Project"
+  },
+  {
+    "id": "project:file.cheap",
+    "title": "file.cheap",
+    "description": "Local-first evidence stash for agent-generated files",
+    "href": "/projects#project-file-cheap",
+    "kind": "Project"
+  },
+  {
+    "id": "project:tinyvault",
+    "title": "tinyvault",
+    "description": "Local secrets management with AES-256-GCM and MCP",
+    "href": "/projects#project-tinyvault",
+    "kind": "Project"
+  },
+  {
+    "id": "project:vidtrace",
+    "title": "vidtrace",
+    "description": "Turn bug videos into timestamped evidence bundles",
+    "href": "/projects#project-vidtrace",
+    "kind": "Project"
+  },
+  {
+    "id": "project:cairntrace",
+    "title": "cairntrace",
+    "description": "Browser behavior spec runner for coding agents",
+    "href": "/projects#project-cairntrace",
+    "kind": "Project"
+  },
+  {
+    "id": "project:glyphrun",
+    "title": "glyphrun",
+    "description": "Terminal app behavior runner with PTY and artifact packs",
+    "href": "/projects#project-glyphrun",
+    "kind": "Project"
+  },
+  {
+    "id": "project:termina",
+    "title": "termina",
+    "description": "Strategic turn-based MOBA for chess-like battles",
+    "href": "/projects#project-termina",
+    "kind": "Project"
+  },
+  {
+    "id": "project:ClipIt.now",
+    "title": "ClipIt.now",
+    "description": "AI-powered video clipping platform",
+    "href": "/projects#project-clipit-now",
+    "kind": "Project"
+  },
+  {
+    "id": "project:musicpractice",
+    "title": "musicpractice",
+    "description": "Music learning app with tablature and audio playback",
+    "href": "/projects#project-musicpractice",
+    "kind": "Project"
+  },
+  {
+    "id": "project:reservadoc",
+    "title": "reservadoc",
+    "description": "Document reservation platform with role-based access",
+    "href": "/projects#project-reservadoc",
+    "kind": "Project"
+  },
+  {
+    "id": "project:blankcode",
+    "title": "blankcode",
+    "description": "Interactive fill-in-the-blank coding exercises",
+    "href": "/projects#project-blankcode",
+    "kind": "Project"
+  },
+  {
+    "id": "project:tarot-tcg",
+    "title": "tarot-tcg",
+    "description": "Tactical card game combining tarot and TCG mechanics",
+    "href": "/projects#project-tarot-tcg",
+    "kind": "Project"
+  },
+  {
+    "id": "project:gpeek",
+    "title": "gpeek",
+    "description": "Git visualization tool for humans and LLMs",
+    "href": "/projects#project-gpeek",
+    "kind": "Project"
+  },
+  {
+    "id": "project:rosewood",
+    "title": "rosewood",
+    "description": "Native macOS code editor in Swift and SwiftUI (docs coming soon)",
+    "href": "/projects#project-rosewood",
+    "kind": "Project"
+  },
+  {
+    "id": "project:local-agent",
+    "title": "local-agent",
+    "description": "Local-first terminal coding agent powered by Ollama",
+    "href": "/projects#project-local-agent",
+    "kind": "Project"
+  },
+  {
+    "id": "project:teak",
+    "title": "teak",
+    "description": "Terminal code editor built with Go (docs coming soon)",
+    "href": "/projects#project-teak",
+    "kind": "Project"
+  },
+  {
+    "id": "project:monitor",
+    "title": "monitor",
+    "description": "Agent-harnessable system monitor for macOS and Linux",
+    "href": "/projects#project-monitor",
+    "kind": "Project"
+  },
+  {
+    "id": "project:audeck",
+    "title": "audeck",
+    "description": "TUI audio device manager for macOS (docs coming soon)",
+    "href": "/projects#project-audeck",
+    "kind": "Project"
+  },
+  {
+    "id": "project:manuscrypt",
+    "title": "manuscrypt",
+    "description": "AI-powered book writing platform for literary fiction (docs coming soon)",
+    "href": "/projects#project-manuscrypt",
+    "kind": "Project"
+  },
+  {
+    "id": "project:dahdit",
+    "title": "dahdit",
+    "description": "Duolingo-style Morse code learning app (docs coming soon)",
+    "href": "/projects#project-dahdit",
+    "kind": "Project"
+  },
+  {
+    "id": "anti-intellectualism-and-the-political-carnival",
+    "title": "anti-intellectualism and the political carnival",
+    "description": "on markets that are not capitalism, ladies applauding conquistadors, trumpists discovering Palestine, religious contradictions, and the exhaustion of thinking in public.",
+    "href": "/posts/anti-intellectualism-and-the-political-carnival",
+    "kind": "Writing"
+  },
+  {
+    "id": "city-a-poem-from-vladimir-kotlyarov",
+    "title": "City",
+    "description": "A poem of Vladimir Kotlyarov from Pornofilmy",
+    "href": "/posts/city-a-poem-from-vladimir-kotlyarov",
+    "kind": "Writing"
+  },
+  {
+    "id": "dancing-to-the-tune-of-distraction",
+    "title": "Dancing to the Tune of Distraction",
+    "description": "A Senate session collapses into theater, and the theater reveals what institutional politics has become.",
+    "href": "/posts/dancing-to-the-tune-of-distraction",
+    "kind": "Writing"
+  },
+  {
+    "id": "incongruity-in-action-defending-democracy-with-blows-against-disagreement",
+    "title": "Incongruity in Action",
+    "description": "A march for democracy becomes a scene of class entitlement, violence, and moral theater.",
+    "href": "/posts/incongruity-in-action-defending-democracy-with-blows-against-disagreement",
+    "kind": "Writing"
+  },
+  {
+    "id": "stanczky-and-the-paradox-of-the-sad-clown",
+    "title": "Stańczyk and the Paradox of the Sad Clown",
+    "description": "An exploration of Jan Matejko's Stańczyk and the paradox of the sad clown — finding meaning in comedy, sadness, and the inability to laugh at oneself.",
+    "href": "/posts/stanczky-and-the-paradox-of-the-sad-clown",
+    "kind": "Writing"
+  },
+  {
+    "id": "the-cards-and-the-couch",
+    "title": "The Cards and the Couch",
+    "description": "On Tarot, Psychoanalysis, and the Things We Already Know but Cannot Say",
+    "href": "/posts/the-cards-and-the-couch",
+    "kind": "Writing"
+  },
+  {
+    "id": "the-demon-and-the-melancholic",
+    "title": "The Demon and the Melancholic",
+    "description": "On Mourning, Madness, and the Things We Cannot Put Down",
+    "href": "/posts/the-demon-and-the-melancholic",
+    "kind": "Writing"
+  },
+  {
+    "id": "the-gambler-and-the-black-square",
+    "title": "The Gambler and the Black Square",
+    "description": "A Personal Reflection",
+    "href": "/posts/the-gambler-and-the-black-square",
+    "kind": "Writing"
+  },
+  {
+    "id": "the-garden-of-earthly-delights-and-the-underground-man",
+    "title": "The Garden of Earthly Delights and the Underground Man",
+    "description": "On Jouissance, Self-Destruction, and the Paradox of Consciousness",
+    "href": "/posts/the-garden-of-earthly-delights-and-the-underground-man",
+    "kind": "Writing"
+  },
+  {
+    "id": "the-grand-inquisitor-in-the-age-of-algorithms",
+    "title": "The Grand Inquisitor in the Age of Algorithms",
+    "description": "Dostoevsky's Grand Inquisitor prophetically describes our algorithmic society — humanity trading freedom for bread, miracles, and authority, one dopamine hit at a time.",
+    "href": "/posts/the-grand-inquisitor-in-the-age-of-algorithms",
+    "kind": "Writing"
+  },
+  {
+    "id": "the-metamorphosis-of-parsifal-through-the-triumph-of-death",
+    "title": "The Metamorphosis of Parsifal through \"The Triumph of Death\"",
+    "description": "An analysis of Pieter Bruegel's masterpiece in the context of the myth of Parsifal",
+    "href": "/posts/the-metamorphosis-of-parsifal-through-the-triumph-of-death",
+    "kind": "Writing"
+  },
+  {
+    "id": "the-stranger-at-the-feast",
+    "title": "The Stranger at the Feast",
+    "description": "On Being Seen, Being Misread, and the Golden Cage of Belonging",
+    "href": "/posts/the-stranger-at-the-feast",
+    "kind": "Writing"
+  },
+  {
+    "id": "what-is-marxism-and-why-it-matters",
+    "title": "What Is Marxism and Why It Still Matters",
+    "description": "On Class, Capital, and the Ghost That Refuses to Stay Dead",
+    "href": "/posts/what-is-marxism-and-why-it-matters",
+    "kind": "Writing"
+  },
+  {
+    "id": "about",
+    "title": "About",
+    "description": "On the life behind this archive of literature, psychoanalysis, politics, and art.",
+    "href": "/about",
+    "kind": "Page"
+  },
+  {
+    "id": "essays",
+    "title": "Essays",
+    "description": "Long-form essays on literature, psychoanalysis, politics, art, and modern life.",
+    "href": "/essays",
+    "kind": "Page"
+  },
+  {
+    "id": "insights",
+    "title": "Archive Insights",
+    "description": "A way of reading the archive through its rhythms, proportions, and recurring habits.",
+    "href": "/insights",
+    "kind": "Page"
+  },
+  {
+    "id": "motifs",
+    "title": "Motifs",
+    "description": "The recurring obsessions that keep returning across the archive.",
+    "href": "/motifs",
+    "kind": "Page"
+  },
+  {
+    "id": "music",
+    "title": "Listening Habits",
+    "description": "The music that keeps returning while I read, walk, write, and fail to sleep.",
+    "href": "/music",
+    "kind": "Page"
+  },
+  {
+    "id": "studies",
+    "title": "Studies",
+    "description": "Shorter meditations on paintings, images, and recurring visual obsessions.",
+    "href": "/studies",
+    "kind": "Page"
+  },
+  {
+    "id": "boris-kustodiev-the-bolshevik-1920",
+    "title": "The Bolshevik and the Weight of an Idea",
+    "description": "On Revolution, Scale, and the Man Who Became Bigger Than the City",
+    "href": "/paintings/boris-kustodiev-the-bolshevik-1920",
+    "kind": "Painting"
+  },
+  {
+    "id": "caravaggio-the-fortune-teller-1594",
+    "title": "The Fortune Teller",
+    "description": "A masterwork of Baroque realism depicting the seductive art of divination — a young Romani woman reads a nobleman's palm while subtly slipping his ring, transforming fortune telling into a metaphor for the illusionistic power of painting itself.",
+    "href": "/paintings/caravaggio-the-fortune-teller-1594",
+    "kind": "Painting"
+  },
+  {
+    "id": "caspar-david-friedrich-wanderer-above-the-sea-of-fog-1818",
+    "title": "Wanderer above the Sea of Fog",
+    "description": "This is a painting by Caspar David Friedrich, titled 'Wanderer above the Sea of Fog'. It depicts a man standing upon a rocky precipice with his back to the viewer. He is wrapped in a dark green overcoat, and grips a walking stick in his right hand. His hair caught in a wind, the wanderer gazes out on a landscape covered in a thick sea of fog. In the far distance, obscured by misty peaks, we can just make out what appears to be the ocean.",
+    "href": "/paintings/caspar-david-friedrich-wanderer-above-the-sea-of-fog-1818",
+    "kind": "Painting"
+  },
+  {
+    "id": "diego-rivera-man-at-the-crossroads-1934",
+    "title": "Man, Controller of the Universe and the Art of Resistance",
+    "description": "On Muralism, Marxism, and the Painting That Was Destroyed and Reborn",
+    "href": "/paintings/diego-rivera-man-at-the-crossroads-1934",
+    "kind": "Painting"
+  },
+  {
+    "id": "edvard-munch-jealousy-1895",
+    "title": "Jealousy",
+    "description": "Munch paints jealousy not as a love triangle, but as the humiliating position of witness.",
+    "href": "/paintings/edvard-munch-jealousy-1895",
+    "kind": "Painting"
+  },
+  {
+    "id": "ernst-ludwig-kirchner-berlin-street-scene-1913",
+    "title": "Berlin Street Scene",
+    "description": "On the urban gaze, commodified visibility, and the violence of modern surfaces.",
+    "href": "/paintings/ernst-ludwig-kirchner-berlin-street-scene-1913",
+    "kind": "Painting"
+  },
+  {
+    "id": "eugene-delacroix-liberty-leading-the-people-1830",
+    "title": "Liberty Leading the People and the Revolutionary Tradition",
+    "description": "On Revolution, Class, and the People Who Take to the Streets",
+    "href": "/paintings/eugene-delacroix-liberty-leading-the-people-1830",
+    "kind": "Painting"
+  },
+  {
+    "id": "giorgio-de-chirico-the-soothsayers-recompense-1913",
+    "title": "The Soothsayer's Recompense",
+    "description": "A defining work of Metaphysical Art that depicts the sleeping Ariadne in an eerie, deserted piazza — connecting divination, the unconscious, and the uncanny stillness of dreams that influenced the entire Surrealist movement.",
+    "href": "/paintings/giorgio-de-chirico-the-soothsayers-recompense-1913",
+    "kind": "Painting"
+  },
+  {
+    "id": "gustav-klimt-adele-bloch-bauer-I",
+    "title": "Adele Bloch-Bauer I",
+    "description": "On gold, assimilation, and the strange violence of being turned into ornament.",
+    "href": "/paintings/gustav-klimt-adele-bloch-bauer-I",
+    "kind": "Painting"
+  },
+  {
+    "id": "hieronymus-bosch-the-garden-of-earthly-delights-1500",
+    "title": "The Garden of Earthly Delights",
+    "description": "On paradise, compulsion, and the slow slide from delight into psychic catastrophe.",
+    "href": "/paintings/hieronymus-bosch-the-garden-of-earthly-delights-1500",
+    "kind": "Painting"
+  },
+  {
+    "id": "ilya-repin-unexpected-visitors-1888",
+    "title": "Unexpected Visitors",
+    "description": "On return, recognition, and the unbearable pause between appearance and acceptance.",
+    "href": "/paintings/ilya-repin-unexpected-visitors-1888",
+    "kind": "Painting"
+  },
+  {
+    "id": "jan-matejko-stańczyk-1862",
+    "title": "Stańczyk",
+    "description": "On the clown who sees the truth of the room and can no longer join its laughter.",
+    "href": "/paintings/jan-matejko-stańczyk-1862",
+    "kind": "Painting"
+  },
+  {
+    "id": "jean-delville-the-treasures-of-satan-1895",
+    "title": "The Treasures of Satan",
+    "description": "A monumental work by the Belgian Symbolist and Theosophist Jean Delville, depicting Satan hovering over an oceanic abyss of intertwined souls — a visual representation of the unconscious depths where desires and illusions hold the psyche captive.",
+    "href": "/paintings/jean-delville-the-treasures-of-satan-1895",
+    "kind": "Painting"
+  },
+  {
+    "id": "kazimir-malevich-black-suprematic-square-1915",
+    "title": "Black Suprematic Square and the Intrusive Thoughts",
+    "description": "A Deep Dive into the Abyss of Despair",
+    "href": "/paintings/kazimir-malevich-black-suprematic-square-1915",
+    "kind": "Painting"
+  },
+  {
+    "id": "odilon-redon-the-cyclops-1914",
+    "title": "The Cyclops",
+    "description": "Odilon Redon transforms the myth of Polyphemus into a luminous vision of longing and mystery — the single enormous eye becoming an archetypal symbol of inner vision, clairvoyance, and the mystical gaze into the unseen.",
+    "href": "/paintings/odilon-redon-the-cyclops-1914",
+    "kind": "Painting"
+  },
+  {
+    "id": "pablo-picasso-guernica-1937",
+    "title": "Guernica",
+    "description": "An exploration of Pablo Picasso's Guernica and its relevance to the fascist dictatorship of its time.",
+    "href": "/paintings/pablo-picasso-guernica-1937",
+    "kind": "Painting"
+  },
+  {
+    "id": "pieter-bruegel-the-elder-the-triumph-of-death-1562",
+    "title": "The Triumph of Death",
+    "description": "Bruegel's terror lies not in massacre alone, but in the abolition of any possible outside.",
+    "href": "/paintings/pieter-bruegel-the-elder-the-triumph-of-death-1562",
+    "kind": "Painting"
+  },
+  {
+    "id": "unknown-inspection-of-the-old-house-1874",
+    "title": "Inspection of the Old House",
+    "description": "A dim interior becomes a meditation on belated return and the impossibility of inventorying loss.",
+    "href": "/paintings/unknown-inspection-of-the-old-house-1874",
+    "kind": "Painting"
+  },
+  {
+    "id": "vrubel-demon-1890",
+    "title": "The Demon Seated",
+    "description": "Vrubel's Demon is less a monster than a figure of compressed exile and self-containment.",
+    "href": "/paintings/vrubel-demon-1890",
+    "kind": "Painting"
+  }
+]

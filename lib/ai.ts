@@ -1,31 +1,67 @@
+import { documents } from "@/db/schema";
 import { env } from "@/env.mjs";
+import { db } from "@/lib/db";
+import { localizeSearchDocument } from "@/lib/search-localization";
 import { isProduction } from "@/lib/utils";
-import { openai } from '@ai-sdk/openai';
-import { embed, embedMany } from 'ai';
-import { db } from '@/lib/db';
-import { documents } from '@/db/schema';
-import { sql } from 'drizzle-orm';
+import { gateway } from "@ai-sdk/gateway";
+import { createOpenAI } from "@ai-sdk/openai";
+import { embed, embedMany } from "ai";
+import { sql } from "drizzle-orm";
 
-// Chat model - using gpt-5-nano for cost-effectiveness
-export const chatModel = openai('gpt-5-nano');
+const CONCIERGE_PRIMARY_MODEL = "openai/gpt-5.4-nano";
+const CONCIERGE_FALLBACK_MODEL = "google/gemini-3-flash";
 
-// Embedding model - text-embedding-3-small for cost-effective embeddings
-export const embeddingModel = openai.textEmbeddingModel('text-embedding-3-small');
+export const conciergeModel = gateway(CONCIERGE_PRIMARY_MODEL);
+
+interface ConciergeGatewayOptions {
+  feature: string;
+  user: string;
+  locale?: string;
+}
+
+/**
+ * Apply consistent Gateway failover and cost attribution to concierge calls.
+ * Conversation caching is intentionally omitted because every response is
+ * user- and history-specific.
+ */
+export function getConciergeProviderOptions({
+  feature,
+  user,
+  locale,
+}: ConciergeGatewayOptions) {
+  return {
+    gateway: {
+      models: [CONCIERGE_FALLBACK_MODEL],
+      user,
+      tags: [
+        `feature:${feature}`,
+        `env:${isProduction ? "production" : "development"}`,
+        ...(locale ? [`locale:${locale}`] : []),
+      ],
+    },
+  };
+}
+
+// AI Gateway does not support embeddings, so this remains a direct provider.
+const openai = createOpenAI({
+  apiKey: env.OPENAI_API_KEY ?? env.OPEN_AI_API_KEY,
+});
+const embeddingModel = openai.embedding("text-embedding-3-small");
 
 // Generate embeddings for multiple texts
 export async function generateEmbeddings(texts: string[]) {
   const { embeddings } = await embedMany({
     model: embeddingModel,
-    values: texts
+    values: texts,
   });
   return embeddings;
 }
 
 // Generate embedding for a single text
-export async function generateEmbedding(text: string) {
+async function generateEmbedding(text: string) {
   const { embedding } = await embed({
     model: embeddingModel,
-    value: text
+    value: text,
   });
   return embedding;
 }
@@ -35,7 +71,8 @@ const SIMILARITY_THRESHOLD = 0.3;
 
 export async function searchSimilarContent(
   query: string,
-  limit: number = 5
+  locale: string,
+  limit: number = 5,
 ) {
   try {
     // Generate embedding for the query
@@ -51,24 +88,32 @@ export async function searchSimilarContent(
           metadata,
           1 - (embedding <=> ${queryVector}::vector) as similarity
         FROM ${documents}
-        WHERE 1 - (embedding <=> ${queryVector}::vector) >= ${SIMILARITY_THRESHOLD}
+        WHERE metadata ->> 'locale' = ${locale}
+          AND 1 - (embedding <=> ${queryVector}::vector) >= ${SIMILARITY_THRESHOLD}
         ORDER BY embedding <=> ${queryVector}::vector
         LIMIT ${limit}
-      `
+      `,
     );
 
     if (!isProduction) {
-      console.log(`📚 Found ${results.rows.length} similar documents for query: "${query}" (threshold: ${SIMILARITY_THRESHOLD})`);
+      console.log(
+        `Found ${results.rows.length} similar ${locale} documents for query: "${query}" (threshold: ${SIMILARITY_THRESHOLD})`,
+      );
     }
 
-    return results.rows as Array<{
+    const typedResults = results.rows as Array<{
       id: string;
       content: string;
-      metadata: any;
+      metadata: unknown;
       similarity: number;
     }>;
+
+    return typedResults.map((result) => ({
+      ...result,
+      content: localizeSearchDocument(result.content, locale),
+    }));
   } catch (error) {
-    console.error('Error searching similar content:', error);
+    console.error("Error searching similar content:", error);
     return [];
   }
 }

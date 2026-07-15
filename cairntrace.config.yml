@@ -1,0 +1,36 @@
+version: 1
+project: abdulachik-dev
+defaultEnvironment: local
+artifactRoot: ./test-results/cairn/runs
+workflowRoots:
+  - ./tests/cairn/flows
+
+environments:
+  local:
+    baseUrl: http://localhost:3000
+    viewport:
+      width: 1440
+      height: 900
+
+retention:
+  keepRuns: 3
+  keepFailedRuns: 10
+
+report:
+  theme: cairn
+  colors:
+    accent: "#e58463"
+
+browser:
+  verifyAfterClick: true
+  postClickSettleMs: 10000
+
+webServer:
+  build: bun run build
+  command: bun run start
+  url: http://localhost:3000
+  env:
+    SKIP_ENV_VALIDATION: "1"
+    NEXT_PUBLIC_APP_URL: http://localhost:3000
+    PORT: "3000"
+  readyTimeoutMs: 180000

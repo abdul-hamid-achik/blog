@@ -1,0 +1,55 @@
+version: 1
+name: landing_es_mobile
+intent: the Spanish landing page exposes a localized mobile shell that fits a
+  narrow viewport
+backend: agent-browser
+coldStart: guest
+viewport: { width: 390, height: 844 }
+metadata: { feature: landing, priority: high, tags: [i18n, mobile, a11y] }
+artifacts:
+  capture:
+    screenshots: always
+    snapshots: always
+    trace: on-failure
+
+outcomes:
+  - id: spanish_hero_visible
+    description: the Spanish hero heading is rendered
+    verify:
+      text: { contains: "Herramientas para agentes. Ensayos para humanos." }
+  - id: spanish_document_language
+    description: the document declares Spanish
+    verify:
+      count: { selector: 'html[lang="es"]', equals: 1 }
+  - id: mobile_home_is_current
+    description: the visible mobile navigation marks Inicio as current
+    verify:
+      count:
+        selector: 'nav[aria-label="Navegación móvil"] a[aria-current="page"]'
+        equals: 1
+  - id: mobile_layout_has_no_horizontal_overflow
+    description: the Spanish page fits a narrow viewport
+    verify:
+      script:
+        run: |
+          const overflow = Math.max(
+            document.body.scrollWidth,
+            document.documentElement.scrollWidth
+          ) - document.documentElement.clientWidth;
+          return { ok: overflow <= 1, evidence: { overflow } };
+  - id: spanish_landing_has_no_blocking_wcag_issues
+    description: axe-core reports no serious or critical A or AA violations
+    verify:
+      script: { runtime: browser, file: ../verifiers/axe-wcag.js }
+  - id: spanish_landing_has_no_console_errors
+    description: the page produces no browser console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open: { path: /es, waitUntil: networkidle, timeoutMs: 30000 }
+  - wait:
+      text: "Herramientas para agentes. Ensayos para humanos."
+      timeoutMs: 10000
+  - snapshot: { interactive: true, label: spanish_mobile_landing }
+contractHash: sha256:fd12bff5794ac56892db1b8715dc03916c2cff894f271edba40ba9ee4370c3a8

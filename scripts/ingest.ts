@@ -1,4 +1,9 @@
-import { allPages, allPaintings, allPosts, allPrompts } from "content-collections";
+import {
+  allPages,
+  allPaintings,
+  allPosts,
+  allPrompts,
+} from "content-collections";
 
 // Exclude prompts from document ingestion - they're for AI system prompts, not searchable content
 const allDocuments = [...allPosts, ...allPages, ...allPaintings];
@@ -7,40 +12,119 @@ import { generateEmbeddings } from "@/lib/ai";
 import { db } from "@/lib/db";
 import { ContentType } from "@/lib/data";
 
-function createPageContent(doc: any) {
+type IngestibleDocument = (typeof allDocuments)[number];
+type PaintingDocument = (typeof allPaintings)[number];
+type PostDocument = (typeof allPosts)[number];
+type IngestLocale = "en" | "es" | "ru";
+
+const INGEST_COPY = {
+  en: {
+    type: "Type",
+    title: "Title",
+    description: "Description",
+    tag: "Tag",
+    body: "Body",
+    author: "Author",
+    style: "Style",
+    country: "Country",
+    date: "Date",
+    image: "Image",
+  },
+  es: {
+    type: "Tipo",
+    title: "Título",
+    description: "Descripción",
+    tag: "Etiqueta",
+    body: "Contenido",
+    author: "Autoría",
+    style: "Estilo",
+    country: "País",
+    date: "Fecha",
+    image: "Imagen",
+  },
+  ru: {
+    type: "Тип",
+    title: "Название",
+    description: "Описание",
+    tag: "Тег",
+    body: "Содержание",
+    author: "Автор",
+    style: "Стиль",
+    country: "Страна",
+    date: "Дата",
+    image: "Изображение",
+  },
+} satisfies Record<IngestLocale, Record<string, string>>;
+
+const CONTENT_TYPE_COPY = {
+  en: {
+    [ContentType.POST]: "Post",
+    [ContentType.PAGE]: "Page",
+    [ContentType.PAINTING]: "Painting",
+    [ContentType.PROMPT]: "Prompt",
+  },
+  es: {
+    [ContentType.POST]: "Ensayo",
+    [ContentType.PAGE]: "Página",
+    [ContentType.PAINTING]: "Pintura",
+    [ContentType.PROMPT]: "Prompt",
+  },
+  ru: {
+    [ContentType.POST]: "Эссе",
+    [ContentType.PAGE]: "Страница",
+    [ContentType.PAINTING]: "Картина",
+    [ContentType.PROMPT]: "Промпт",
+  },
+} satisfies Record<IngestLocale, Record<ContentType, string>>;
+
+function isPaintingDocument(doc: IngestibleDocument): doc is PaintingDocument {
+  return doc.type === ContentType.PAINTING && "author" in doc;
+}
+
+function isPostDocument(doc: IngestibleDocument): doc is PostDocument {
+  return doc.type === ContentType.POST && "date" in doc;
+}
+
+function createPageContent(doc: IngestibleDocument) {
+  const locale: IngestLocale =
+    doc.locale === "es" || doc.locale === "ru" ? doc.locale : "en";
+  const copy = INGEST_COPY[locale];
   const fields = [
-    { label: 'Type', value: doc.type },
-    { label: 'Title', value: doc.title },
-    { label: 'Description', value: doc.description },
-    ...doc.tags?.map((tag: string) => ({ label: 'Tag', value: tag })) || [],
-    { label: 'Body', value: doc.body?.raw }
+    { label: copy.type, value: CONTENT_TYPE_COPY[locale][doc.type] },
+    { label: copy.title, value: doc.title },
+    { label: copy.description, value: doc.description },
+    ...(doc.tags?.map((tag) => ({ label: copy.tag, value: tag })) ?? []),
+    { label: copy.body, value: doc.content },
   ];
 
-  if (doc.type === ContentType.PAINTING) {
+  if (isPaintingDocument(doc)) {
     fields.push(
-      { label: 'Author', value: doc.author },
-      { label: 'Style', value: doc.style },
-      { label: 'Country', value: doc.country }
+      { label: copy.author, value: doc.author },
+      { label: copy.style, value: doc.style },
+      { label: copy.country, value: doc.country },
     );
   }
 
-  if (doc.type === ContentType.POST) {
+  if (isPostDocument(doc)) {
     fields.push(
-      { label: 'Date', value: doc.date },
-      ...doc.tags?.map((tag: string) => ({ label: 'Tag', value: tag })) || [],
-      { label: 'Image', value: doc.image },
-      { label: 'SEO', value: doc.seo }
+      { label: copy.date, value: doc.date },
+      { label: copy.image, value: doc.image },
     );
   }
 
   return fields
-    .filter(field => field.value)
-    .flatMap(field => [field.label, field.value])
-    .join('\n');
+    .filter((field) => field.value)
+    .flatMap((field) => [field.label, String(field.value)])
+    .join("\n");
 }
 
-function constructMetadata({ body, type, ...doc }: any) {
-  return { ...doc, _type: type, _raw: body?.raw }
+function constructMetadata(doc: IngestibleDocument) {
+  const metadata: Record<string, unknown> = { ...doc };
+  delete metadata.content;
+  delete metadata.mdx;
+  delete metadata.type;
+
+  return { ...metadata, _type: doc.type, _raw: doc.content };
 }
 
 async function main() {
@@ -50,8 +134,12 @@ async function main() {
   await db.delete(documents);
 
   console.log("🗺️ Preparing content...");
-  console.log(`   Including: ${allPosts.length} posts, ${allPages.length} pages, ${allPaintings.length} paintings`);
-  console.log(`   Excluding: ${allPrompts.length} prompts (AI system prompts, not searchable content)`);
+  console.log(
+    `   Including: ${allPosts.length} posts, ${allPages.length} pages, ${allPaintings.length} paintings`,
+  );
+  console.log(
+    `   Excluding: ${allPrompts.length} prompts (AI system prompts, not searchable content)`,
+  );
 
   const contents = allDocuments.map((doc) => createPageContent(doc));
 
@@ -66,15 +154,17 @@ async function main() {
     allDocuments.map((doc, i) => ({
       content: contents[i],
       embedding: embeddings[i],
-      metadata: constructMetadata(doc)
-    }))
+      metadata: constructMetadata(doc),
+    })),
   );
 
-  console.log(`✅ Added ${allDocuments.length} documents to vector store with embeddings`)
+  console.log(
+    `✅ Added ${allDocuments.length} documents to vector store with embeddings`,
+  );
 }
 
-
-main().catch(error => console.error(error))
+main()
+  .catch((error: unknown) => console.error(error))
   .finally(() => {
     console.log("🏁 Exiting...");
     process.exit();

@@ -2,7 +2,7 @@
 title: "Instrucciones de Uso de Herramientas"
 locale: "es"
 promptType: "tool-instructions"
-parameters: ["currentPageUrl"]
+parameters: ["currentPageUrl", "authorName"]
 ---
 
 ## Guías de Uso de Herramientas
@@ -17,6 +17,15 @@ parameters: ["currentPageUrl"]
 - **Consejos de consulta**: Usa palabras clave y frases específicas de la pregunta del usuario
 - **Límite**: Usa 3-5 resultados para la mayoría de consultas
 
+### searchProjects
+- **Obligatorio**: Usa siempre esta herramienta antes de responder sobre un proyecto, producto, herramienta de desarrollo, CLI, biblioteca, sitio desplegado o cualquier cosa creada por {authorName}
+- **Autoridad del catálogo**: Considera el resultado de la herramienta como la fuente de verdad. Nunca deduzcas el proyecto a partir del significado común de nombres como cortex, monitor, bob o Blueprint
+- **Respuesta**: Describe el proyecto real e incluye su sitio activo, código fuente o navegación a la ficha cuando el resultado los proporcione
+
+### listCurrentProjects
+- **Obligatorio**: Usa esta herramienta cuando la persona pregunte qué está construyendo, desarrollando o preparando {authorName} ahora
+- **No reformules hacia searchProjects**: Esta herramienta conserva la selección actual de trabajo en todos los idiomas
+
 ### searchAuthorContent
 - **Cuándo usar**: Cuando el usuario pregunta sobre pensamientos, publicaciones o escritos específicos de {authorName}
 - **Formato de consulta**: Incluye "Abdul Hamid" en la consulta de búsqueda para mejores resultados
@@ -25,7 +34,4 @@ parameters: ["currentPageUrl"]
 - **navigateToPost**: Usa cuando el usuario quiere leer una publicación específica del blog
 - **navigateToPainting**: Usa cuando el usuario quiere ver una pintura específica
 - **navigateToTag**: Usa cuando el usuario quiere explorar publicaciones por etiqueta
-
-### debugContent
-- **Cuándo usar**: Solo para solucionar problemas de detección de contenido
-- **Usar con moderación**: Esta es una herramienta de depuración, no para interacciones regulares del usuario
+- **Navegación de proyectos**: Conserva el token de navegación devuelto por searchProjects cuando dirijas al usuario a una ficha del catálogo

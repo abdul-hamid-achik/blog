@@ -1,21 +1,21 @@
-import { Link } from "@/navigation"
+import { Link } from "@/navigation";
 
-import { EmptyPlaceholder } from "@/components/empty-placeholder"
-import { buttonVariants } from "@/components/ui/button"
-import { useTranslations } from "next-intl"
+import { EmptyPlaceholder } from "@/components/empty-placeholder";
+import { buttonVariants } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 export default function NotFound() {
-  const t = useTranslations()
+  const t = useTranslations("NotFound");
   return (
-    <EmptyPlaceholder className="mx-auto max-w-[800px]">
+    <EmptyPlaceholder className="reading-shell my-16 border border-dashed border-border py-16 sm:my-24">
       <EmptyPlaceholder.Icon name="warning" />
-      <EmptyPlaceholder.Title>{t("Uh oh! Not Found")}</EmptyPlaceholder.Title>
+      <EmptyPlaceholder.Title>{t("title")}</EmptyPlaceholder.Title>
       <EmptyPlaceholder.Description>
-        {t("This painting could not be found")}.
+        {t("painting")}
       </EmptyPlaceholder.Description>
       <Link href="/" className={buttonVariants({ variant: "ghost" })}>
-        {t("Go to the main page")}.
+        {t("home")}
       </Link>
     </EmptyPlaceholder>
-  )
+  );
 }

@@ -1,297 +1,331 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useMemo } from "react";
-import { Loader2, ExternalLink, Lock } from "lucide-react";
-import { cn } from "@/lib/utils";
-import Image from "next/image";
-import Link from "next/link";
 import { ChatAuth } from "@/components/chat-auth";
-import Markdown from "react-markdown";
+import { cn } from "@/lib/utils";
+import {
+  ArrowDown,
+  ArrowUpRight,
+  ExternalLink,
+  LibraryBig,
+  Loader2,
+  Lock,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { UrlTransform } from "streamdown";
+
+const MessageResponse = dynamic(
+  () =>
+    import("@/components/ai-elements/message").then(
+      (module) => module.MessageResponse,
+    ),
+  {
+    ssr: false,
+    loading: () => <span className="text-muted-foreground">…</span>,
+  },
+);
 
 export interface Message {
-    role: 'user' | 'assistant' | 'system';
-    content: string;
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  kind?: "auth";
 }
 
 interface ChatMessagesProps {
-    messages: Message[];
-    isLoading?: boolean;
-    usage?: {
-        promptTokens?: number;
-        completionTokens?: number;
-        totalTokens?: number;
-    } | null;
-    onAuthSuccess?: () => void;
+  messages: Message[];
+  isLoading?: boolean;
+  onSuggestionSelect?: (suggestion: string) => void;
+  suggestions?: string[];
 }
 
-// Safe URL protocols for links
-const ALLOWED_PROTOCOLS = ['http:', 'https:', 'mailto:'];
+const ALLOWED_PROTOCOLS = new Set(["http:", "https:", "mailto:"]);
 
-// Allowed domains for images (internal only)
-const ALLOWED_IMAGE_DOMAINS = ['abdulachik.dev'];
+const safeUrlTransform: UrlTransform = (value) => {
+  if (value.startsWith("/") || value.startsWith("#")) return value;
 
-function isSafeUrl(href: string | undefined): boolean {
-    if (!href) return false;
-    try {
-        const url = new URL(href, window.location.origin);
-        return ALLOWED_PROTOCOLS.includes(url.protocol);
-    } catch {
-        // Relative URLs are safe
-        return href.startsWith('/') || href.startsWith('#');
+  try {
+    const url = new URL(value);
+    return ALLOWED_PROTOCOLS.has(url.protocol) ? value : null;
+  } catch {
+    return null;
+  }
+};
+
+type ContentPart =
+  | { type: "text"; content: string }
+  | { type: "link"; path: string; label: string };
+
+function parseMessageContent(
+  content: string,
+  fallbackLabel: string,
+): ContentPart[] {
+  const parts: ContentPart[] = [];
+  const expression = /\[NAVIGATE:(\/[^\]]+)\]/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = expression.exec(content)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({
+        type: "text",
+        content: content.slice(lastIndex, match.index),
+      });
     }
+
+    parts.push({
+      type: "link",
+      path: match[1],
+      label: fallbackLabel,
+    });
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < content.length) {
+    parts.push({ type: "text", content: content.slice(lastIndex) });
+  }
+
+  return parts.length > 0 ? parts : [{ type: "text", content }];
 }
 
-function isSafeImage(src: string | undefined): boolean {
-    if (!src) return false;
-    
-    // Relative URLs (internal) are safe
-    if (src.startsWith('/')) return true;
-    
-    // Check if we're in a browser environment
-    if (typeof window === 'undefined') return false;
-    
-    try {
-        const url = new URL(src, window.location.origin);
-        
-        // Only allow https protocol for absolute URLs
-        if (url.protocol !== 'https:') return false;
-        
-        // Check if hostname exactly matches allowed domains or is a valid subdomain
-        // Split both hostname and domain into parts to ensure proper domain boundary matching
-        return ALLOWED_IMAGE_DOMAINS.some(domain => {
-            if (url.hostname === domain) return true;
-            
-            // For subdomain validation, ensure it's a proper subdomain
-            // by checking that hostname ends with '.domain' (not just contains it)
-            const domainParts = domain.split('.');
-            const hostnameParts = url.hostname.split('.');
-            
-            // Hostname must have more parts than domain to be a subdomain
-            if (hostnameParts.length <= domainParts.length) return false;
-            
-            // Check if the last N parts of hostname match the domain parts
-            const hostnameEnd = hostnameParts.slice(-domainParts.length).join('.');
-            return hostnameEnd === domain;
-        });
-    } catch {
-        return false;
-    }
-}
+function AssistantMessageContent({
+  content,
+  isStreaming,
+}: {
+  content: string;
+  isStreaming: boolean;
+}) {
+  const t = useTranslations("Chat");
+  const parts = useMemo(
+    () => parseMessageContent(content, t("pageLink")),
+    [content, t],
+  );
 
-function parseDimension(value: string | number | undefined): number | undefined {
-    if (typeof value === "number" && Number.isFinite(value) && value > 0) {
-        return value;
-    }
-
-    if (typeof value === "string") {
-        const parsed = Number.parseInt(value, 10);
-        if (Number.isFinite(parsed) && parsed > 0) {
-            return parsed;
+  return (
+    <div className="min-w-0 space-y-2 break-words">
+      {parts.map((part, index) => {
+        if (part.type === "link") {
+          return (
+            <Link
+              key={`${part.path}-${index}`}
+              href={part.path}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-primary/50 hover:text-primary active:scale-[0.98]"
+              onClick={() =>
+                window.dispatchEvent(new CustomEvent("close-chat"))
+              }
+            >
+              <ExternalLink className="size-3" aria-hidden="true" />
+              {part.label}
+            </Link>
+          );
         }
+
+        return (
+          <MessageResponse
+            key={`text-${index}`}
+            className="[&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4 [&_blockquote]:border-l-2 [&_blockquote]:border-primary/50 [&_blockquote]:pl-3 [&_code]:font-mono [&_pre]:max-w-full"
+            disallowedElements={["img"]}
+            mode={isStreaming ? "streaming" : "static"}
+            skipHtml
+            urlTransform={safeUrlTransform}
+          >
+            {part.content}
+          </MessageResponse>
+        );
+      })}
+    </div>
+  );
+}
+
+export function ChatMessages({
+  messages,
+  isLoading = false,
+  onSuggestionSelect,
+  suggestions = [],
+}: ChatMessagesProps) {
+  const t = useTranslations("Chat");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const previousMessageCountRef = useRef(0);
+  const shouldAutoScrollRef = useRef(true);
+  const [showJumpToLatest, setShowJumpToLatest] = useState(false);
+  const visibleMessages = messages.filter(
+    (message) => message.role !== "system",
+  );
+  const lastMessage = visibleMessages.at(-1);
+  const showSuggestions =
+    !isLoading && visibleMessages.length === 1 && suggestions.length > 0;
+
+  useEffect(() => {
+    if (visibleMessages.length !== previousMessageCountRef.current) {
+      shouldAutoScrollRef.current = true;
+      setShowJumpToLatest(false);
+      previousMessageCountRef.current = visibleMessages.length;
     }
 
-    return undefined;
-}
+    if (!shouldAutoScrollRef.current) return;
 
-// Extract a readable label from a navigation path
-function getNavLabel(path: string): string {
-    const segments = path.split('/').filter(Boolean);
-    const slug = segments[segments.length - 1] || 'page';
-    return slug
-        .replace(/-/g, ' ')
-        .replace(/\b\w/g, c => c.toUpperCase());
-}
+    const frame = requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ block: "end" });
+    });
 
-// Split content into text segments and [NAVIGATE:/path] links
-function parseMessageContent(content: string) {
-    const parts: Array<{ type: 'text'; content: string } | { type: 'link'; path: string; label: string }> = [];
-    let lastIndex = 0;
-    const regex = /\[NAVIGATE:(\/[^\]]+)\]/g;
-    let match;
+    return () => cancelAnimationFrame(frame);
+  }, [isLoading, lastMessage?.content, visibleMessages.length]);
 
-    while ((match = regex.exec(content)) !== null) {
-        if (match.index > lastIndex) {
-            parts.push({ type: 'text', content: content.substring(lastIndex, match.index) });
-        }
-        parts.push({ type: 'link', path: match[1], label: getNavLabel(match[1]) });
-        lastIndex = match.index + match[0].length;
-    }
+  const scrollToLatest = () => {
+    shouldAutoScrollRef.current = true;
+    setShowJumpToLatest(false);
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    messagesEndRef.current?.scrollIntoView({
+      block: "end",
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+  };
 
-    if (lastIndex < content.length) {
-        parts.push({ type: 'text', content: content.substring(lastIndex) });
-    }
+  return (
+    <div className="relative min-h-0 flex-1 bg-background">
+      <div
+        ref={scrollContainerRef}
+        role="log"
+        aria-busy={isLoading}
+        aria-live="polite"
+        aria-relevant="additions text"
+        className="h-full space-y-5 overflow-y-auto px-4 py-5 sm:px-5"
+        onScroll={(event) => {
+          const container = event.currentTarget;
+          const isNearBottom =
+            container.scrollHeight -
+              container.scrollTop -
+              container.clientHeight <
+            80;
 
-    return parts.length > 0 ? parts : [{ type: 'text' as const, content }];
-}
+          shouldAutoScrollRef.current = isNearBottom;
+          setShowJumpToLatest(!isNearBottom);
+        }}
+      >
+        {visibleMessages.length === 0 && !isLoading && (
+          <div className="grid h-full place-items-center py-12 text-center">
+            <div className="max-w-[18rem] space-y-3">
+              <div className="mx-auto grid size-10 place-items-center rounded-full border border-border bg-card text-primary">
+                <LibraryBig className="size-4" aria-hidden="true" />
+              </div>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {t("empty")}
+              </p>
+            </div>
+          </div>
+        )}
 
-function AssistantMessageContent({ content }: { content: string }) {
-    const parts = useMemo(() => parseMessageContent(content), [content]);
+        {visibleMessages.map((message) => {
+          const isEmptyAssistant =
+            message.role === "assistant" && !message.content;
+          if (isEmptyAssistant) return null;
 
-    return (
-        <div className="break-words space-y-1">
-            {parts.map((part, i) => {
-                if (part.type === 'link') {
-                    return (
-                        <Link
-                            key={i}
-                            href={part.path}
-                            className="inline-flex items-center gap-1 text-foreground hover:underline font-medium bg-muted px-2 py-0.5 rounded text-xs"
-                            onClick={() => {
-                                window.dispatchEvent(new CustomEvent('close-chat'));
-                            }}
-                        >
-                            <ExternalLink className="h-3 w-3" />
-                            {part.label}
-                        </Link>
-                    );
-                }
-                return (
-                    <Markdown
-                        key={i}
-                        components={{
-                            // Keep links styled consistently with URL validation
-                            a: ({ href, children }) => {
-                                if (!isSafeUrl(href)) {
-                                    // Render as plain text if URL is unsafe
-                                    return <span>{children}</span>;
-                                }
-                                return (
-                                    <a href={href} className="text-primary underline" target="_blank" rel="noopener noreferrer">
-                                        {children}
-                                    </a>
-                                );
-                            },
-                            // Only allow internal images to prevent tracking/privacy leaks
-                            img: ({ src, alt, width, height }) => {
-                                if (!isSafeImage(src)) {
-                                    // Show blocked image indicator for accessibility
-                                    // React automatically escapes JSX content, preventing XSS
-                                    const label = alt ? `[Image: ${alt}]` : '[Image]';
-                                    return <span className="text-muted-foreground italic">{label}</span>;
-                                }
+          const isAssistant = message.role === "assistant";
+          const isStreaming = isLoading && message.id === lastMessage?.id;
 
-                                const safeSrc = src as string;
-                                const imageWidth = parseDimension(width) ?? 1200;
-                                const imageHeight = parseDimension(height) ?? 900;
-
-                                return (
-                                    <Image
-                                        src={safeSrc}
-                                        alt={alt || 'Image'}
-                                        width={imageWidth}
-                                        height={imageHeight}
-                                        sizes="(max-width: 768px) 100vw, 85vw"
-                                        unoptimized
-                                        className="max-w-full rounded border border-border my-1"
-                                        style={{ width: "100%", height: "auto" }}
-                                    />
-                                );
-                            },
-                            // Compact paragraphs for chat context
-                            p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
-                            ul: ({ children }) => <ul className="list-disc pl-4 mb-1">{children}</ul>,
-                            ol: ({ children }) => <ol className="list-decimal pl-4 mb-1">{children}</ol>,
-                            li: ({ children }) => <li className="mb-0.5">{children}</li>,
-                            strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                            em: ({ children }) => <em className="italic">{children}</em>,
-                            code: ({ children }) => (
-                                <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">{children}</code>
-                            ),
-                            blockquote: ({ children }) => (
-                                <blockquote className="border-l-2 border-primary pl-2 italic opacity-80">{children}</blockquote>
-                            ),
-                        }}
-                    >
-                        {part.content}
-                    </Markdown>
-                );
-            })}
-        </div>
-    );
-}
-
-export function ChatMessages({ messages, isLoading = false, usage, onAuthSuccess }: ChatMessagesProps) {
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages, isLoading]);
-
-    return (
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted">
-            {messages.length === 0 && !isLoading && (
-                <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-                    <div className="text-center space-y-2">
-                        <p>Ask me anything about this blog.</p>
-                    </div>
+          return (
+            <article
+              key={message.id}
+              className={cn(
+                "flex w-full items-start gap-2.5",
+                isAssistant ? "justify-start" : "justify-end",
+              )}
+            >
+              {isAssistant && (
+                <div className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full border border-border bg-card text-primary shadow-xs">
+                  <LibraryBig className="size-3.5" aria-hidden="true" />
                 </div>
-            )}
+              )}
 
-            {messages.filter(m => m.role !== 'system').map((message, index) => {
-                const isAuthPrompt = message.role === 'assistant' &&
-                    (message.content.includes('\u{1F512}') || message.content.includes('email address'));
-
-                return (
-                    <div
-                        key={index}
-                        className={cn(
-                            "flex w-full",
-                            message.role === 'user' ? "justify-end" : "justify-start"
-                        )}
-                    >
-                        <div
-                            className={cn(
-                                "max-w-[85%] rounded-lg px-4 py-2 text-sm shadow-xs",
-                                message.role === 'user'
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-card text-card-foreground border border-border"
-                            )}
-                        >
-                            {isAuthPrompt ? (
-                                <div className="space-y-3">
-                                    <div className="flex items-center gap-2 text-warning">
-                                        <Lock className="h-4 w-4" />
-                                        <span className="font-medium">Authentication Required</span>
-                                    </div>
-                                    <div className="whitespace-pre-wrap break-words">
-                                        {message.content}
-                                    </div>
-                                    <ChatAuth onSuccess={onAuthSuccess} />
-                                </div>
-                            ) : message.role === 'assistant' ? (
-                                <AssistantMessageContent content={message.content} />
-                            ) : (
-                                <div className="whitespace-pre-wrap break-words">
-                                    {message.content}
-                                </div>
-                            )}
-                        </div>
+              <div
+                className={cn(
+                  "min-w-0 max-w-[86%] text-sm",
+                  isAssistant
+                    ? "pt-1 text-foreground"
+                    : "rounded-2xl rounded-br-sm bg-primary px-4 py-2.5 text-primary-foreground shadow-xs",
+                )}
+              >
+                {message.kind === "auth" ? (
+                  <div className="space-y-3 rounded-xl border border-warning/35 bg-warning/10 p-3.5 text-foreground">
+                    <div className="flex items-center gap-2 text-warning">
+                      <Lock className="size-4" aria-hidden="true" />
+                      <span className="font-medium">{t("authRequired")}</span>
                     </div>
-                );
-            })}
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      {message.content}
+                    </p>
+                    <ChatAuth />
+                  </div>
+                ) : isAssistant ? (
+                  <AssistantMessageContent
+                    content={message.content}
+                    isStreaming={isStreaming}
+                  />
+                ) : (
+                  <p className="whitespace-pre-wrap break-words leading-relaxed">
+                    {message.content}
+                  </p>
+                )}
+              </div>
+            </article>
+          );
+        })}
 
-            {isLoading && (
-                <div className="flex justify-start">
-                    <div className="bg-card border border-border rounded-lg px-4 py-3 shadow-xs">
-                        <div className="flex items-center gap-2">
-                            <Loader2 className="h-4 w-4 animate-spin text-foreground" />
-                            <span className="text-sm text-muted-foreground">Thinking...</span>
-                        </div>
-                    </div>
-                </div>
-            )}
+        {showSuggestions && (
+          <section
+            aria-label={t("suggestionsLabel")}
+            className="ml-9 space-y-2.5"
+          >
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              {t("suggestionsLabel")}
+            </p>
+            <div className="grid gap-2">
+              {suggestions.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  className="group flex w-full items-center justify-between gap-3 rounded-lg border border-border bg-card px-3 py-2.5 text-left text-xs leading-snug text-foreground transition-colors hover:border-primary/40 hover:bg-accent active:scale-[0.98]"
+                  onClick={() => onSuggestionSelect?.(suggestion)}
+                >
+                  <span>{suggestion}</span>
+                  <ArrowUpRight
+                    className="size-3.5 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                    aria-hidden="true"
+                  />
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
 
-            {usage && usage.totalTokens && usage.totalTokens > 0 && (
-                <div className="text-xs text-muted-foreground text-center py-2">
-                    Tokens used: {usage.totalTokens}
-                </div>
-            )}
+        {isLoading && !lastMessage?.content && (
+          <div className="flex items-center gap-2.5 pl-9 text-sm text-muted-foreground">
+            <Loader2
+              className="size-3.5 animate-spin motion-reduce:animate-none"
+              aria-hidden="true"
+            />
+            <span>{t("thinking")}</span>
+          </div>
+        )}
 
-            <div ref={messagesEndRef} />
-        </div>
-    );
+        <div ref={messagesEndRef} />
+      </div>
+
+      {showJumpToLatest && (
+        <button
+          type="button"
+          onClick={scrollToLatest}
+          className="absolute bottom-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground shadow-md transition-colors hover:border-primary/50 hover:text-primary"
+        >
+          <ArrowDown className="size-3.5" aria-hidden="true" />
+          {t("jumpLatest")}
+        </button>
+      )}
+    </div>
+  );
 }

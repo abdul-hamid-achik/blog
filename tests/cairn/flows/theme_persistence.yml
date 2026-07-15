@@ -1,0 +1,33 @@
+version: 1
+name: theme_persistence
+intent: an explicit color-theme choice is applied and survives a full page reload
+backend: agent-browser
+coldStart: guest
+viewport: { width: 1440, height: 900 }
+metadata: { feature: theme, priority: high, tags: [persistence] }
+
+outcomes:
+  - id: dark_theme_survives_reload
+    description: the dark class and persisted preference remain after navigation reload
+    verify:
+      script:
+        run: |
+          const stored = localStorage.getItem("theme");
+          const dark = document.documentElement.classList.contains("dark");
+          return { ok: stored === "dark" && dark, evidence: { stored, dark } };
+  - id: theme_toggle_has_no_console_errors
+    description: selecting and restoring the theme produces no console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open: { path: /, waitUntil: networkidle, timeoutMs: 30000 }
+  - eval:
+      js: localStorage.setItem("theme", "light"); true
+  - open: { path: /, waitUntil: networkidle, timeoutMs: 30000 }
+  - click: { by: role, role: button, name: "Toggle color theme" }
+  - wait: { selector: "html.dark", timeoutMs: 10000 }
+  - open: { path: /, waitUntil: networkidle, timeoutMs: 30000 }
+  - wait: { selector: "html.dark", timeoutMs: 10000 }
+  - snapshot: { interactive: true, label: persisted_dark_theme }
+contractHash: sha256:c35b291accfa35fec9f36fbf96996f373a2219fc6e21b991657e708f8bda664a

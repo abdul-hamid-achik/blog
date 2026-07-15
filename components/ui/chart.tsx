@@ -1,93 +1,142 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { cn } from "@/lib/utils"
-import { Tooltip as RechartsTooltip, Legend as RechartsLegend } from "recharts"
+import * as React from "react";
+import {
+  Tooltip as RechartsTooltip,
+  type TooltipContentProps,
+  type TooltipPayloadEntry,
+  type TooltipValueType,
+} from "recharts";
 
-export type ChartConfig = Record<
-    string,
-    { label?: string; color?: string }
->
+import { cn } from "@/lib/utils";
 
-export function ChartContainer({
-    children,
-    className,
-    config,
-}: {
-    children: React.ReactNode
-    className?: string
-    config?: ChartConfig
-}) {
-    // Expose CSS vars like --color-desktop for Recharts fills
-    const style: React.CSSProperties = {}
-    if (config) {
-        for (const [key, value] of Object.entries(config)) {
-            if (value?.color) {
-                ; (style as any)[`--color-${key}`] = value.color
-            }
-        }
-    }
+type ChartConfig = Record<string, { label?: React.ReactNode; color?: string }>;
 
-    return (
-        <div className={cn("h-[200px] w-full", className)} style={style}>
-            {children}
-        </div>
-    )
+type ChartStyle = React.CSSProperties &
+  Record<`--color-${string}`, string | undefined>;
+
+interface ChartContainerProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode;
+  config?: ChartConfig;
 }
+
+export const ChartContainer = React.forwardRef<
+  HTMLDivElement,
+  ChartContainerProps
+>(function ChartContainer(
+  { children, className, config, style, ...props },
+  ref,
+) {
+  const chartStyle: ChartStyle = {};
+
+  for (const [key, value] of Object.entries(config ?? {})) {
+    if (value.color) chartStyle[`--color-${key}`] = value.color;
+  }
+
+  return (
+    <div
+      ref={ref}
+      data-slot="chart"
+      className={cn(
+        "h-52 w-full text-xs",
+        "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground",
+        "[&_.recharts-surface:focus-visible]:outline-2 [&_.recharts-surface:focus-visible]:outline-offset-4 [&_.recharts-surface:focus-visible]:outline-primary",
+        className,
+      )}
+      style={{ ...chartStyle, ...style }}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+});
 
 export function ChartTooltip({
-    content,
-    ...props
+  content,
+  ...props
 }: React.ComponentProps<typeof RechartsTooltip>) {
-    return <RechartsTooltip content={content} {...props} />
+  return (
+    <RechartsTooltip
+      content={content}
+      isAnimationActive="auto"
+      wrapperStyle={{ outline: "none", zIndex: 20 }}
+      {...props}
+    />
+  );
 }
 
-export function ChartTooltipContent({ active, payload, label }: any) {
-    if (!active || !payload || !payload.length) {
-        return null
-    }
+interface ChartTooltipContentProps extends Partial<
+  TooltipContentProps<TooltipValueType, string | number>
+> {
+  config?: ChartConfig;
+  valueFormatter?: (
+    value: TooltipValueType,
+    item: TooltipPayloadEntry,
+  ) => React.ReactNode;
+}
 
-    return (
-        <div className="rounded-lg border bg-background p-2 shadow-xs text-sm">
-            <div className="grid gap-2">
-                {label && <div className="font-medium">{label}</div>}
-                {payload.map((item: any, index: number) => (
-                    <div key={index} className="flex items-center gap-2">
-                        <div
-                            className="h-2 w-2 rounded-full"
-                            style={{ backgroundColor: item.color }}
-                        />
-                        <span className="text-muted-foreground">{item.name}:</span>
-                        <span className="font-bold">{item.value}</span>
-                    </div>
-                ))}
+function defaultValueFormatter(value: TooltipValueType) {
+  return Array.isArray(value) ? value.join("–") : value;
+}
+
+export function ChartTooltipContent({
+  active = false,
+  config,
+  label,
+  payload = [],
+  valueFormatter = defaultValueFormatter,
+}: ChartTooltipContentProps) {
+  if (!active || payload.length === 0) return null;
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="min-w-32 rounded-md border border-border bg-background px-3 py-2.5 text-xs text-foreground shadow-md"
+    >
+      {label !== undefined && label !== null ? (
+        <p className="mb-2 max-w-56 truncate font-medium text-foreground">
+          {label}
+        </p>
+      ) : null}
+
+      <div className="grid gap-1.5">
+        {payload.map((item, index) => {
+          if (item.value === undefined) return null;
+
+          const dataKey =
+            typeof item.dataKey === "string" || typeof item.dataKey === "number"
+              ? String(item.dataKey)
+              : undefined;
+          const itemConfig = dataKey ? config?.[dataKey] : undefined;
+          const itemLabel = itemConfig?.label ?? item.name;
+          const itemColor =
+            itemConfig?.color ?? item.color ?? item.fill ?? "var(--primary)";
+
+          return (
+            <div
+              key={`${item.graphicalItemId}-${dataKey ?? index}`}
+              className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-2"
+            >
+              <span
+                aria-hidden="true"
+                className="size-1.5 rounded-full"
+                style={{ backgroundColor: itemColor }}
+              />
+              {itemLabel !== undefined ? (
+                <span className="truncate text-muted-foreground">
+                  {itemLabel}
+                </span>
+              ) : (
+                <span />
+              )}
+              <span className="font-medium tabular-nums text-foreground">
+                {valueFormatter(item.value, item)}
+              </span>
             </div>
-        </div>
-    )
+          );
+        })}
+      </div>
+    </div>
+  );
 }
-
-export function ChartLegend(props: Omit<React.ComponentProps<typeof RechartsLegend>, 'ref'>) {
-    return <RechartsLegend {...props} />
-}
-
-export function ChartLegendContent({ payload }: any) {
-    if (!payload || !payload.length) {
-        return null
-    }
-
-    return (
-        <div className="flex items-center justify-center gap-4">
-            {payload.map((item: any, index: number) => (
-                <div key={index} className="flex items-center gap-2">
-                    <div
-                        className="h-2 w-2 rounded-full"
-                        style={{ backgroundColor: item.color }}
-                    />
-                    <span className="text-sm text-muted-foreground">{item.value}</span>
-                </div>
-            ))}
-        </div>
-    )
-}
-
-

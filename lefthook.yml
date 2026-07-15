@@ -1,0 +1,17 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: formatting
+      run: bun run format:check
+    - name: lint
+      run: bun run lint
+    - name: tests
+      run: bun run test:coverage
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: types
+      run: bun run typecheck
+    - name: dead code
+      run: bun run knip

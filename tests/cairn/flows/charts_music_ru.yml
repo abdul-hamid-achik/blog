@@ -1,0 +1,73 @@
+version: 1
+name: charts_music_ru
+intent: Russian music rankings render deterministic localized chart data with
+  accessible alternatives
+backend: agent-browser
+coldStart: guest
+viewport: { width: 1440, height: 900 }
+metadata: { feature: charts, priority: high, tags: [i18n, desktop, a11y] }
+
+outcomes:
+  - id: localized_music_charts_are_complete
+    description: all three Russian music figures expose two ranked rows and
+      responsive chart regions
+    verify:
+      script:
+        run: |
+          const expected = [
+            "Самые прослушиваемые исполнители",
+            "Самые прослушиваемые треки",
+            "Самые частые музыкальные теги"
+          ];
+          const checks = expected.map((title) => {
+            const figure = Array.from(document.querySelectorAll("figure")).find(
+              (candidate) => candidate.querySelector("h3")?.textContent?.trim() === title
+            );
+            const chart = figure?.querySelector('[role="group"]');
+            const figureBox = figure?.getBoundingClientRect();
+            const chartBox = chart?.getBoundingClientRect();
+            const rows = figure?.querySelectorAll("ol > li").length ?? 0;
+            return {
+              title,
+              rows,
+              chartWidth: chartBox?.width ?? 0,
+              figureWidth: figureBox?.width ?? 0,
+              ok: Boolean(
+                figure && chart && rows === 2 && chartBox && figureBox &&
+                chartBox.width > 200 && chartBox.width <= figureBox.width + 1
+              )
+            };
+          });
+          return { ok: checks.every((check) => check.ok), evidence: { checks } };
+  - id: music_graphql_fixtures_were_consumed
+    description: the page requested all three deterministic music operations
+    verify:
+      script:
+        run: |
+          const operations = (globalThis.__CAIRN_REQUESTS__ ?? [])
+            .filter(({ path }) => path === "/api/graphql")
+            .flatMap(({ body }) => Array.isArray(body) ? body : [body])
+            .map(({ operationName }) => operationName);
+          return {
+            ok: ["TopArtists", "TopTracks", "TopTags"].every(
+              (operation) => operations.includes(operation)
+            ),
+            evidence: { operations }
+          };
+  - id: music_charts_have_no_blocking_wcag_issues
+    description: the rendered chart page has no serious or critical A or AA violations
+    verify:
+      script: { runtime: browser, file: ../verifiers/axe-wcag.js }
+  - id: music_charts_have_no_console_errors
+    description: loading the chart fixtures produces no browser console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open: { path: /ru/music, waitUntil: networkidle, timeoutMs: 30000 }
+  - wait: { text: "Привычки слушания", timeoutMs: 10000 }
+  - wait:
+      selector: "figure:not([aria-busy]) ol > li"
+      timeoutMs: 10000
+  - snapshot: { interactive: false, label: russian_music_charts }
+contractHash: sha256:0dbba5e1eb221a4a42c0333e7a56c77d95f22cb2ae2ebe3b99471981f7a653ef

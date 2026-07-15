@@ -1,0 +1,499 @@
+[
+  {
+    "id": "project:cortex",
+    "title": "cortex",
+    "description": "Агентное ядро с опорой на доказательства для длительной работы над ПО",
+    "href": "/projects#project-cortex",
+    "kind": "Project"
+  },
+  {
+    "id": "project:bob",
+    "title": "bob",
+    "description": "Детерминированная фабрика репозиториев для агентно-ориентированных инструментов",
+    "href": "/projects#project-bob",
+    "kind": "Project"
+  },
+  {
+    "id": "project:mcphub",
+    "title": "mcphub",
+    "description": "Единый локальный шлюз для всех MCP-серверов и агентных сред",
+    "href": "/projects#project-mcphub",
+    "kind": "Project"
+  },
+  {
+    "id": "project:LinkGlow",
+    "title": "LinkGlow",
+    "description": "Расширение браузера для аудита ссылок и SEO-анализа",
+    "href": "/projects#project-linkglow",
+    "kind": "Project"
+  },
+  {
+    "id": "project:hitspec",
+    "title": "hitspec",
+    "description": "Фреймворк тестирования HTTP API на основе файлов",
+    "href": "/projects#project-hitspec",
+    "kind": "Project"
+  },
+  {
+    "id": "project:Vue Native",
+    "title": "Vue Native",
+    "description": "Создавайте нативные приложения для iOS и Android с Vue 3",
+    "href": "/projects#project-vue-native",
+    "kind": "Project"
+  },
+  {
+    "id": "project:Blueprint",
+    "title": "Blueprint",
+    "description": "Декларативный язык для создания веб-сервисов",
+    "href": "/projects#project-blueprint",
+    "kind": "Project"
+  },
+  {
+    "id": "project:Tarot Agent",
+    "title": "Tarot Agent",
+    "description": "Бесплатные расклады Таро на базе Claude и ИИ",
+    "href": "/projects#project-tarot-agent",
+    "kind": "Project"
+  },
+  {
+    "id": "project:noted",
+    "title": "noted",
+    "description": "База знаний в CLI и MCP-сервер",
+    "href": "/projects#project-noted",
+    "kind": "Project"
+  },
+  {
+    "id": "project:noted.nvim",
+    "title": "noted.nvim",
+    "description": "Контекстные заметки для Neovim",
+    "href": "/projects#project-noted-nvim",
+    "kind": "Project"
+  },
+  {
+    "id": "project:haiku.nvim",
+    "title": "haiku.nvim",
+    "description": "Дополнение кода с ИИ на базе Claude Haiku",
+    "href": "/projects#project-haiku-nvim",
+    "kind": "Project"
+  },
+  {
+    "id": "project:vecai",
+    "title": "vecai",
+    "description": "ИИ-ассистент для кодовой базы",
+    "href": "/projects#project-vecai",
+    "kind": "Project"
+  },
+  {
+    "id": "project:veclite",
+    "title": "veclite",
+    "description": "Встраиваемая векторная база данных с HNSW и гибридным поиском",
+    "href": "/projects#project-veclite",
+    "kind": "Project"
+  },
+  {
+    "id": "project:vecgrep",
+    "title": "vecgrep",
+    "description": "Семантический поиск по коду с векторными эмбеддингами",
+    "href": "/projects#project-vecgrep",
+    "kind": "Project"
+  },
+  {
+    "id": "project:file.cheap",
+    "title": "file.cheap",
+    "description": "Локальное хранилище доказательств для файлов, созданных агентами",
+    "href": "/projects#project-file-cheap",
+    "kind": "Project"
+  },
+  {
+    "id": "project:tinyvault",
+    "title": "tinyvault",
+    "description": "Локальное управление секретами с AES-256-GCM и MCP",
+    "href": "/projects#project-tinyvault",
+    "kind": "Project"
+  },
+  {
+    "id": "project:vidtrace",
+    "title": "vidtrace",
+    "description": "Преобразует видео с ошибками в пакеты доказательств с временными метками",
+    "href": "/projects#project-vidtrace",
+    "kind": "Project"
+  },
+  {
+    "id": "project:cairntrace",
+    "title": "cairntrace",
+    "description": "Средство запуска спецификаций поведения браузера для программирующих агентов",
+    "href": "/projects#project-cairntrace",
+    "kind": "Project"
+  },
+  {
+    "id": "project:glyphrun",
+    "title": "glyphrun",
+    "description": "Средство запуска поведения терминальных приложений с PTY и пакетами артефактов",
+    "href": "/projects#project-glyphrun",
+    "kind": "Project"
+  },
+  {
+    "id": "project:termina",
+    "title": "termina",
+    "description": "Стратегическая пошаговая MOBA для сражений как в шахматах",
+    "href": "/projects#project-termina",
+    "kind": "Project"
+  },
+  {
+    "id": "project:ClipIt.now",
+    "title": "ClipIt.now",
+    "description": "Платформа для нарезки видео с помощью ИИ",
+    "href": "/projects#project-clipit-now",
+    "kind": "Project"
+  },
+  {
+    "id": "project:musicpractice",
+    "title": "musicpractice",
+    "description": "Приложение для обучения музыке с табулатурой и воспроизведением аудио",
+    "href": "/projects#project-musicpractice",
+    "kind": "Project"
+  },
+  {
+    "id": "project:reservadoc",
+    "title": "reservadoc",
+    "description": "Платформа резервирования документов с ролевым доступом",
+    "href": "/projects#project-reservadoc",
+    "kind": "Project"
+  },
+  {
+    "id": "project:blankcode",
+    "title": "blankcode",
+    "description": "Интерактивные упражнения по программированию с заполнением пропусков",
+    "href": "/projects#project-blankcode",
+    "kind": "Project"
+  },
+  {
+    "id": "project:tarot-tcg",
+    "title": "tarot-tcg",
+    "description": "Тактическая карточная игра, объединяющая Таро и механику TCG",
+    "href": "/projects#project-tarot-tcg",
+    "kind": "Project"
+  },
+  {
+    "id": "project:gpeek",
+    "title": "gpeek",
+    "description": "Инструмент визуализации Git для людей и LLM",
+    "href": "/projects#project-gpeek",
+    "kind": "Project"
+  },
+  {
+    "id": "project:rosewood",
+    "title": "rosewood",
+    "description": "Нативный редактор кода для macOS на Swift и SwiftUI (документация готовится)",
+    "href": "/projects#project-rosewood",
+    "kind": "Project"
+  },
+  {
+    "id": "project:local-agent",
+    "title": "local-agent",
+    "description": "Локальный терминальный агент для программирования на базе Ollama",
+    "href": "/projects#project-local-agent",
+    "kind": "Project"
+  },
+  {
+    "id": "project:teak",
+    "title": "teak",
+    "description": "Терминальный редактор кода на Go (документация готовится)",
+    "href": "/projects#project-teak",
+    "kind": "Project"
+  },
+  {
+    "id": "project:monitor",
+    "title": "monitor",
+    "description": "Системный монитор для macOS и Linux с интерфейсами для агентов",
+    "href": "/projects#project-monitor",
+    "kind": "Project"
+  },
+  {
+    "id": "project:audeck",
+    "title": "audeck",
+    "description": "TUI-менеджер аудиоустройств для macOS (документация готовится)",
+    "href": "/projects#project-audeck",
+    "kind": "Project"
+  },
+  {
+    "id": "project:manuscrypt",
+    "title": "manuscrypt",
+    "description": "Платформа для написания художественных книг с помощью ИИ (документация готовится)",
+    "href": "/projects#project-manuscrypt",
+    "kind": "Project"
+  },
+  {
+    "id": "project:dahdit",
+    "title": "dahdit",
+    "description": "Приложение для изучения азбуки Морзе в стиле Duolingo (документация готовится)",
+    "href": "/projects#project-dahdit",
+    "kind": "Project"
+  },
+  {
+    "id": "anti-intellectualism-and-the-political-carnival.ru",
+    "title": "антиинтеллектуализм и политический карнавал",
+    "description": "о рынках, которые не являются капитализмом, дамах, аплодирующих конкистадорам, трампистах, внезапно открывших Палестину, религиозных противоречиях и усталости думать публично.",
+    "href": "/posts/anti-intellectualism-and-the-political-carnival",
+    "kind": "Writing"
+  },
+  {
+    "id": "city-a-poem-from-vladimir-kotlyarov.ru",
+    "title": "Город",
+    "description": "Стихотворение Владимира Котлярова из группы \"Порнофильмы\"",
+    "href": "/posts/city-a-poem-from-vladimir-kotlyarov",
+    "kind": "Writing"
+  },
+  {
+    "id": "dancing-to-the-tune-of-distraction.ru",
+    "title": "В ритме отвлечения",
+    "description": "Заседание Сената рушится в театральность, и эта театральность показывает, во что превратилась институциональная политика.",
+    "href": "/posts/dancing-to-the-tune-of-distraction",
+    "kind": "Writing"
+  },
+  {
+    "id": "incongruity-in-action-defending-democracy-with-blows-against-disagreement.ru",
+    "title": "Несоответствие в действии",
+    "description": "Марш за демократию превращается в сцену классовой привилегии, насилия и морального театра.",
+    "href": "/posts/incongruity-in-action-defending-democracy-with-blows-against-disagreement",
+    "kind": "Writing"
+  },
+  {
+    "id": "stanczky-and-the-paradox-of-the-sad-clown.ru",
+    "title": "Станчик и парадокс грустного клоуна",
+    "description": "Размышление о картине Яна Матейко «Станчик» и парадоксе грустного клоуна — о смысле комедии, печали и неспособности смеяться над собой.",
+    "href": "/posts/stanczky-and-the-paradox-of-the-sad-clown",
+    "kind": "Writing"
+  },
+  {
+    "id": "the-cards-and-the-couch.ru",
+    "title": "Карты и кушетка",
+    "description": "О Таро, психоанализе и вещах, которые мы уже знаем, но не можем произнести",
+    "href": "/posts/the-cards-and-the-couch",
+    "kind": "Writing"
+  },
+  {
+    "id": "the-demon-and-the-melancholic.ru",
+    "title": "Демон и меланхолик",
+    "description": "О трауре, безумии и вещах, которые мы не можем отпустить",
+    "href": "/posts/the-demon-and-the-melancholic",
+    "kind": "Writing"
+  },
+  {
+    "id": "the-gambler-and-the-black-square.ru",
+    "title": "Игрок и Черный квадрат",
+    "description": "Личные размышления",
+    "href": "/posts/the-gambler-and-the-black-square",
+    "kind": "Writing"
+  },
+  {
+    "id": "the-garden-of-earthly-delights-and-the-underground-man.ru",
+    "title": "Сад земных наслаждений и человек из подполья",
+    "description": "О jouissance, саморазрушении и парадоксе сознания",
+    "href": "/posts/the-garden-of-earthly-delights-and-the-underground-man",
+    "kind": "Writing"
+  },
+  {
+    "id": "the-grand-inquisitor-in-the-age-of-algorithms.ru",
+    "title": "Великий инквизитор в эпоху алгоритмов",
+    "description": "Великий инквизитор Достоевского пророчески описывает наше алгоритмическое общество: человечество, обменивающее свободу на хлеб, чудо и авторитет.",
+    "href": "/posts/the-grand-inquisitor-in-the-age-of-algorithms",
+    "kind": "Writing"
+  },
+  {
+    "id": "the-metamorphosis-of-parsifal-through-the-triumph-of-death.ru",
+    "title": "Метаморфоза Парсифаля через \"Триумф смерти\"",
+    "description": "Анализ шедевра Питера Брейгеля в контексте мифа о Парсифале",
+    "href": "/posts/the-metamorphosis-of-parsifal-through-the-triumph-of-death",
+    "kind": "Writing"
+  },
+  {
+    "id": "the-stranger-at-the-feast.ru",
+    "title": "Чужой на празднике",
+    "description": "О чужом взгляде, непонимании и золотой клетке принадлежности.",
+    "href": "/posts/the-stranger-at-the-feast",
+    "kind": "Writing"
+  },
+  {
+    "id": "what-is-marxism-and-why-it-matters.ru",
+    "title": "Что такое марксизм и почему он всё ещё важен",
+    "description": "О классах, капитале и призраке, который отказывается умирать",
+    "href": "/posts/what-is-marxism-and-why-it-matters",
+    "kind": "Writing"
+  },
+  {
+    "id": "about.ru",
+    "title": "Обо мне",
+    "description": "О жизни, стоящей за этим архивом литературы, психоанализа, политики и искусства.",
+    "href": "/about",
+    "kind": "Page"
+  },
+  {
+    "id": "essays.ru",
+    "title": "Эссе",
+    "description": "Длинные эссе о литературе, психоанализе, политике, искусстве и современной жизни.",
+    "href": "/essays",
+    "kind": "Page"
+  },
+  {
+    "id": "insights.ru",
+    "title": "Ритмы архива",
+    "description": "Способ читать архив через его ритмы, пропорции и повторяющиеся привычки.",
+    "href": "/insights",
+    "kind": "Page"
+  },
+  {
+    "id": "motifs.ru",
+    "title": "Мотивы",
+    "description": "Повторяющиеся навязчивости, которые снова и снова возвращаются в архиве.",
+    "href": "/motifs",
+    "kind": "Page"
+  },
+  {
+    "id": "music.ru",
+    "title": "Привычки слушания",
+    "description": "Музыка, которая возвращается, пока я читаю, хожу, пишу и не могу уснуть.",
+    "href": "/music",
+    "kind": "Page"
+  },
+  {
+    "id": "studies.ru",
+    "title": "Этюды",
+    "description": "Более короткие размышления о картинах, образах и повторяющихся визуальных навязчивостях.",
+    "href": "/studies",
+    "kind": "Page"
+  },
+  {
+    "id": "boris-kustodiev-the-bolshevik-1920.ru",
+    "title": "Большевик и тяжесть идеи",
+    "description": "О революции, масштабе и человеке, который стал больше города",
+    "href": "/paintings/boris-kustodiev-the-bolshevik-1920",
+    "kind": "Painting"
+  },
+  {
+    "id": "caravaggio-the-fortune-teller-1594.ru",
+    "title": "Гадалка",
+    "description": "Шедевр барочного реализма, изображающий соблазнительное искусство гадания — молодая цыганка читает ладонь дворянина, незаметно снимая его кольцо, превращая гадание в метафору иллюзионистской силы самой живописи.",
+    "href": "/paintings/caravaggio-the-fortune-teller-1594",
+    "kind": "Painting"
+  },
+  {
+    "id": "caspar-david-friedrich-wanderer-above-the-sea-of-fog-1818.ru",
+    "title": "Странник над морем тумана",
+    "description": "Это картина Каспара Давида Фридриха, называется 'Странник над морем тумана'. Она изображает человека, стоящего на скалистом утесе спиной к зрителю. Он обернут в темно-зеленое пальто и держит трость в правой руке. Его волосы развеваются на ветру, странник смотрит на пейзаж, покрытый густым морем тумана. Вдалеке, скрытые туманными вершинами, мы можем разглядеть то, что, похоже, является океаном.",
+    "href": "/paintings/caspar-david-friedrich-wanderer-above-the-sea-of-fog-1818",
+    "kind": "Painting"
+  },
+  {
+    "id": "diego-rivera-man-at-the-crossroads-1934.ru",
+    "title": "Человек на перепутье и искусство сопротивления",
+    "description": "О муралистике, марксизме и картине, которую уничтожили и возродили",
+    "href": "/paintings/diego-rivera-man-at-the-crossroads-1934",
+    "kind": "Painting"
+  },
+  {
+    "id": "edvard-munch-jealousy-1895.ru",
+    "title": "Ревность",
+    "description": "Мунк пишет ревность не как любовный треугольник, а как унизительное положение свидетеля.",
+    "href": "/paintings/edvard-munch-jealousy-1895",
+    "kind": "Painting"
+  },
+  {
+    "id": "ernst-ludwig-kirchner-berlin-street-scene-1913.ru",
+    "title": "Уличная сцена в Берлине",
+    "description": "О городском взгляде, коммерциализированной видимости и насилии современных поверхностей.",
+    "href": "/paintings/ernst-ludwig-kirchner-berlin-street-scene-1913",
+    "kind": "Painting"
+  },
+  {
+    "id": "eugene-delacroix-liberty-leading-the-people-1830.ru",
+    "title": "Свобода, ведущая народ и революционная традиция",
+    "description": "О революции, классах и людях, которые выходят на улицы",
+    "href": "/paintings/eugene-delacroix-liberty-leading-the-people-1830",
+    "kind": "Painting"
+  },
+  {
+    "id": "giorgio-de-chirico-the-soothsayers-recompense-1913.ru",
+    "title": "Награда прорицателя",
+    "description": "Определяющее произведение метафизического искусства, изображающее спящую Ариадну на жуткой, пустынной площади — связывающее предсказание, бессознательное и сверхъестественную тишину снов, повлиявшую на всё движение сюрреализма.",
+    "href": "/paintings/giorgio-de-chirico-the-soothsayers-recompense-1913",
+    "kind": "Painting"
+  },
+  {
+    "id": "gustav-klimt-adele-bloch-bauer-I.ru",
+    "title": "Адель Блох-Бауэр I",
+    "description": "О золоте, ассимиляции и странном насилии превращения в орнамент.",
+    "href": "/paintings/gustav-klimt-adele-bloch-bauer-I",
+    "kind": "Painting"
+  },
+  {
+    "id": "hieronymus-bosch-the-garden-of-earthly-delights-1500.ru",
+    "title": "Сад земных наслаждений",
+    "description": "О рае, навязчивости и медленном скольжении наслаждения в психическую катастрофу.",
+    "href": "/paintings/hieronymus-bosch-the-garden-of-earthly-delights-1500",
+    "kind": "Painting"
+  },
+  {
+    "id": "ilya-repin-unexpected-visitors-1888.ru",
+    "title": "Неожиданные гости",
+    "description": "О возвращении, узнаваниях и невыносимой паузе между появлением и принятием.",
+    "href": "/paintings/ilya-repin-unexpected-visitors-1888",
+    "kind": "Painting"
+  },
+  {
+    "id": "jan-matejko-stańczyk-1862.ru",
+    "title": "Станчик",
+    "description": "О шуте, который видит правду зала и уже не может присоединиться к его смеху.",
+    "href": "/paintings/jan-matejko-stańczyk-1862",
+    "kind": "Painting"
+  },
+  {
+    "id": "jean-delville-the-treasures-of-satan-1895.ru",
+    "title": "Сокровища Сатаны",
+    "description": "Монументальное произведение бельгийского символиста и теософа Жана Дельвиля, изображающее Сатану, парящего над океанической бездной переплетённых душ — визуальное воплощение бессознательных глубин, где желания и иллюзии держат психику в плену.",
+    "href": "/paintings/jean-delville-the-treasures-of-satan-1895",
+    "kind": "Painting"
+  },
+  {
+    "id": "kazimir-malevich-black-suprematic-square-1915.ru",
+    "title": "Черный супрематический квадрат и навязчивые мысли",
+    "description": "Глубокое погружение в бездну отчаяния",
+    "href": "/paintings/kazimir-malevich-black-suprematic-square-1915",
+    "kind": "Painting"
+  },
+  {
+    "id": "odilon-redon-the-cyclops-1914.ru",
+    "title": "Циклоп",
+    "description": "Одилон Редон превращает миф о Полифеме в светозарное видение тоски и тайны — единственный огромный глаз становится архетипическим символом внутреннего зрения, ясновидения и мистического взгляда в невидимое.",
+    "href": "/paintings/odilon-redon-the-cyclops-1914",
+    "kind": "Painting"
+  },
+  {
+    "id": "pablo-picasso-guernica-1937.ru",
+    "title": "Герника",
+    "description": "Исследование Герники Пабло Пикассо и ее значимости для фашистской диктатуры того времени.",
+    "href": "/paintings/pablo-picasso-guernica-1937",
+    "kind": "Painting"
+  },
+  {
+    "id": "pieter-bruegel-the-elder-the-triumph-of-death-1562.ru",
+    "title": "Триумф смерти",
+    "description": "Ужас Брейгеля заключается не только в резне, но и в уничтожении самой возможности внешнего наблюдения.",
+    "href": "/paintings/pieter-bruegel-the-elder-the-triumph-of-death-1562",
+    "kind": "Painting"
+  },
+  {
+    "id": "unknown-inspection-of-the-old-house-1874.ru",
+    "title": "Осмотр старого дома",
+    "description": "Полутемный интерьер становится размышлением о запоздалом возвращении и невозможности инвентаризировать утрату.",
+    "href": "/paintings/unknown-inspection-of-the-old-house-1874",
+    "kind": "Painting"
+  },
+  {
+    "id": "vrubel-demon-1890.ru",
+    "title": "Сидящий демон",
+    "description": "Демон Врубеля - это скорее фигура сжатого изгнания и самоудержания, чем чудовище.",
+    "href": "/paintings/vrubel-demon-1890",
+    "kind": "Painting"
+  }
+]

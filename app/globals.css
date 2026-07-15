@@ -5,37 +5,6 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ============================================
-   Nord Color Palette from Arctic Studios
-   https://www.nordtheme.com
-   ============================================ */
-@theme {
-  /* Polar Night */
-  --color-nord0: #2E3440;
-  --color-nord1: #3B4252;
-  --color-nord2: #434C5E;
-  --color-nord3: #4C566A;
-
-  /* Snow Storm */
-  --color-nord4: #D8DEE9;
-  --color-nord5: #E5E9F0;
-  --color-nord6: #ECEFF4;
-
-  /* Frost */
-  --color-nord7: #8FBCBB;
-  --color-nord8: #88C0D0;
-  --color-nord9: #81A1C1;
-  --color-nord10: #5E81AC;
-
-  /* Aurora */
-  --color-nord11: #BF616A;
-  --color-nord12: #D08770;
-  --color-nord13: #EBCB8B;
-  --color-nord14: #A3BE8C;
-  --color-nord15: #B48EAD;
-}
-
-/* Semantic color tokens mapped to Nord palette */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -60,132 +29,267 @@
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
-
-  /* Project category accents (theme-tuned for contrast) */
-  --color-cat-product: var(--cat-product);
-  --color-cat-cli: var(--cat-cli);
-  --color-cat-library: var(--cat-library);
-  --color-cat-neovim: var(--cat-neovim);
-
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --color-inverse-accent: var(--inverse-accent);
+  --color-cat-product: var(--primary);
+  --color-cat-cli: var(--primary);
+  --color-cat-library: var(--primary);
+  --color-cat-neovim: var(--primary);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
 }
 
-/* ============================================
-   Light Theme — White canvas, Snow Storm surfaces
-   White base provides crisp contrast; Snow Storm colors give
-   cards/surfaces the distinctive Nord arctic feel.
-   Aurora colors darkened for WCAG AA on white backgrounds.
-   ============================================ */
 :root {
-  --radius: 0.5rem;
-  --background: #FFFFFF;          /* white canvas — clean and crisp */
-  --foreground: #2E3440;          /* nord0 — 12.7:1 on white */
-  --card: #ECEFF4;                /* nord6 — visible lift from white */
-  --card-foreground: #2E3440;     /* nord0 */
-  --popover: #FFFFFF;             /* white */
-  --popover-foreground: #2E3440;  /* nord0 */
-  --primary: #5E81AC;             /* nord10 — deep frost, 4.04:1 on white */
-  --primary-foreground: #FFFFFF;  /* white */
-  --secondary: #ECEFF4;          /* nord6 */
-  --secondary-foreground: #2E3440; /* nord0 */
-  --muted: #E5E9F0;              /* nord5 — subtle surface on white */
-  --muted-foreground: #4C566A;    /* nord3 — 7.50:1 on white */
-  --accent: #ECEFF4;             /* nord6 — hover highlight */
-  --accent-foreground: #2E3440;   /* nord0 */
-  --destructive: #A3434B;         /* darkened nord11 — 6.26:1 on white */
-  --destructive-foreground: #FFFFFF;
-  --border: #D8DEE9;             /* nord4 — visible on white */
-  --input: #D8DEE9;              /* nord4 */
-  --ring: #5E81AC;               /* nord10 */
-  --success: #507040;            /* darkened nord14 — 6.18:1 on white */
-  --success-foreground: #FFFFFF;
-  --warning: #7D6528;            /* darkened nord13 — 5.77:1 on white */
-  --warning-foreground: #FFFFFF;
-
-  /* Category accents — Aurora hues darkened for AA contrast on white */
-  --cat-product: #5E81AC;        /* nord10 — frost */
-  --cat-cli: #4F7042;            /* darkened nord14 — green */
-  --cat-library: #8A5A82;        /* darkened nord15 — purple */
-  --cat-neovim: #B0562C;         /* darkened nord12 — orange */
+  color-scheme: light;
+  --background: #f3f0e8;
+  --foreground: #20211f;
+  --card: #faf8f2;
+  --card-foreground: #20211f;
+  --popover: #faf8f2;
+  --popover-foreground: #20211f;
+  --primary: #9c3f25;
+  --primary-foreground: #fffaf4;
+  --secondary: #e8e3d7;
+  --secondary-foreground: #292a27;
+  --muted: #e8e3d7;
+  --muted-foreground: #65655e;
+  --accent: #ded8ca;
+  --accent-foreground: #20211f;
+  --destructive: #9f2e2e;
+  --destructive-foreground: #fffafa;
+  --border: #d4cebf;
+  --input: #8f8a7e;
+  --ring: #9c3f25;
+  --inverse-accent: #e58463;
+  --success: #3e694c;
+  --success-foreground: #f7fff9;
+  --warning: #805d18;
+  --warning-foreground: #fffaf0;
+  --page-grid: rgba(32, 33, 31, 0.045);
+  --soft-shadow: 0 18px 60px rgba(50, 44, 34, 0.08);
 }
 
-/* ============================================
-   Dark Theme — Polar Night backgrounds, Snow Storm text
-   Primary accent: nord8 (bright frost blue, 6.24:1)
-   Muted/destructive adjusted for WCAG AA compliance
-   ============================================ */
 .dark {
-  --background: #2E3440;          /* nord0 */
-  --foreground: #D8DEE9;          /* nord4 */
-  --card: #3B4252;                /* nord1 */
-  --card-foreground: #D8DEE9;     /* nord4 */
-  --popover: #3B4252;             /* nord1 */
-  --popover-foreground: #D8DEE9;  /* nord4 */
-  --primary: #88C0D0;             /* nord8 — bright frost, 6.24:1 */
-  --primary-foreground: #2E3440;  /* nord0 */
-  --secondary: #434C5E;          /* nord2 */
-  --secondary-foreground: #D8DEE9; /* nord4 */
-  --muted: #3B4252;              /* nord1 */
-  --muted-foreground: #A5ADBC;    /* lightened nord3 — 5.53:1 on bg, 4.46:1 on card */
-  --accent: #434C5E;             /* nord2 */
-  --accent-foreground: #D8DEE9;   /* nord4 */
-  --destructive: #D08890;         /* lightened nord11 — 4.52:1 on bg */
-  --destructive-foreground: #2E3440; /* nord0 */
-  --border: #434C5E;             /* nord2 */
-  --input: #434C5E;              /* nord2 */
-  --ring: #88C0D0;               /* nord8 */
-  --success: #A3BE8C;            /* nord14 — 6.13:1 on bg */
-  --success-foreground: #2E3440;  /* nord0 */
-  --warning: #EBCB8B;            /* nord13 — 8.00:1 on bg */
-  --warning-foreground: #2E3440;  /* nord0 */
-
-  /* Category accents — bright Aurora hues read well on Polar Night */
-  --cat-product: #88C0D0;        /* nord8 — frost */
-  --cat-cli: #A3BE8C;            /* nord14 — green */
-  --cat-library: #B48EAD;        /* nord15 — purple */
-  --cat-neovim: #D08770;         /* nord12 — orange */
+  color-scheme: dark;
+  --background: #171918;
+  --foreground: #ece9e1;
+  --card: #1f2220;
+  --card-foreground: #ece9e1;
+  --popover: #222522;
+  --popover-foreground: #ece9e1;
+  --primary: #e58463;
+  --primary-foreground: #1d1511;
+  --secondary: #292c29;
+  --secondary-foreground: #ece9e1;
+  --muted: #292c29;
+  --muted-foreground: #aaa9a2;
+  --accent: #333632;
+  --accent-foreground: #f5f1e9;
+  --destructive: #ef8b85;
+  --destructive-foreground: #251313;
+  --border: #3b3e39;
+  --input: #686c64;
+  --ring: #e58463;
+  --inverse-accent: #e58463;
+  --success: #91c49f;
+  --success-foreground: #102016;
+  --warning: #e2bb67;
+  --warning-foreground: #241b09;
+  --page-grid: rgba(236, 233, 225, 0.035);
+  --soft-shadow: 0 18px 60px rgba(0, 0, 0, 0.2);
 }
 
-/* ============================================
-   Wider, centered breakout for grid-heavy pages (projects).
-   The site shell is max-w-2xl (42rem); this lets a page span up to
-   64rem while staying centered in the viewport and scrollbar-safe
-   (never wider than 100vw - 2rem, so it can't cause horizontal scroll).
-   ============================================ */
+@utility site-shell {
+  width: min(88rem, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+@utility reading-shell {
+  width: min(46rem, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
 @utility breakout-wide {
-  width: min(64rem, 100vw - 2rem);
-  margin-left: calc((min(42rem, 100vw - 2rem) - min(64rem, 100vw - 2rem)) / 2);
+  width: min(88rem, calc(100vw - 2rem));
+  margin-left: calc((min(46rem, 100vw - 2rem) - min(88rem, 100vw - 2rem)) / 2);
 }
 
 @layer base {
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+
+  html {
+    scroll-behavior: smooth;
   }
 
-  /* Nord-themed prose overrides */
+  body {
+    @apply bg-background text-foreground;
+    min-height: 100dvh;
+    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1,
+      "ss01" 1;
+    background-image:
+      linear-gradient(var(--page-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--page-grid) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  ::selection {
+    color: var(--primary-foreground);
+    background: var(--primary);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+
+  a,
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:not(:disabled),
+  a[href] {
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply font-mono text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-primary;
+  }
+
+  .display-title {
+    font-size: clamp(2.75rem, 7vw, 6.75rem);
+    line-height: 0.9;
+    letter-spacing: -0.065em;
+    font-weight: 640;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 4.2vw, 4.25rem);
+    line-height: 0.96;
+    letter-spacing: -0.05em;
+    font-weight: 620;
+  }
+
+  .hairline-label {
+    @apply flex items-center gap-3 font-mono text-[0.68rem] uppercase tracking-[0.18em] text-muted-foreground;
+  }
+
+  .hairline-label::before {
+    content: "";
+    width: 2rem;
+    height: 1px;
+    background: currentColor;
+  }
+
+  .paper-surface {
+    @apply border border-border bg-card;
+    box-shadow: var(--soft-shadow);
+  }
+
+  .prose {
+    --tw-prose-body: var(--foreground);
+    --tw-prose-headings: var(--foreground);
+    --tw-prose-lead: var(--muted-foreground);
+    --tw-prose-links: var(--primary);
+    --tw-prose-bold: var(--foreground);
+    --tw-prose-counters: var(--muted-foreground);
+    --tw-prose-bullets: var(--primary);
+    --tw-prose-hr: var(--border);
+    --tw-prose-quotes: var(--foreground);
+    --tw-prose-quote-borders: var(--primary);
+    --tw-prose-captions: var(--muted-foreground);
+    --tw-prose-code: var(--foreground);
+    --tw-prose-pre-code: #e9e6de;
+    --tw-prose-pre-bg: #202220;
+    --tw-prose-th-borders: var(--border);
+    --tw-prose-td-borders: var(--border);
+    max-width: none;
+    font-size: 1.05rem;
+    line-height: 1.8;
+  }
+
+  .dark .prose {
+    --tw-prose-pre-code: #ece9e1;
+    --tw-prose-pre-bg: #101211;
+  }
+
+  .prose
+    :where(h2, h3, h4):not(
+      :where([class~="not-prose"], [class~="not-prose"] *)
+    ) {
+    scroll-margin-top: 7rem;
+    letter-spacing: -0.035em;
+  }
+
   .prose :where(a):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    color: var(--primary);
+    text-decoration-color: color-mix(in srgb, var(--primary) 40%, transparent);
+    text-underline-offset: 0.2em;
+    transition:
+      color 180ms ease,
+      text-decoration-color 180ms ease;
   }
-  .prose :where(a:hover):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+
+  .prose
+    :where(a:hover):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
     color: var(--foreground);
+    text-decoration-color: var(--foreground);
   }
-  .prose :where(hr):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    border-color: var(--border);
+
+  .prose
+    :where(code):not(
+      :where(pre *, [class~="not-prose"], [class~="not-prose"] *)
+    ) {
+    @apply rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[0.86em];
   }
-  .prose :where(blockquote):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    border-left-color: var(--primary);
-    color: var(--muted-foreground);
+
+  .prose :where(code):not(:where(pre *))::before,
+  .prose :where(code):not(:where(pre *))::after {
+    content: none;
   }
-  .prose :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
-    background-color: var(--muted);
-    padding: 0.125rem 0.25rem;
-    border-radius: 0.25rem;
+
+  .prose :where(img):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    @apply border border-border;
+    box-shadow: var(--soft-shadow);
+  }
+}
+
+@media (max-width: 640px) {
+  .site-shell,
+  .reading-shell {
+    width: min(100% - 1.25rem, 88rem);
+  }
+
+  .breakout-wide {
+    width: calc(100vw - 1.25rem);
+    margin-left: calc((min(46rem, 100vw - 1.25rem) - (100vw - 1.25rem)) / 2);
+  }
+
+  .prose {
+    font-size: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

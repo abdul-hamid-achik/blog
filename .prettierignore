@@ -34,9 +34,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .contentlayer
+.content-collections
 .idea
-*.json
 content
-
-*.md
-**/*.mdx

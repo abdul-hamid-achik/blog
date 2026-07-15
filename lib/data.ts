@@ -1,21 +1,23 @@
-import { allPages as pages, allPaintings as paintings, allPosts as posts, allPrompts as prompts } from "content-collections";
-export { ContentType, Locale } from "./types"
+import {
+  allPages as pages,
+  allPaintings as paintings,
+  allPosts as posts,
+  allPrompts as prompts,
+} from "content-collections";
+export { ContentType, Locale } from "./types";
 import { ContentType, Locale } from "./types";
 
 const allDocuments = [...posts, ...pages, ...paintings, ...prompts];
 
-
-type Paintings = typeof paintings;
-type Posts = typeof posts
-type Pages = typeof pages;
+type Posts = typeof posts;
 type Prompts = typeof prompts;
-type Content = typeof allDocuments
+type Content = typeof allDocuments;
 
 type ContentWithId<T> = T extends readonly (infer U)[]
   ? (U & { _id: string })[]
   : T & { _id: string };
 
-export type { Content, Pages, Paintings, Posts, ContentWithId, Prompts };
+export type { Content, Posts, ContentWithId, Prompts };
 export interface BaseParams {
   slug?: string;
   locale?: string;
@@ -29,119 +31,118 @@ export interface PostParams extends BaseParams {
   public?: boolean;
 }
 
-export interface PaintingParams extends BaseParams {
-  tag?: string;
-  title?: string;
-  author?: string;
-  year?: number;
-  style?: string;
-  country?: string;
-}
-
-export interface PageParams extends BaseParams { }
+export type PageParams = BaseParams;
 export function getPost(params: BaseParams) {
   const { slug, locale } = params;
 
   const post = posts.find(
-    (post) => post.slug.includes(slug ?? "") && post.locale === (locale ?? Locale.EN)
-  )
+    (post) =>
+      post.slug.includes(slug ?? "") && post.locale === (locale ?? Locale.EN),
+  );
 
   if (!post) {
-    return null
+    return null;
   }
 
-  return post
+  return post;
 }
 
 export function getPosts(params?: PostParams) {
-  const { slug, tag, locale, title, description, date, public: isPublic } = params ?? {};
+  const {
+    slug,
+    tag,
+    locale,
+    title,
+    description,
+    date,
+    public: isPublic,
+  } = params ?? {};
 
-  const filteredPosts = posts.filter(post => {
+  const filteredPosts = posts.filter((post) => {
     const matchesSlug = slug ? post.slug.includes(slug) : true;
     const matchesTag = tag ? post.tags?.includes(tag) : true;
     const matchesLocale = locale ? post.locale === locale : true;
     const matchesTitle = title ? post.title.includes(title) : true;
-    const matchesDescription = description ? post.description?.includes(description) : true;
+    const matchesDescription = description
+      ? post.description?.includes(description)
+      : true;
     const matchesDate = date ? post.date === date : true;
-    const matchesPublic = isPublic !== undefined ? post.public === isPublic : post.public === true;
-    return matchesSlug && matchesTag && matchesLocale && matchesTitle && matchesDescription && matchesDate && matchesPublic;
-  })
+    const matchesPublic =
+      isPublic !== undefined ? post.public === isPublic : post.public === true;
+    return (
+      matchesSlug &&
+      matchesTag &&
+      matchesLocale &&
+      matchesTitle &&
+      matchesDescription &&
+      matchesDate &&
+      matchesPublic
+    );
+  });
 
   if (filteredPosts.length === 0) {
-    return null
+    return null;
   }
 
-  return filteredPosts
+  return filteredPosts;
 }
 
 export function getPainting(params: BaseParams) {
   const { slug, locale } = params;
 
   const painting = paintings.find(
-    (painting) => painting.slug.includes(slug ?? "") && painting.locale === (locale ?? Locale.EN)
-  )
+    (painting) =>
+      painting.slug.includes(slug ?? "") &&
+      painting.locale === (locale ?? Locale.EN),
+  );
 
   if (!painting) {
-    return null
+    return null;
   }
 
-  return painting
-}
-
-export function getPaintings(params?: PaintingParams) {
-  const { slug, tag, locale, title, author, year, style, country } = params ?? {};
-
-  const filteredPaintings = paintings.filter(painting => {
-    const matchesSlug = slug ? painting.slug.includes(slug) : true;
-    const matchesTag = tag ? painting.tags?.includes(tag) : true;
-    const matchesLocale = locale ? painting.locale === locale : true;
-    const matchesTitle = title ? painting.title.includes(title) : true;
-    const matchesAuthor = author ? painting.author === author : true;
-    const matchesYear = year ? painting.year === year : true;
-    const matchesStyle = style ? painting.style === style : true;
-    const matchesCountry = country ? painting.country === country : true;
-    return matchesSlug && matchesTag && matchesLocale && matchesTitle && matchesAuthor && matchesYear && matchesStyle && matchesCountry;
-  })
-
-  if (filteredPaintings.length === 0) {
-    return null
-  }
-
-  return filteredPaintings
+  return painting;
 }
 
 export function getPage(params?: PageParams) {
   const { slug, locale } = params ?? {};
 
-  const page = pages.find(page => {
+  const page = pages.find((page) => {
     const matchesSlug = slug ? page.slug.includes(slug) : true;
     const matchesLocale = locale ? page.locale === locale : true;
     return matchesSlug && matchesLocale;
-  })
+  });
 
   if (!page) {
-    return null
+    return null;
   }
 
-  return page
+  return page;
 }
 
-
-export function getContent(ids?: string[], type?: ContentType, locale?: Locale): ContentWithId<Content> {
+export function getContent(
+  ids?: string[],
+  type?: ContentType,
+  locale?: Locale,
+): ContentWithId<Content> {
   let everything = allDocuments;
 
   if (type) {
-    everything = everything.filter(document => (document as any).type === type);
+    everything = everything.filter((document) => document.type === type);
   }
 
   if (locale) {
-    everything = everything.filter(document => document.locale === locale);
+    everything = everything.filter((document) => document.locale === locale);
   }
 
   if (!ids || ids.length === 0) {
-    return [...everything.map(item => ({ ...item, _id: item._meta.path }))] as ContentWithId<Content>;
+    return [
+      ...everything.map((item) => ({ ...item, _id: item._meta.path })),
+    ] as ContentWithId<Content>;
   }
 
-  return [...everything.filter(item => ids.includes(item._meta.path)).map(item => ({ ...item, _id: item._meta.path }))] as ContentWithId<Content>;
+  return [
+    ...everything
+      .filter((item) => ids.includes(item._meta.path))
+      .map((item) => ({ ...item, _id: item._meta.path })),
+  ] as ContentWithId<Content>;
 }
-

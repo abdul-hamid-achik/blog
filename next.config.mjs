@@ -1,14 +1,13 @@
-import "./env.mjs"
+import "./env.mjs";
 
-import { withContentCollections } from "@content-collections/next"
-import withNextIntlPlugin from "next-intl/plugin"
+import { withContentCollections } from "@content-collections/next";
+import withNextIntlPlugin from "next-intl/plugin";
 
-const withNextIntl = withNextIntlPlugin("./i18n.ts")
+const withNextIntl = withNextIntlPlugin("./i18n.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     remotePatterns: [
       {
@@ -25,15 +24,15 @@ const nextConfig = {
       },
       ...(process.env.NODE_ENV !== "production"
         ? [
-          {
-            protocol: "http",
-            hostname: "localhost",
-          },
-        ]
+            {
+              protocol: "http",
+              hostname: "localhost",
+            },
+          ]
         : []),
     ],
   },
-  async headers() {
+  headers() {
     const securityHeaders = [
       {
         key: "X-Content-Type-Options",
@@ -61,20 +60,21 @@ const nextConfig = {
       },
       {
         key: "Content-Security-Policy",
-        value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://vercel.live https://va.vercel-scripts.com https://vitals.vercel-insights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';",
+        value:
+          "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://vercel.live https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://vercel.live https://va.vercel-scripts.com https://vitals.vercel-insights.com; frame-src https://embed.music.apple.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';",
       },
-    ]
+    ];
 
-    return [
+    return Promise.resolve([
       {
         source: "/(.*)",
         headers: securityHeaders,
       },
-      {
-        source: "/api/graphql",
-        headers: [
-          ...(process.env.NODE_ENV !== "production"
-            ? [
+      ...(process.env.NODE_ENV !== "production"
+        ? [
+            {
+              source: "/api/graphql",
+              headers: [
                 { key: "Access-Control-Allow-Credentials", value: "true" },
                 {
                   key: "Access-Control-Allow-Origin",
@@ -89,19 +89,12 @@ const nextConfig = {
                   value:
                     "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version",
                 },
-              ]
-            : []),
-        ],
-      },
-    ]
+              ],
+            },
+          ]
+        : []),
+    ]);
   },
-  webpack: (
-    config,
-    { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }
-  ) => {
-    config.plugins.push(new webpack.ContextReplacementPlugin(/keyv/))
-    return config
-  },
-}
+};
 
-export default withNextIntl(withContentCollections(nextConfig))
+export default withContentCollections(withNextIntl(nextConfig));

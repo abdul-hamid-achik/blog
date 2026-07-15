@@ -1,34 +1,53 @@
-import { ArticleJsonLd } from "@/components/json-ld"
-import { Mdx } from "@/components/mdx-components"
-import RelatedPosts from "@/components/related-posts"
-import { getPost } from "@/lib/data"
-import { getBaseURL } from "@/lib/utils"
-import { locales } from "@/navigation"
-import { allPosts } from "content-collections"
-import { DateTime } from "luxon"
-import { Metadata } from "next"
-import { unstable_setRequestLocale } from "next-intl/server"
-import { notFound } from "next/navigation"
+import { ArticleJsonLd } from "@/components/json-ld";
+import { Mdx } from "@/components/mdx-components";
+import RelatedPosts from "@/components/related-posts";
+import { getPost } from "@/lib/data";
+import { getLocalizedUrl, getOgImageUrl } from "@/lib/site-url";
+import { getBaseURL } from "@/lib/utils";
+import { Link, locales } from "@/navigation";
+import { allPosts } from "content-collections";
+import { DateTime } from "luxon";
+import { Metadata } from "next";
+import Image from "next/image";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { notFound } from "next/navigation";
 
 interface PostProps {
   params: Promise<{
-    slug: string
-    locale: string
-  }>
+    slug: string;
+    locale: string;
+  }>;
 }
 
 export async function generateMetadata({
   params,
 }: PostProps): Promise<Metadata> {
-  const { slug, locale } = await params
-  const post = getPost({ slug: decodeURIComponent(slug), locale })
+  const { slug, locale } = await params;
+  const post = getPost({ slug: decodeURIComponent(slug), locale });
 
   if (!post) {
-    return {}
+    return {};
   }
 
-  const baseUrl = getBaseURL()
-  const ogImage = `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}`
+  const baseUrl = getBaseURL();
+  const ogImage = getOgImageUrl(post.title, locale, baseUrl);
+  const availableTranslations = Object.fromEntries(
+    allPosts
+      .filter((candidate) => candidate.slugAsParams === post.slugAsParams)
+      .map((candidate) => [
+        candidate.locale,
+        getLocalizedUrl(
+          candidate.locale,
+          `/posts/${candidate.slugAsParams}`,
+          baseUrl,
+        ),
+      ]),
+  );
+  const canonicalUrl = getLocalizedUrl(
+    locale,
+    `/posts/${post.slugAsParams}`,
+    baseUrl,
+  );
 
   return {
     metadataBase: new URL(baseUrl),
@@ -36,12 +55,8 @@ export async function generateMetadata({
     description: post.description,
     keywords: post.tags?.join(", "),
     alternates: {
-      canonical: `${baseUrl}/${locale}/posts/${post.slugAsParams}`,
-      languages: {
-        en: `${baseUrl}/en/posts/${post.slugAsParams}`,
-        es: `${baseUrl}/es/posts/${post.slugAsParams}`,
-        ru: `${baseUrl}/ru/posts/${post.slugAsParams}`,
-      },
+      canonical: canonicalUrl,
+      languages: availableTranslations,
     },
     twitter: {
       card: "summary_large_image",
@@ -56,31 +71,38 @@ export async function generateMetadata({
       type: "article",
       images: [{ url: ogImage }],
       authors: ["Abdul Hamid Achik"],
-      url: `${baseUrl}/${locale}/posts/${post.slugAsParams}`,
+      url: canonicalUrl,
     },
-  }
+  };
 }
 
 export function generateStaticParams() {
   return allPosts.map((post) => ({
     slug: post.slugAsParams,
-    locale: post.locale
-  }))
+    locale: post.locale,
+  }));
 }
 
 export default async function PostPage({ params }: PostProps) {
-  const { slug, locale } = await params
+  const { slug, locale } = await params;
   const isValidLocale = locales.some((cur) => cur === locale);
 
   if (!isValidLocale) notFound();
 
-  unstable_setRequestLocale(locale);
+  setRequestLocale(locale);
 
-  const post = getPost({ slug: decodeURIComponent(slug), locale })
+  const t = await getTranslations({ locale, namespace: "Article" });
+  const post = getPost({ slug: decodeURIComponent(slug), locale });
 
   if (!post) {
-    notFound()
+    notFound();
   }
+
+  const formattedDate = post.date
+    ? DateTime.fromISO(post.date)
+        .setLocale(locale)
+        .toLocaleString(DateTime.DATE_MED)
+    : null;
 
   return (
     <>
@@ -93,30 +115,77 @@ export default async function PostPage({ params }: PostProps) {
         locale={locale}
         tags={post.tags}
       />
-      <article className="prose dark:prose-invert py-6">
-        <h1 className="mb-2 text-xl md:text-4xl">{post.title}</h1>
-        <div className="flex items-center">
-          {post.date && (
-            <>
-              <p className="text-sm">{DateTime.fromISO(post.date).toRelative()}</p>
-              <span className="mx-2">•</span>
-            </>
+      <article>
+        <header className="site-shell border-x border-border px-5 pt-16 sm:px-8 lg:px-12 lg:pt-24">
+          <div className="mx-auto max-w-5xl text-center">
+            <p className="eyebrow">
+              {t("essay")} / {locale.toUpperCase()}
+            </p>
+            <h1 className="mt-7 text-balance text-4xl font-semibold leading-[0.98] tracking-[-0.055em] sm:text-5xl lg:text-7xl">
+              {post.title}
+            </h1>
+            {post.description && (
+              <p className="mx-auto mt-7 max-w-3xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+                {post.description}
+              </p>
+            )}
+
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 font-mono text-[0.64rem] uppercase tracking-[0.12em] text-muted-foreground">
+              {formattedDate && (
+                <time dateTime={post.date || undefined}>{formattedDate}</time>
+              )}
+              {formattedDate && <span className="text-border">/</span>}
+              <span>{post.readingTime.text}</span>
+              <span className="text-border">/</span>
+              <span>Abdul Hamid Achik</span>
+            </div>
+          </div>
+
+          {post.image && (
+            <div className="relative mt-12 aspect-[16/8.5] min-h-64 overflow-hidden border-y border-border bg-secondary sm:mt-16">
+              <Image
+                src={post.image}
+                alt=""
+                fill
+                priority
+                sizes="(min-width: 1440px) 1280px, 100vw"
+                className="object-cover"
+              />
+            </div>
           )}
-          <p className="text-sm">{post.readingTime.text}</p>
+        </header>
+
+        <div className="reading-shell pt-12 sm:pt-16">
+          <div className="prose dark:prose-invert">
+            <Mdx code={post.mdx} />
+          </div>
+
+          {post.tags && post.tags.length > 0 && (
+            <div className="mt-14 border-y border-border py-6">
+              <p className="font-mono text-[0.62rem] uppercase tracking-[0.14em] text-muted-foreground">
+                {t("filedUnder")}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {post.tags.map((tag) => (
+                  <Link
+                    key={tag}
+                    href={`/tags/${encodeURIComponent(tag)}`}
+                    className="border border-border bg-card px-2 py-1 font-mono text-[0.6rem] uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                  >
+                    {tag}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <RelatedPosts
+            currentSlug={post.slugAsParams}
+            locale={locale}
+            tags={post.tags}
+          />
         </div>
-        {post.description && (
-          <p className="text-md mt-0 text-muted-foreground md:text-xl">
-            {post.description}
-          </p>
-        )}
-        <hr className="my-4" />
-        <Mdx code={post.mdx} />
-        <RelatedPosts
-          currentSlug={post.slugAsParams}
-          locale={locale}
-          tags={post.tags}
-        />
       </article>
     </>
-  )
+  );
 }

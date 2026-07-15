@@ -1,0 +1,44 @@
+version: 1
+name: landing_ru_desktop
+intent: the Russian landing page renders its localized desktop shell without
+  fallback English or layout regressions
+backend: agent-browser
+coldStart: guest
+viewport: { width: 1440, height: 900 }
+metadata: { feature: landing, priority: high, tags: [i18n, desktop] }
+
+outcomes:
+  - id: russian_hero_visible
+    description: the Russian hero heading is rendered
+    verify:
+      text: { contains: "Инструменты для агентов. Эссе для людей." }
+  - id: russian_document_language
+    description: the document declares Russian
+    verify:
+      count: { selector: 'html[lang="ru"]', equals: 1 }
+  - id: russian_home_is_current
+    description: the Russian desktop navigation marks Главная as current
+    verify:
+      count:
+        selector: 'nav[aria-label="Основная навигация"] a[aria-current="page"]'
+        equals: 1
+  - id: russian_layout_has_no_horizontal_overflow
+    description: the page fits the desktop viewport
+    verify:
+      script:
+        run: |
+          const overflow = Math.max(
+            document.body.scrollWidth,
+            document.documentElement.scrollWidth
+          ) - document.documentElement.clientWidth;
+          return { ok: overflow <= 1, evidence: { overflow } };
+  - id: russian_landing_has_no_console_errors
+    description: the page produces no browser console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open: { path: /ru, waitUntil: networkidle, timeoutMs: 30000 }
+  - wait: { text: "Инструменты для агентов. Эссе для людей.", timeoutMs: 10000 }
+  - snapshot: { interactive: true, label: russian_landing }
+contractHash: sha256:aa1a7fb9c0951b68a86ab840668801d519edd4c547943a79fa215370e6853439

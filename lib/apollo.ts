@@ -1,16 +1,14 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client"
-import { BatchHttpLink } from "@apollo/client/link/batch-http"
-import { getBaseURL } from "./utils"
+import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { BatchHttpLink } from "@apollo/client/link/batch-http";
 
-export const uri = `${getBaseURL()}/api/graphql`
-
-const link = new BatchHttpLink({
-  uri,
-  batchMax: 5,
-  batchInterval: 20,
-})
-
-export const client = new ApolloClient({
-  cache: new InMemoryCache(),
-  link,
-})
+export function createApolloClient(locale: string) {
+  return new ApolloClient({
+    cache: new InMemoryCache(),
+    link: new BatchHttpLink({
+      uri: "/api/graphql",
+      batchMax: 5,
+      batchInterval: 20,
+      headers: { locale },
+    }),
+  });
+}

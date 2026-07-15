@@ -1,0 +1,57 @@
+version: 1
+name: concierge_unauthorized_ru
+intent: a Russian unauthorized concierge response becomes a localized,
+  accessible email-verification interface
+backend: agent-browser
+coldStart: guest
+viewport: { width: 1440, height: 900 }
+metadata: { feature: concierge, priority: critical, tags: [i18n, auth, a11y] }
+artifacts:
+  capture:
+    screenshots: always
+    snapshots: always
+    trace: on-failure
+
+outcomes:
+  - id: verification_prompt_is_localized
+    description: the Russian verification-required state is visible
+    verify:
+      text: { contains: "Нужно подтверждение" }
+  - id: verification_form_is_usable
+    description: the auth state exposes one labeled email field and one submit control
+    verify:
+      script:
+        run: |
+          const dialog = document.querySelector('[role="dialog"]');
+          const email = dialog?.querySelector('input[type="email"]');
+          const label = email ? document.querySelector(`label[for="${email.id}"]`) : null;
+          const submit = dialog?.querySelector('form button[type="submit"]');
+          return {
+            ok: Boolean(email && label?.textContent?.includes("Электронная почта") && submit),
+            evidence: {
+              emailLabel: label?.textContent?.trim() ?? null,
+              submitText: submit?.textContent?.trim() ?? null
+            }
+          };
+  - id: russian_auth_has_no_blocking_wcag_issues
+    description:
+      the localized verification interface has no serious or critical A
+      or AA violations
+    verify:
+      script: { runtime: browser, file: ../verifiers/axe-wcag.js }
+  - id: unauthorized_path_has_no_console_errors
+    description: handling a controlled 401 response produces no console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open: { path: /ru, waitUntil: networkidle, timeoutMs: 30000 }
+  - click: { by: role, role: button, name: "Открыть консьержа" }
+  - fill:
+      by: label
+      name: Сообщение консьержу
+      value: Посоветуйте эссе
+  - press: Enter
+  - wait: { text: "Нужно подтверждение", timeoutMs: 10000 }
+  - snapshot: { interactive: true, label: russian_verification_prompt }
+contractHash: sha256:2911828bb10c3eccc28826b023709867ca5c8bb27d223edee44e84cd642f3e08

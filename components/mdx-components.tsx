@@ -1,46 +1,74 @@
-"use client"
+import { Link } from "@/navigation";
+import { useMDXComponent } from "@content-collections/mdx/react";
+import Image from "next/image";
+import type { ComponentProps } from "react";
+import {
+  EmbeddedTweet,
+  PostsOverTimeChart,
+  ReadingTimeDistributionChart,
+  TopArtistsChart,
+  TopTagsChart,
+  TopTracksChart,
+} from "./mdx-widgets";
+import Embed from "./embed";
 
-import { Link } from "@/navigation"
-import { useMDXComponent } from "@content-collections/mdx/react"
-import Image from "next/image"
-import { Tweet } from 'react-tweet'
-import dynamic from 'next/dynamic'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useMounted } from "@/hooks/use-mounted"
+type MdxImageProps = ComponentProps<typeof Image> & {
+  caption?: string;
+};
 
-const PostsOverTime = dynamic(() => import('./charts').then(m => m.PostsOverTime), { ssr: false })
-const ReadingTimeDistribution = dynamic(() => import('./charts').then(m => m.ReadingTimeDistribution), { ssr: false })
-const TopArtists = dynamic(() => import('./charts').then(m => m.TopArtists), { ssr: false })
-const TopTags = dynamic(() => import('./charts').then(m => m.TopTags), { ssr: false })
-const TopTracks = dynamic(() => import('./charts').then(m => m.TopTracks), { ssr: false })
-import Embed from "./embed"
+type MdxAnchorProps = ComponentProps<"a">;
 
+function MdxAnchor({ href, children, ...props }: MdxAnchorProps) {
+  if (href?.startsWith("/") && !href.startsWith("//")) {
+    return (
+      <Link href={href} {...props}>
+        {children}
+      </Link>
+    );
+  }
+
+  return (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  );
+}
+
+function MdxImage({ caption, alt, ...props }: MdxImageProps) {
+  return (
+    <figure>
+      <Image alt={alt} {...props} />
+      {caption && (
+        <figcaption className="mt-3 text-center font-mono text-xs text-muted-foreground">
+          {caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
 
 const components = {
-  TopArtistsChart: TopArtists,
-  TopTagsChart: TopTags,
-  TopTracksChart: TopTracks,
-  PostsOverTimeChart: PostsOverTime,
-  ReadingTimeDistributionChart: ReadingTimeDistribution,
+  TopArtistsChart,
+  TopTagsChart,
+  TopTracksChart,
+  PostsOverTimeChart,
+  ReadingTimeDistributionChart,
   Embed,
-  Image,
+  Image: MdxImage,
+  a: MdxAnchor,
   Link,
-  Tweet: ({ id }: { id: string }) => <div className="flex w-full justify-center">
-    <Tweet id={id} />
-  </div>
-} as const
+  Tweet: ({ id }: { id: string }) => (
+    <div className="not-prose flex w-full justify-center py-6">
+      <EmbeddedTweet id={id} />
+    </div>
+  ),
+} as const;
 
 interface MdxProps {
-  code: string
+  code: string;
 }
 
 export function Mdx({ code }: MdxProps) {
-  const Component = useMDXComponent(code)
-  const mounted = useMounted()
-
-  if (!mounted) {
-    return null
-  }
-
-  return <Component components={components} />
+  const Component = useMDXComponent(code);
+  return <Component components={components} />;
 }

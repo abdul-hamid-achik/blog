@@ -1,0 +1,60 @@
+name: Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-and-coverage:
+    name: Unit tests and coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+      - run: bun install --frozen-lockfile
+      - run: bun run check
+      - run: bun run build
+        env:
+          SKIP_ENV_VALIDATION: "1"
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+      - uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() }}
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
+
+  browser-tests:
+    name: Cairntrace UI tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.11
+      - run: bun install --frozen-lockfile
+      - name: Install Cairntrace v1.37.0
+        run: |
+          git clone --depth 1 --branch v1.37.0 https://github.com/abdul-hamid-achik/cairntrace.git "$RUNNER_TEMP/cairntrace"
+          bun install --cwd "$RUNNER_TEMP/cairntrace" --frozen-lockfile
+          echo "$RUNNER_TEMP/cairntrace/bin" >> "$GITHUB_PATH"
+      - name: Install agent-browser and Chromium
+        run: bunx agent-browser install --with-deps
+      - run: bun run test:e2e:config
+      - run: bun run test:e2e
+        env:
+          CI: "1"
+      - uses: actions/upload-artifact@v5
+        if: ${{ !cancelled() }}
+        with:
+          name: cairntrace-report
+          path: test-results/cairn/
+          retention-days: 14

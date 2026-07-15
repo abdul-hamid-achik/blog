@@ -1,18 +1,244 @@
 {
   "Home": "Inicio",
   "About": "Acerca",
-  "Insights": "Graficas",
+  "Insights": "Análisis",
+  "Essays": "Ensayos",
   "Contact": "Contacto",
   "Paintings": "Pinturas",
-  "Uh oh! Not Found": "Uh oh! No encontrado",
-  "This blog post could not be found": "Este blog post no se pudo encontrar",
-  "This tag could not be found": "Esta etiqueta no se pudo encontrar",
-  "This painting could not be found": "Esta pintura no se pudo encontrar",
+  "Uh oh! Not Found": "Vaya, aquí no hay nada",
+  "This blog post could not be found": "No se encontró este ensayo",
+  "This tag could not be found": "No se encontró esta etiqueta",
+  "This painting could not be found": "No se encontró esta pintura",
   "Page could not be found": "Página no encontrada",
   "Go to the main page": "Ir a la página principal",
-  "No results were found but dont worry its not your fault": "No se encontraron resultados, pero no te preocupes, no es tu culpa",
+  "No results were found but dont worry its not your fault": "No se encontraron resultados. Prueba con otra búsqueda.",
   "Music": "Música",
-  "Related Posts": "Artículos relacionados",
+  "Related Posts": "Ensayos relacionados",
   "Projects": "Proyectos",
-  "Skip to main content": "Saltar al contenido principal"
+  "Skip to main content": "Saltar al contenido principal",
+  "Search": "Buscar",
+  "Search the archive": "Buscar en el archivo",
+  "Navigation": {
+    "brandSubtitle": "Software / escritura",
+    "homeLabel": "Abdul Hamid Achik — inicio",
+    "primaryLabel": "Navegación principal",
+    "mobileLabel": "Navegación móvil",
+    "changeLanguage": "Cambiar idioma",
+    "selectLanguage": "Seleccionar un idioma",
+    "toggleTheme": "Cambiar el tema de color"
+  },
+  "SearchDialog": {
+    "title": "Buscar",
+    "description": "Busca entre proyectos, ensayos, pinturas y páginas. Escribe para filtrar el archivo.",
+    "close": "Cerrar la búsqueda",
+    "loading": "Cargando el índice de búsqueda…",
+    "groups": {
+      "Writing": "Escritura",
+      "Page": "Páginas",
+      "Painting": "Pinturas",
+      "Project": "Proyectos"
+    }
+  },
+  "Footer": {
+    "statement": "Construyo herramientas serias para el trabajo con agentes. Escribo sobre todo aquello que se resiste a convertirse en herramienta.",
+    "index": "Índice",
+    "selectedSystems": "Sistemas seleccionados"
+  },
+  "ProjectsPage": {
+    "metadataTitle": "Proyectos y sistemas",
+    "metadataDescription": "Sistemas nativos para agentes, herramientas de desarrollo locales, productos y trabajo de código abierto de Abdul Hamid Achik.",
+    "metadataKeywords": "Abdul Hamid Achik, proyectos, código abierto, herramientas para agentes, MCP, Cortex, Cairntrace, Glyphrun, TinyVault, MCPHub, Bob, herramientas CLI, Go",
+    "kicker": "Portafolio / sistemas activos",
+    "title": "Sistemas independientes, no demos aisladas.",
+    "description": "Un catálogo vivo de infraestructura para agentes, herramientas de línea de comandos con prioridad local, experimentos de producto, bibliotecas y editores. El trabajo más reciente forma un sistema de evidencia conectado: desde la creación de repositorios hasta la verificación en navegador y terminal.",
+    "browseRepositories": "Ver todos los repositorios",
+    "stats": {
+      "projects": "Proyectos y herramientas",
+      "mcp": "Nativos de MCP",
+      "sites": "Sitios activos",
+      "types": "Tipos de proyecto"
+    },
+    "selectedKicker": "Sistema actual",
+    "selectedTitle": "Selección de sistemas nativos para agentes",
+    "selectedDescription": "Cinco herramientas independientes que conectan planificación, contexto y evidencia de comportamiento.",
+    "searchLabel": "Buscar en el directorio de proyectos",
+    "searchPlaceholder": "Prueba MCP, Go, navegador, secretos…",
+    "filterLabel": "Filtrar proyectos",
+    "directoryTitle": "Directorio de proyectos",
+    "shown": "{count, plural, =1 {# resultado} other {# resultados}}",
+    "empty": "Ningún proyecto coincide con esa combinación.",
+    "reset": "Restablecer el directorio",
+    "source": "Código fuente",
+    "filters": {
+      "all": "Todo",
+      "cli": "Línea de comandos",
+      "product": "Productos",
+      "library": "Bibliotecas",
+      "neovim-plugin": "Neovim"
+    },
+    "categories": {
+      "cli": "Línea de comandos",
+      "product": "Producto",
+      "library": "Biblioteca",
+      "neovim-plugin": "Neovim"
+    }
+  },
+  "Article": {
+    "essay": "Ensayo",
+    "filedUnder": "Archivado en",
+    "keepReading": "Seguir leyendo",
+    "relatedPosts": "Ensayos relacionados",
+    "onThisPage": "En esta página"
+  },
+  "Archive": {
+    "kicker": "Archivo",
+    "tagKicker": "Etiqueta del archivo",
+    "postCount": "{count, plural, =1 {# ensayo} other {# ensayos}}",
+    "tagMetadataDescription": "Ensayos etiquetados con {tag}"
+  },
+  "PaintingPage": {
+    "kicker": "Pintura",
+    "artist": "Artista",
+    "country": "País",
+    "year": "Año"
+  },
+  "NotFound": {
+    "title": "Aquí no hay nada",
+    "page": "No pudimos encontrar esta página.",
+    "post": "No pudimos encontrar este ensayo.",
+    "tag": "No pudimos encontrar esta etiqueta del archivo.",
+    "painting": "No pudimos encontrar esta pintura.",
+    "home": "Volver al inicio"
+  },
+  "Chat": {
+    "title": "Conserje",
+    "personaName": "Sr. Smerdiakov",
+    "status": "Guía del archivo · Con contexto",
+    "welcome": "Estás hablando con el señor Smerdiakov, el personaje de Dostoievski. Supongo que tienes preguntas sobre este archivo. ¿De qué te gustaría hablar?",
+    "open": "Abrir el conserje",
+    "bubbleLabel": "Preguntar al archivo",
+    "clear": "Borrar",
+    "clearLabel": "Borrar la conversación",
+    "closeLabel": "Cerrar la conversación",
+    "placeholder": "Pregunta sobre el archivo…",
+    "inputLabel": "Mensaje para el conserje",
+    "send": "Enviar mensaje",
+    "inputHint": "Enter para enviar · Mayús+Enter para una nueva línea",
+    "charactersLeft": "{count, plural, =1 {Queda # carácter} other {Quedan # caracteres}}",
+    "disclaimer": "Las respuestas se generan a partir del archivo y pueden contener errores.",
+    "empty": "Pregúntame lo que quieras sobre este archivo.",
+    "suggestionsLabel": "Preguntas sugeridas",
+    "suggestionStart": "¿Por dónde debería empezar?",
+    "suggestionProjects": "¿Qué estás construyendo ahora?",
+    "suggestionEssay": "Recomiéndame un ensayo.",
+    "thinking": "Pensando…",
+    "jumpLatest": "Último mensaje",
+    "error": "Lo siento, algo salió mal. Inténtalo de nuevo.",
+    "authRequired": "Verificación necesaria",
+    "tokensUsed": "Tokens usados: {count}",
+    "blockedImage": "[Imagen{description}]",
+    "imageAlt": "Imagen",
+    "pageLink": "Página",
+    "authTitle": "Verificación por correo necesaria",
+    "authDescription": "Ya usaste los {count} mensajes gratuitos. Introduce tu correo para continuar la conversación.",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "Correo electrónico",
+    "sendLink": "Enviar enlace de verificación",
+    "sending": "Enviando…",
+    "authSuccessTitle": "Revisa tu correo",
+    "authSuccessDescription": "Te enviamos un enlace de acceso. Ábrelo para continuar la conversación.",
+    "authError": "No pudimos enviar el correo de verificación. Inténtalo de nuevo."
+  },
+  "ErrorPage": {
+    "title": "Algo interrumpió la página",
+    "description": "La página no pudo terminar de cargar. Puedes intentarlo de nuevo o volver al inicio.",
+    "retry": "Intentar de nuevo",
+    "home": "Volver al inicio"
+  },
+  "ArticleLoading": {
+    "status": "Cargando la página"
+  },
+  "EssaysPage": {
+    "kicker": "Archivo de escritura",
+    "title": "Ensayos, notas y argumentos aún abiertos.",
+    "description": "Textos largos sobre software, literatura, psicoanálisis, pintura, política, exilio y el inconsciente, en inglés, español y ruso.",
+    "count": "{count, plural, =1 {# ensayo} other {# ensayos}}",
+    "searchLabel": "Buscar en el archivo de escritura",
+    "searchPlaceholder": "Buscar por título, idea o etiqueta…",
+    "empty": "Ningún ensayo coincide con esta búsqueda."
+  },
+  "Charts": {
+    "unavailable": "Este gráfico no está disponible temporalmente.",
+    "loading": "Cargando datos del gráfico…",
+    "empty": "Aún no hay datos disponibles.",
+    "postsOverTime": "Ensayos publicados a lo largo del tiempo",
+    "readingTime": "Distribución del tiempo de lectura de los ensayos",
+    "topArtists": "Artistas más escuchados",
+    "topTags": "Etiquetas musicales más usadas",
+    "topTracks": "Canciones más escuchadas",
+    "posts": "Ensayos publicados",
+    "peak": "Mes con más publicaciones",
+    "mostCommon": "Grupo más frecuente",
+    "scrobbles": "Escuchas",
+    "plays": "Reproducciones",
+    "uses": "Apariciones",
+    "leader": "Primera posición",
+    "minuteRange": "{start}–{end} min",
+    "minutesOrMore": "{count}+ min"
+  },
+  "HomePage": {
+    "kicker": "Taller de software independiente · Guadalajara",
+    "title": "Herramientas para agentes. Ensayos para humanos.",
+    "description": "Construyo sistemas locales que hacen a los agentes de software más capaces, observables y responsables. También escribo sobre literatura, psicoanálisis, pintura, política y aquello que ninguna herramienta puede resolver.",
+    "authVerified": "Tu correo está verificado. El conserje está listo para continuar la conversación.",
+    "authInvalidToken": "Este enlace de verificación no es válido o ha caducado. Solicita uno nuevo al conserje.",
+    "authVerificationFailed": "No pudimos verificar ese enlace. Solicita uno nuevo al conserje.",
+    "dismissNotice": "Cerrar notificación",
+    "primaryCta": "Explorar el taller",
+    "secondaryCta": "Leer el cuaderno",
+    "projectsLabel": "Proyectos y herramientas",
+    "languagesLabel": "Idiomas de escritura",
+    "principleLabel": "Principio",
+    "principleValue": "Local primero",
+    "workshopIndex": "Grafo de trabajo actual",
+    "active": "Activo",
+    "workshopFooter": "{shown} destacados aquí · {count} sitios activos abajo",
+    "deployedKicker": "Directorio activo",
+    "deployedTitle": "El taller va mucho más allá de la selección destacada.",
+    "deployedDescription": "El índice inicial muestra una cadena de herramientas activa. Este es el mapa completo de despliegues públicos: infraestructura para agentes, herramientas de desarrollo, productos, bibliotecas y experimentos que ya puedes usar.",
+    "deployedCount": "{count, plural, =1 {# sitio activo} other {# sitios activos}}",
+    "visitProject": "Visitar {name}",
+    "systemKicker": "Una práctica conectada",
+    "systemTitle": "Una cadena de herramientas para trabajo que debe probarse.",
+    "systemDescription": "Los proyectos están pensados como un sistema: encuadrar el trabajo, coordinar el contexto, verificar el comportamiento y hacer legible la ejecución. Cada herramienta funciona sola; juntas cierran el ciclo de evidencia.",
+    "steps": {
+      "frame": {
+        "title": "Encuadrar el trabajo",
+        "description": "Convertir un pequeño contrato de producto en una base determinista, revisable y con propiedad explícita."
+      },
+      "coordinate": {
+        "title": "Coordinar el contexto",
+        "description": "Mantener objetivos, evidencia, memoria e infraestructura MCP coherentes durante sesiones largas de agentes."
+      },
+      "verify": {
+        "title": "Verificar el comportamiento",
+        "description": "Ejecutar contratos de comportamiento en navegadores y terminales reales, conservando toda la evidencia."
+      },
+      "operate": {
+        "title": "Operar en local",
+        "description": "Observar la máquina, proteger secretos, conservar artefactos y ejecutar agentes sin entregar todo el flujo a un servicio en la nube."
+      }
+    },
+    "writingKicker": "Últimos textos",
+    "writingTitle": "La otra mitad del trabajo.",
+    "writingDescription": "Notas largas donde el software cede el paso al arte, el lenguaje, la política, el exilio y el inconsciente. Escritas en inglés, español y ruso.",
+    "allWriting": "Entrar al archivo de ensayos",
+    "essay": "Ensayo",
+    "latest": "Último ensayo",
+    "emptyWriting": "El próximo ensayo todavía está tomando forma.",
+    "aboutKicker": "Sobre esta práctica",
+    "aboutTitle": "El software necesita evidencia. La escritura necesita presión.",
+    "aboutDescription": "Soy desarrollador y escritor radicado en Guadalajara. El trabajo de software se ocupa de sistemas durables para agentes; el archivo sigue la literatura, el psicoanálisis, la pintura y la vida política allí donde tocan el mismo nervio.",
+    "aboutCta": "Leer la nota completa"
+  }
 }

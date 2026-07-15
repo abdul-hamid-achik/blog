@@ -5,9 +5,9 @@ import { env } from "./env.mjs";
 export default {
   schema: "./db/schema.ts",
   out: "./db/migrations",
-  dialect: 'postgresql',
+  dialect: "postgresql",
   dbCredentials: {
     url: env.DATABASE_URL,
   },
-  verbose: !isProduction
+  verbose: !isProduction,
 } satisfies Config;

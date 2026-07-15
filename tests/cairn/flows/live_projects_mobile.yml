@@ -1,0 +1,68 @@
+version: 1
+name: live_projects_mobile
+intent: the public deployment directory exposes the complete live tool map and
+  its key deployed domains on mobile
+backend: agent-browser
+coldStart: guest
+viewport: { width: 390, height: 844 }
+metadata: { feature: projects, priority: critical, tags: [links, mobile] }
+artifacts:
+  capture:
+    screenshots: always
+    snapshots: always
+    trace: on-failure
+
+outcomes:
+  - id: complete_live_directory
+    description: the landing directory exposes all twenty public live-site links
+    verify:
+      count:
+        selector: '#live-projects a[target="_blank"]'
+        equals: 20
+  - id: requested_deployments_are_linked
+    description:
+      local-agent, Blueprint, tinyvault, file.cheap, monitor, and hitspec
+      point to their deployed domains
+    verify:
+      script:
+        run: |
+          const expected = {
+            "Visit local-agent": "https://local-agent.dev",
+            "Visit Blueprint": "https://blueprint-lang.dev",
+            "Visit tinyvault": "https://tinyvault.dev",
+            "Visit file.cheap": "https://file.cheap",
+            "Visit monitor": "https://monitorcli.dev",
+            "Visit hitspec": "https://hitspec.dev"
+          };
+          const actual = Object.fromEntries(
+            Object.keys(expected).map((label) => {
+              const link = document.querySelector(
+                `#live-projects a[aria-label="${label}"]`
+              );
+              return [label, link?.getAttribute("href") ?? null];
+            })
+          );
+          const ok = Object.entries(expected).every(
+            ([label, href]) => actual[label] === href
+          );
+          return { ok, evidence: { expected, actual } };
+  - id: live_directory_has_no_horizontal_overflow
+    description: the live-project cards fit the mobile viewport
+    verify:
+      script:
+        run: |
+          const overflow = Math.max(
+            document.body.scrollWidth,
+            document.documentElement.scrollWidth
+          ) - document.documentElement.clientWidth;
+          return { ok: overflow <= 1, evidence: { overflow } };
+  - id: live_directory_has_no_console_errors
+    description: rendering the deployment map produces no console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open: { path: /#live-projects, waitUntil: networkidle, timeoutMs: 30000 }
+  - wait: { selector: "#live-projects", timeoutMs: 10000 }
+  - snapshot: { interactive: true, label: live_projects_mobile }
+contractHash: sha256:906f57b1baea4446282ea54cf013ed07ac6752443088b44342d038c80255f3c1

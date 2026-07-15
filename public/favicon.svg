@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Abdul Hamid">
+  <rect width="64" height="64" fill="#20211f" />
+  <path
+    fill="#f3f0e8"
+    fill-rule="evenodd"
+    d="M7 54 27 10h10l20 44H44.5l-4.2-10H23.7l-4.2 10H7Zm21-20h8l-4-10-4 10Z"
+  />
+  <path fill="#e58463" d="M20.5 36h23v8h-23z" />
+</svg>

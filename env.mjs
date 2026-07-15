@@ -1,8 +1,12 @@
-import { createEnv } from "@t3-oss/env-nextjs"
-import { z } from "zod"
+import { createEnv } from "@t3-oss/env-nextjs";
+import { z } from "zod";
 
 export const env = createEnv({
+  skipValidation: process.env.SKIP_ENV_VALIDATION === "1",
   server: {
+    AI_GATEWAY_API_KEY: z.string().min(1).optional(),
+    VERCEL_OIDC_TOKEN: z.string().min(1).optional(),
+    OPENAI_API_KEY: z.string().min(1).optional(),
     OPEN_AI_API_KEY: z.string().min(1).optional(),
     APOLLO_KEY: z.string(),
     APOLLO_GRAPH_REF: z.string(),
@@ -20,11 +24,15 @@ export const env = createEnv({
     POSTGRES_PASSWORD: z.string(),
     EDGE_CONFIG: z.string().optional(),
     RESEND_API_KEY: z.string().min(1),
+    SITE_OWNER_EMAIL: z.string().email().optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().url(),
   },
   runtimeEnv: {
+    AI_GATEWAY_API_KEY: process.env.AI_GATEWAY_API_KEY,
+    VERCEL_OIDC_TOKEN: process.env.VERCEL_OIDC_TOKEN,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     OPEN_AI_API_KEY: process.env.OPEN_AI_API_KEY,
     APOLLO_KEY: process.env.APOLLO_KEY,
     APOLLO_GRAPH_REF: process.env.APOLLO_GRAPH_REF,
@@ -42,6 +50,7 @@ export const env = createEnv({
     POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD,
     EDGE_CONFIG: process.env.EDGE_CONFIG,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
+    SITE_OWNER_EMAIL: process.env.SITE_OWNER_EMAIL,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
-})
+});

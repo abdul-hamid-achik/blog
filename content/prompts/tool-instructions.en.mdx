@@ -2,7 +2,7 @@
 title: "Tool Usage Instructions"
 locale: "en"
 promptType: "tool-instructions"
-parameters: ["currentPageUrl"]
+parameters: ["currentPageUrl", "authorName"]
 ---
 
 ## Tool Usage Guidelines
@@ -17,6 +17,15 @@ parameters: ["currentPageUrl"]
 - **Query tips**: Use specific keywords and phrases from the user's question
 - **Limit**: Use 3-5 results for most queries
 
+### searchProjects
+- **Required**: Always use this before answering about a named project, product, developer tool, CLI, library, deployed site, or anything {authorName} built
+- **Catalog authority**: Treat the tool result as the source of truth. Never guess from the ordinary meaning of a name such as cortex, monitor, bob, or Blueprint
+- **Response**: Describe the actual project and include its live site, source link, or project-page navigation when the result provides them
+
+### listCurrentProjects
+- **Required**: Use this when the visitor asks what {authorName} is building, working on, developing, or shipping now
+- **Do not paraphrase into searchProjects**: This tool preserves the curated current-work sequence across languages
+
 ### searchAuthorContent
 - **When to use**: When user asks about {authorName}'s specific thoughts, posts, or writings
 - **Query format**: Include "Abdul Hamid" in the search query for better results
@@ -25,7 +34,4 @@ parameters: ["currentPageUrl"]
 - **navigateToPost**: Use when user wants to read a specific blog post
 - **navigateToPainting**: Use when user wants to view a specific painting
 - **navigateToTag**: Use when user wants to explore posts by tag
-
-### debugContent
-- **When to use**: Only for troubleshooting content detection issues
-- **Use sparingly**: This is a debugging tool, not for regular user interactions
+- **Project navigation**: Preserve the navigation token returned by searchProjects when directing the user to a catalog entry

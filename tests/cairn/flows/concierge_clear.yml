@@ -1,0 +1,49 @@
+version: 1
+name: concierge_clear
+intent: clearing a completed concierge exchange removes its user and assistant
+  messages from both the dialog and session storage
+backend: agent-browser
+coldStart: guest
+viewport: { width: 1440, height: 900 }
+metadata: { feature: concierge, priority: high, tags: [persistence, clear] }
+
+outcomes:
+  - id: completed_exchange_is_removed
+    description: the deterministic answer is absent from the dialog and persisted messages
+    verify:
+      script:
+        run: |
+          const dialog = document.querySelector('[role="dialog"]');
+          const stored = sessionStorage.getItem("chat-messages-en") ?? "";
+          const answer = "A deterministic archive answer.";
+          return {
+            ok: !dialog?.textContent?.includes(answer) && !stored.includes(answer),
+            evidence: {
+              answerVisible: dialog?.textContent?.includes(answer) ?? false,
+              answerPersisted: stored.includes(answer)
+            }
+          };
+  - id: clear_control_disappears
+    description: no clear control remains when the conversation returns to its welcome state
+    verify:
+      count:
+        selector: 'button[aria-label="Clear conversation"]'
+        equals: 0
+  - id: concierge_clear_has_no_console_errors
+    description: streaming and clearing the exchange produce no console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open: { path: /, waitUntil: networkidle, timeoutMs: 30000 }
+  - click: { by: role, role: button, name: "Open the concierge" }
+  - fill:
+      by: label
+      name: Message the concierge
+      value: What are you building right now?
+  - press: Enter
+  - wait: { text: "A deterministic archive answer.", timeoutMs: 10000 }
+  - click: { by: role, role: button, name: "Clear conversation" }
+  - wait: { notText: "A deterministic archive answer.", timeoutMs: 10000 }
+  - snapshot: { interactive: true, label: cleared_concierge }
+contractHash: sha256:2adabae45f967cfb5412d6ecff2e0da71f0c56efd63b5b5b98ad9863e80f8b5d

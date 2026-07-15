@@ -1,0 +1,18 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "content-collections.ts",
+    "i18n.ts",
+    "scripts/**/*.{ts,mjs}",
+    "tests/cairn/**/*.{js,ts}"
+  ],
+  "project": ["**/*.{ts,tsx,js,mjs,cjs}", "!**/*.d.ts", "!.generated/**"],
+  "ignoreBinaries": ["cairn"],
+  "ignoreDependencies": [
+    "@tailwindcss/typography",
+    "axe-core",
+    "baseline-browser-mapping",
+    "tailwindcss",
+    "tw-animate-css"
+  ]
+}

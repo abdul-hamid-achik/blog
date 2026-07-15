@@ -1,16 +1,99 @@
 export interface Project {
-  name: string
-  description: string
-  longDescription: string
-  category: "product" | "cli" | "library" | "neovim-plugin"
-  tech: string[]
-  github?: string
-  website?: string
-  featured: boolean
-  features: string[]
+  name: string;
+  description: string;
+  longDescription: string;
+  category: "product" | "cli" | "library" | "neovim-plugin";
+  tech: string[];
+  github?: string;
+  website?: string;
+  featured: boolean;
+  stage?: string;
+  proof?: string;
+  features: string[];
+}
+
+export const flagshipProjectOrder = [
+  "cortex",
+  "bob",
+  "mcphub",
+  "cairntrace",
+  "glyphrun",
+  "tinyvault",
+  "monitor",
+  "file.cheap",
+  "local-agent",
+  "Blueprint",
+] as const;
+
+export function getProjectAnchor(name: string) {
+  const slug = name
+    .normalize("NFKD")
+    .toLocaleLowerCase("en")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+  return `project-${slug}`;
 }
 
 export const projects: Project[] = [
+  // Agent-native systems
+  {
+    name: "cortex",
+    description: "Evidence-guided agent kernel for long-running software work",
+    longDescription:
+      "A local-first control plane for software-engineering agents. Cortex preserves goals, evidence, bounded changes, verification results, and durable memory so long tool-using sessions stay inspectable and recoverable.",
+    category: "cli",
+    tech: ["Go", "MCP", "Bubble Tea", "Cobra", "VitePress"],
+    github: "https://github.com/abdul-hamid-achik/cortex",
+    website: "https://cortexai.tools",
+    featured: true,
+    stage: "v0.12.0",
+    proof: "17-tool compact MCP profile · 24-tool operator profile",
+    features: [
+      "Durable goals, task state, and structured memory",
+      "Evidence-backed verification and bounded changes",
+      "CLI, MCP server, and interactive Studio",
+      "Local-first operation with auditable artifacts",
+    ],
+  },
+  {
+    name: "bob",
+    description: "Deterministic repository factory for agent-native tools",
+    longDescription:
+      "Turns a small bob.yaml product contract into a reviewable repository plan, then applies only the files it can prove it owns. Bob is model-free, drift-aware, and designed to make generated foundations safe to review and maintain.",
+    category: "cli",
+    tech: ["Go", "YAML", "MCP", "Bubble Tea", "Cobra"],
+    github: "https://github.com/abdul-hamid-achik/bob",
+    website: "https://bobcli.dev",
+    featured: true,
+    stage: "Early alpha",
+    proof: "Atomic ownership checks · 6 typed MCP tools",
+    features: [
+      "Contract-first repository planning from bob.yaml",
+      "Atomic apply blocked by any ownership conflict",
+      "Drift detection for generated foundations in CI",
+      "Read-only Studio and typed MCP interface",
+    ],
+  },
+  {
+    name: "mcphub",
+    description: "One local gateway for every MCP server and agent harness",
+    longDescription:
+      "Define MCP servers once, expose their tools through a single namespaced gateway, and safely synchronize the same configuration into every supported coding-agent harness. Local usage intelligence makes the invisible tool layer observable.",
+    category: "cli",
+    tech: ["Go", "MCP", "SQLite", "Bubble Tea", "VitePress"],
+    github: "https://github.com/abdul-hamid-achik/mcphub",
+    website: "https://mcphubcli.dev",
+    featured: true,
+    stage: "Shipping",
+    proof: "12 agent harnesses · 7-tool lazy management surface",
+    features: [
+      "One source of truth for MCP server configuration",
+      "Namespaced gateway with lazy tool discovery",
+      "Safe synchronization across 12 agent harnesses",
+      "Local usage history, health, and diagnostics",
+    ],
+  },
   // Featured Products
   {
     name: "LinkGlow",
@@ -187,34 +270,40 @@ export const projects: Project[] = [
   },
   {
     name: "file.cheap",
-    description: "Local file processing CLI & MCP server",
+    description: "Local-first evidence stash for agent-generated files",
     longDescription:
-      "Process images, PDFs, and videos locally. Single binary, zero cloud dependencies. 14 MCP tools for AI-assisted file operations.",
+      "Save, restore, compress, index, search, and connect agent-generated files and folders back to code. A single local binary keeps bulky evidence addressable without turning repositories into artifact dumps.",
     category: "cli",
-    tech: ["Go", "MCP"],
+    tech: ["Go", "MCP", "SQLite", "Zstandard", "BM25"],
     github: "https://github.com/abdul-hamid-achik/file.cheap",
-    featured: false,
+    website: "https://file.cheap",
+    featured: true,
+    stage: "Shipping",
+    proof: "14 MCP tools · automatic compression above 10 MB",
     features: [
-      "Image resize, convert, watermark, optimize",
-      "PDF & video thumbnail generation",
-      "14 MCP tools, zero cloud dependencies",
+      "Content-addressed local stashes for files and folders",
+      "Compression, indexing, restoration, and evidence search",
+      "Links generated artifacts back to the code that produced them",
+      "Homebrew, Debian, and go install distribution",
     ],
   },
   {
     name: "tinyvault",
     description: "Local secrets management with AES-256-GCM and MCP",
     longDescription:
-      "Dead-simple local secrets manager for developers and AI agents. Single Go binary with AES-256-GCM encryption, Argon2id key derivation, versioned secrets with history and rollback, X25519 recipient sharing, .env.encrypted files safe to commit, git-filter transparent interpolation, local unix agent for passphrase-free daily use, relational search, interactive terminal studio, access policy YAML, and 21 MCP tools.",
+      "Dead-simple local secrets manager for developers and AI agents. Single Go binary with AES-256-GCM encryption, Argon2id key derivation, versioned secrets with history and rollback, X25519 recipient sharing, .env.encrypted files safe to commit, git-filter transparent interpolation, local unix agent for passphrase-free daily use, relational search, interactive terminal studio, access policy YAML, and 49 MCP tools.",
     category: "cli",
     tech: ["Go", "AES-256-GCM", "Argon2id", "bbolt", "MCP"],
     github: "https://github.com/abdul-hamid-achik/tinyvault",
     website: "https://tinyvault.dev",
     featured: true,
+    stage: "Shipping",
+    proof: "49 MCP tools · six OS/architecture release targets",
     features: [
       "AES-256-GCM + Argon2id with two-tier key hierarchy",
       "Versioned secrets, X25519 recipient sharing, git-filter integration",
       "Interactive terminal studio (Bubble Tea v2)",
-      "21 MCP tools with access policy YAML for AI agent permissions",
+      "49 MCP tools with access policy YAML for AI agent permissions",
     ],
   },
   {
@@ -244,6 +333,8 @@ export const projects: Project[] = [
     github: "https://github.com/abdul-hamid-achik/cairntrace",
     website: "https://cairntrace.dev",
     featured: true,
+    stage: "v1.37.0",
+    proof: "Browser evidence packs · locator-drift healing",
     features: [
       "YAML behavior specs with intent/outcome contracts",
       "DOM snapshots, screenshots, console, and network capture",
@@ -261,6 +352,8 @@ export const projects: Project[] = [
     github: "https://github.com/abdul-hamid-achik/glyphrun",
     website: "https://glyphrun.dev",
     featured: true,
+    stage: "v0.1 surface complete",
+    proof: "Unix PTY + Windows ConPTY · JUnit and BATS interchange",
     features: [
       "Black-box PTY execution — if it runs in a terminal, glyphrun can drive it",
       "YAML/JSON behavior specs with contract hashes and snapshots",
@@ -376,7 +469,8 @@ export const projects: Project[] = [
   },
   {
     name: "rosewood",
-    description: "Native macOS code editor in Swift and SwiftUI (docs coming soon)",
+    description:
+      "Native macOS code editor in Swift and SwiftUI (docs coming soon)",
     longDescription:
       "Lightweight native macOS code editor built with Swift and SwiftUI/AppKit. VS Code-like editing experience with multi-tab editing, syntax highlighting for 20+ languages, LSP integration, DAP debugger, project-wide search, command palette, git integration, code folding, minimap, and session persistence. Multiple themes including Nord, GitHub Light, and Dracula.",
     category: "product",
@@ -392,18 +486,21 @@ export const projects: Project[] = [
   },
   {
     name: "local-agent",
-    description: "Fully local AI coding agent for the terminal (docs coming soon)",
+    description: "Local-first terminal coding agent powered by Ollama",
     longDescription:
-      "100% local AI coding agent powered by Ollama and small models. Intelligent routing across Qwen 3.5 variants based on task complexity. Three modes: ASK, PLAN, BUILD. MCP native (STDIO, SSE, Streamable HTTP). Infinite Context Engine for cross-session vector retrieval. Auto-memory detection, thinking/CoT extraction, skills system, and agent profiles.",
+      "A terminal coding agent with approval-gated tools, MCP integrations, durable goals, expert consultation, and optional workspace-scoped memory. It runs against local Ollama models and keeps resumable sessions in SQLite.",
     category: "cli",
     tech: ["Go", "Ollama", "MCP", "Bubble Tea"],
     github: "https://github.com/abdul-hamid-achik/local-agent",
+    website: "https://local-agent.dev",
     featured: true,
+    stage: "Alpha",
+    proof: "NORMAL, PLAN, and AUTO modes · lossless SQLite resume",
     features: [
       "100% local — no API keys, no cloud, no data leaving your device",
-      "Intelligent model routing: 0.8B/2B/4B/9B based on task complexity",
-      "Infinite Context Engine for cross-session vector retrieval",
-      "MCP native with skills system and configurable agent profiles",
+      "Approval-gated tools and durable, resumable goals",
+      "STDIO, SSE, and Streamable HTTP MCP support",
+      "Read-only Team, Swarm, and MoE expert consultation",
     ],
   },
   {
@@ -424,18 +521,21 @@ export const projects: Project[] = [
   },
   {
     name: "monitor",
-    description: "Terminal system monitor for macOS (docs coming soon)",
+    description: "Agent-harnessable system monitor for macOS and Linux",
     longDescription:
-      "Beautiful terminal-based system monitor for macOS built with Go and the Charm ecosystem. Real-time CPU, memory, temperature, network, and process monitoring with sparkline charts, 7 tabbed views, mouse support, keyboard navigation, safe process killing with protected system processes, and Nord theme. Optimized for Apple Silicon.",
+      "The same real-time runtime data through a polished terminal UI, stable JSON commands, and an MCP server. Monitor covers CPU, memory, disks, network, sensors, services, containers, and processes on macOS and Linux.",
     category: "cli",
-    tech: ["Go", "Charm", "Bubble Tea", "gopsutil"],
+    tech: ["Go", "MCP", "Charm", "Bubble Tea", "gopsutil"],
     github: "https://github.com/abdul-hamid-achik/monitor",
-    featured: false,
+    website: "https://monitorcli.dev",
+    featured: true,
+    stage: "Shipping",
+    proof: "9 Studio tabs · 8 confirmation-aware MCP tools",
     features: [
-      "Real-time CPU, memory, temperature, network, and processes",
-      "7 tabbed views with mouse and keyboard navigation",
-      "Sparkline charts showing historical data",
-      "Safe process killing with protected system processes",
+      "Real-time system data in TUI, JSON, and MCP interfaces",
+      "Nine tabbed Studio views with historical sparklines",
+      "Four read-only and four confirmation-gated MCP mutations",
+      "Safe process control with protected system processes",
     ],
   },
   {
@@ -456,7 +556,8 @@ export const projects: Project[] = [
   },
   {
     name: "manuscrypt",
-    description: "AI-powered book writing platform for literary fiction (docs coming soon)",
+    description:
+      "AI-powered book writing platform for literary fiction (docs coming soon)",
     longDescription:
       "AI-powered book writing platform built with Nuxt 3. Context-aware writing assistant powered by Claude API with two model tiers, collaborative character and world-building tools, TipTap rich text editor, manuscript management with export, AI streaming via H3 EventStream, Drizzle ORM with SQLite, and Zod validation.",
     category: "product",
@@ -486,4 +587,4 @@ export const projects: Project[] = [
       "Core Haptics and CoreAudio Morse playback",
     ],
   },
-]
+];

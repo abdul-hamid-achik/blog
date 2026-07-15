@@ -1,0 +1,54 @@
+version: 1
+name: archive_search_empty_accessible
+intent: the keyboard search shortcut focuses a localized dialog whose empty
+  state remains accessible
+backend: agent-browser
+coldStart: guest
+viewport: { width: 390, height: 844 }
+metadata: { feature: search, priority: high, tags: [keyboard, mobile, a11y] }
+artifacts:
+  capture:
+    screenshots: always
+    snapshots: always
+    trace: on-failure
+
+outcomes:
+  - id: empty_search_message_visible
+    description: an unmatched query produces the localized empty-state message
+    verify:
+      text:
+        contains: "No results were found but don't worry it's not your fault"
+  - id: search_field_retains_focus
+    description: the archive search combobox remains focused for keyboard correction
+    verify:
+      script:
+        run: |
+          const search = document.querySelector(
+            '[role="dialog"] input[aria-label="Search the archive"]'
+          );
+          return {
+            ok: document.activeElement === search,
+            evidence: { focusedLabel: document.activeElement?.getAttribute("aria-label") }
+          };
+  - id: search_dialog_has_no_blocking_wcag_issues
+    description: the open search dialog has no serious or critical A or AA violations
+    verify:
+      script: { runtime: browser, file: ../verifiers/axe-wcag.js }
+  - id: empty_search_has_no_console_errors
+    description: the keyboard and empty-result path produces no console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open: { path: /, waitUntil: networkidle, timeoutMs: 30000 }
+  - press: "Control+k"
+  - wait: { selector: '[role="dialog"]', timeoutMs: 10000 }
+  - fill:
+      by: label
+      name: Search the archive
+      value: no-result-7f42a9
+  - wait:
+      text: "No results were found but don't worry it's not your fault"
+      timeoutMs: 10000
+  - snapshot: { interactive: true, label: empty_search_dialog }
+contractHash: sha256:6e1e16c3ddf6298121bd7002d3e26552993892908446df842025f250f4d350b9

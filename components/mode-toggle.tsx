@@ -1,19 +1,23 @@
-"use client"
+"use client";
 
-import { useTheme } from "next-themes"
-import { useMounted } from "@/hooks/use-mounted"
+import { useTheme } from "next-themes";
+import { useMounted } from "@/hooks/use-mounted";
+import { useTranslations } from "next-intl";
 
 export function ModeToggle() {
-  const { setTheme, theme } = useTheme()
-  const mounted = useMounted()
+  const { resolvedTheme, setTheme } = useTheme();
+  const mounted = useMounted();
+  const t = useTranslations("Navigation");
 
   return (
     <button
-      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className="border rounded-md w-8 h-8 md:w-6 md:h-6 flex items-center justify-center"
+      type="button"
+      onClick={() => setTheme(resolvedTheme === "light" ? "dark" : "light")}
+      className="flex h-9 w-9 items-center justify-center border border-border bg-card text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground active:scale-[0.98]"
+      aria-label={t("toggleTheme")}
     >
-      <span className="sr-only">Toggle mode</span>
-      {!mounted ? null : theme === "light" ? (
+      <span className="sr-only">{t("toggleTheme")}</span>
+      {!mounted ? null : resolvedTheme === "light" ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -45,5 +49,5 @@ export function ModeToggle() {
         </svg>
       )}
     </button>
-  )
+  );
 }

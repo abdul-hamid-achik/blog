@@ -1,0 +1,49 @@
+version: 1
+name: project_locale_deep_link
+intent: changing language preserves a project hash and keeps the referenced
+  project revealed and focused
+backend: agent-browser
+coldStart: guest
+viewport: { width: 1440, height: 900 }
+metadata: { feature: projects, priority: critical, tags: [i18n, routing] }
+
+outcomes:
+  - id: english_project_url_retains_hash
+    description: the English project route retains the cortex hash
+    verify:
+      url: { endsWith: "/projects#project-cortex" }
+  - id: resulting_document_is_english
+    description: the resulting document declares English
+    verify:
+      count: { selector: 'html[lang="en"]', equals: 1 }
+  - id: cortex_remains_revealed_and_focused
+    description: the cortex disclosure stays open and its summary receives focus
+    verify:
+      script:
+        run: |
+          const project = document.querySelector("#project-cortex");
+          const summary = project?.querySelector("summary");
+          return {
+            ok: Boolean(project?.open && document.activeElement === summary),
+            evidence: {
+              open: project?.open ?? false,
+              focused: document.activeElement === summary
+            }
+          };
+  - id: locale_change_has_no_console_errors
+    description: changing language produces no browser console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open:
+      path: /es/projects#project-cortex
+      waitUntil: networkidle
+      timeoutMs: 30000
+  - wait: { selector: "#project-cortex[open]", timeoutMs: 10000 }
+  - click: { by: role, role: combobox, name: "Cambiar idioma" }
+  - click: { by: role, role: option, name: "EN · English" }
+  - wait: { selector: 'html[lang="en"]', timeoutMs: 10000 }
+  - wait: { selector: "#project-cortex[open]", timeoutMs: 10000 }
+  - snapshot: { interactive: true, label: localized_project_deep_link }
+contractHash: sha256:449566feb892f0395e5dd939a6d2b1f3a1a9b896e5513eba78514529043f1360

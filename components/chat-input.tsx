@@ -1,81 +1,108 @@
-"use client"
+"use client";
 
-import { useState, KeyboardEvent, useRef, useEffect } from "react";
-import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Loader2, Send } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 
 interface ChatInputProps {
-    onSend: (message: string) => void;
-    disabled?: boolean;
-    placeholder?: string;
+  onSend: (message: string) => void;
+  disabled?: boolean;
+  placeholder?: string;
 }
+
+const MAX_CHARACTERS = 500;
 
 export function ChatInput({
-    onSend,
-    disabled = false,
-    placeholder = "Type a message..."
+  onSend,
+  disabled = false,
+  placeholder,
 }: ChatInputProps) {
-    const [message, setMessage] = useState("");
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const t = useTranslations("Chat");
+  const inputId = useId();
+  const hintId = useId();
+  const [message, setMessage] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const remainingCharacters = MAX_CHARACTERS - message.length;
 
-    const maxChars = 500;
-    const remainingChars = maxChars - message.length;
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
 
-    useEffect(() => {
-        if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
-            textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 100) + 'px';
-        }
-    }, [message]);
+    textarea.style.height = "auto";
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 128)}px`;
+  }, [message]);
 
-    const handleSend = () => {
-        if (message.trim() && !disabled) {
-            onSend(message.trim());
-            setMessage("");
-        }
-    };
+  const handleSend = () => {
+    const content = message.trim();
+    if (!content || disabled) return;
 
-    const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
-        }
-    };
+    onSend(content);
+    setMessage("");
+  };
 
-    return (
-        <div className="border-t border-border p-4 bg-background">
-            <div className="flex gap-2">
-                <div className="flex-1 relative">
-                    <Textarea
-                        ref={textareaRef}
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value.slice(0, maxChars))}
-                        onKeyDown={handleKeyDown}
-                        placeholder={placeholder}
-                        disabled={disabled}
-                        className="resize-none min-h-[60px] max-h-[100px] bg-muted border-border text-foreground placeholder:text-muted-foreground"
-                        rows={1}
-                    />
-                    {message.length > maxChars - 50 && (
-                        <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-muted px-1 rounded">
-                            {remainingChars}
-                        </div>
-                    )}
-                </div>
-                <Button
-                    onClick={handleSend}
-                    disabled={!message.trim() || disabled}
-                    size="icon"
-                    className="h-[60px] w-[60px] bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                    <Send className="h-4 w-4" />
-                </Button>
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
-                Press Enter to send, Shift+Enter for new line
-            </div>
+  const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleSend();
+    }
+  };
+
+  return (
+    <footer className="border-t border-border bg-card/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:p-4 sm:pb-4">
+      <label htmlFor={inputId} className="sr-only">
+        {t("inputLabel")}
+      </label>
+      <div className="rounded-xl border border-border bg-background p-2 shadow-xs transition-colors focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10">
+        <Textarea
+          id={inputId}
+          ref={textareaRef}
+          autoFocus
+          value={message}
+          maxLength={MAX_CHARACTERS}
+          onChange={(event) => setMessage(event.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder ?? t("placeholder")}
+          disabled={disabled}
+          className="max-h-32 min-h-12 resize-none border-0 bg-transparent px-2 py-1.5 text-sm leading-relaxed text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+          rows={1}
+          aria-describedby={hintId}
+        />
+        <div className="flex items-center justify-between gap-3 pt-1 pl-2">
+          <div
+            id={hintId}
+            className="min-w-0 text-[0.68rem] text-muted-foreground"
+          >
+            <span className="hidden sm:inline">{t("inputHint")}</span>
+            {message.length > MAX_CHARACTERS - 60 && (
+              <span className="sm:ml-2" aria-live="polite">
+                {t("charactersLeft", { count: remainingCharacters })}
+              </span>
+            )}
+          </div>
+          <Button
+            type="button"
+            onClick={handleSend}
+            disabled={!message.trim() || disabled}
+            size="icon"
+            className="size-9 shrink-0 rounded-full bg-primary text-primary-foreground shadow-xs transition-transform hover:bg-primary/90 active:scale-[0.96]"
+            aria-label={t("send")}
+          >
+            {disabled ? (
+              <Loader2
+                className="size-4 animate-spin motion-reduce:animate-none"
+                aria-hidden="true"
+              />
+            ) : (
+              <Send className="size-4" aria-hidden="true" />
+            )}
+          </Button>
         </div>
-    );
+      </div>
+      <p className="mt-2 text-center text-[0.62rem] leading-relaxed text-muted-foreground">
+        {t("disclaimer")}
+      </p>
+    </footer>
+  );
 }
-

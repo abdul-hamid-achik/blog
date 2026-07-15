@@ -1,0 +1,57 @@
+version: 1
+name: projects_filter_reset
+intent: project search and category filters compose, expose an empty state, and
+  reset to the complete directory
+backend: agent-browser
+coldStart: guest
+viewport: { width: 1440, height: 900 }
+metadata: { feature: projects, priority: critical, tags: [filters, a11y] }
+
+outcomes:
+  - id: reset_restores_every_project
+    description: resetting restores all thirty-three project disclosures
+    verify:
+      count: { selector: "#project-directory details", equals: 33 }
+  - id: reset_clears_search_and_filter
+    description: the search is empty and the All work filter is active
+    verify:
+      script:
+        run: |
+          const search = document.querySelector("#project-search");
+          const all = document.querySelector(
+            '[role="group"][aria-label="Filter projects"] button:first-child'
+          );
+          return {
+            ok: search?.value === "" && all?.getAttribute("aria-pressed") === "true",
+            evidence: {
+              searchValue: search?.value ?? null,
+              allPressed: all?.getAttribute("aria-pressed") ?? null
+            }
+          };
+  - id: project_directory_has_no_blocking_wcag_issues
+    description: the reset directory has no serious or critical A or AA violations
+    verify:
+      script: { runtime: browser, file: ../verifiers/axe-wcag.js }
+  - id: project_filters_have_no_console_errors
+    description: filtering and resetting produce no browser console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open: { path: /projects, waitUntil: networkidle, timeoutMs: 30000 }
+  - fill:
+      by: label
+      name: Search the project directory
+      value: tinyvault
+  - wait: { selector: "#project-tinyvault", timeoutMs: 10000 }
+  - eval:
+      js: |
+        document
+          .querySelector('[role="group"][aria-label="Filter projects"] button:nth-child(3)')
+          ?.click();
+        true;
+  - wait: { text: "No project matches that combination.", timeoutMs: 10000 }
+  - click: { by: role, role: button, name: "Reset the directory" }
+  - wait: { selector: "#project-cortex", timeoutMs: 10000 }
+  - snapshot: { interactive: true, label: project_directory_reset }
+contractHash: sha256:55e1e392ec780a34fb2fbf84dc00937d323457f35797b4f24d799837cca9601a

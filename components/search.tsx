@@ -1,161 +1,142 @@
-"use client"
+"use client";
 
-import { allPages, allPaintings, allPosts } from "content-collections";
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
+import type { SearchDocument, SearchDocumentKind } from "@/lib/search";
+import { useRouter } from "@/navigation";
+import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
 
-const allDocuments = [...allPosts, ...allPages, ...allPaintings];
-import { Content } from "@/.generated/graphql";
-import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandLoading, CommandSeparator } from "@/components/ui/command";
-import { getBaseURL } from "@/lib/utils";
-import { useRouter as useLocalizedRouter } from "@/navigation";
-import { gql, useQuery } from "@apollo/client";
-import { useLocale, useTranslations } from "next-intl";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import { useDebounce } from 'use-debounce';
-import { Alert } from "./ui/alert";
-import { Skeleton } from "./ui/skeleton";
-
-const SEARCH_QUERY = gql`
-  query Search($query: String!, $locale: String) {
-    search(query: $query, locale: $locale) {
-      count
-      results {
-        ... on Post {
-          _id
-        }
-        ... on Painting {
-          _id
-        }
-        ... on Page {
-          _id
-        }
-      }
-    }
-  }
-`;
-
-type DocumentType = typeof allDocuments[number];
-
-function groupByType(results: DocumentType[], locale: string) {
-  return results.reduce((groups: { [key: string]: Content[] }, result) => {
-    const group = result._meta.path.split("/")[0];
-    if (group && result.locale === locale) {
-      if (!groups[group]) {
-        groups[group] = [];
-      }
-      groups[group].push(result as any);
-    }
-    return groups;
-  }, {});
+function groupDocuments(documents: SearchDocument[]) {
+  return documents.reduce<Record<SearchDocumentKind, SearchDocument[]>>(
+    (groups, document) => {
+      groups[document.kind].push(document);
+      return groups;
+    },
+    { Writing: [], Page: [], Painting: [], Project: [] },
+  );
 }
 
-const CommandItemComponent = ({ document, handleSelect }: { document: DocumentType | Content, handleSelect: (document: DocumentType | Content) => () => void }) => {
-  const key = '_meta' in document ? document._meta.path : document.__typename || '';
-  const imageSrc = ('image' in document && document.image) ? document.image : `${getBaseURL()}/api/og?title=${encodeURIComponent(document.title!)}`;
-
-  return (
-    <CommandItem key={key} onSelect={handleSelect(document)} value={key}>
-      <div className="flex items-center w-full">
-        <Image
-          src={imageSrc}
-          alt={document.title!}
-          width={64}
-          height={Math.round(64 * (3 / 4))}
-          style={{
-            width: 'auto',
-            height: 'auto'
-          }}
-          unoptimized={imageSrc.includes('/api/og')}
-        />
-        <span className="text-sm text-muted-foreground mx-4 md:block hidden">{document.title}</span>
-      </div>
-    </CommandItem>
-  )
-}
-
-export function Search() {
-  const locale = useLocale();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
+export function Search({ locale }: { locale: string }) {
   const [isOpen, setIsOpen] = useState(false);
-  const t = useTranslations()
-  const router = useLocalizedRouter()
-  const { data, loading, error } = useQuery(SEARCH_QUERY, {
-    errorPolicy: "all",
-    variables: { query: debouncedSearchTerm, locale },
-    skip: !debouncedSearchTerm,
-  });
+  const [documents, setDocuments] = useState<SearchDocument[] | null>(null);
+  const router = useRouter();
+  const t = useTranslations();
+  const dialog = useTranslations("SearchDialog");
+  const groups = useMemo(() => groupDocuments(documents ?? []), [documents]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-        setIsOpen(prevState => !prevState);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        setIsOpen((current) => !current);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const handleSelect = (document: Content) => () => {
-    router.push(`${getBaseURL()}/${document.slug}`)
-    setIsOpen(false)
-  }
+  useEffect(() => {
+    if (!isOpen || documents !== null) return;
 
-  const shouldFilter = data?.search?.count === 0
+    const controller = new AbortController();
 
-  const filter = (value: string, search: string) => {
-    if (value.includes(search)) return 1
-    return 0
+    fetch(`/search/${locale}.json`, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok)
+          throw new Error(`Search index returned ${response.status}`);
+        return response.json() as Promise<unknown>;
+      })
+      .then((result) => setDocuments(Array.isArray(result) ? result : []))
+      .catch((error: unknown) => {
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          setDocuments([]);
+        }
+      });
+
+    return () => controller.abort();
+  }, [documents, isOpen, locale]);
+
+  function selectDocument(document: SearchDocument) {
+    router.push(document.href);
+    setIsOpen(false);
   }
 
   return (
-    <CommandDialog open={isOpen} onOpenChange={setIsOpen} filter={filter} shouldFilter={shouldFilter}>
-      <CommandInput
-        placeholder="Buscar..."
-        value={searchTerm}
-        onInput={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-      />
-      {loading && (
-        <CommandLoading>
-          <Skeleton className="h-20" />
-        </CommandLoading>
-      )}
-      {!loading && (
+    <>
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        aria-label={t("Search")}
+        className="inline-flex h-9 items-center gap-2 border border-border bg-card px-3 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground active:scale-[0.98]"
+      >
+        <span>{t("Search")}</span>
+        <kbd className="hidden border-l border-border pl-2 text-[0.62rem] text-muted-foreground sm:inline">
+          ⌘ K
+        </kbd>
+      </button>
+
+      <CommandDialog
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        dialogTitle={dialog("title")}
+        dialogDescription={dialog("description")}
+        closeLabel={dialog("close")}
+      >
+        <CommandInput
+          aria-label={t("Search the archive")}
+          placeholder={t("Search the archive")}
+        />
         <CommandList>
           <CommandEmpty>
-            {t('No results were found but dont worry its not your fault')}
+            {documents === null
+              ? dialog("loading")
+              : t("No results were found but dont worry its not your fault")}
           </CommandEmpty>
 
-          {error && (<CommandItem>
-            <Alert variant="destructive">{error.message}</Alert>
-          </CommandItem>)}
-
-          {debouncedSearchTerm && data?.search?.results && data?.search?.count > 0 && (
-            <CommandGroup heading="Suggestions">
-              {data.search.results.map(({ _id }: Content) => {
-                const document = allDocuments.find(doc => doc._meta.path === _id && doc.locale === locale);
-                return document ? (
-                  <CommandItemComponent document={document} handleSelect={handleSelect} key={document._meta.path} />
-                ) : null;
-              })}
-            </CommandGroup>)}
-
-          {!debouncedSearchTerm && Object.entries(groupByType(allDocuments, locale)).map(([group, items], groupIndex) =>
-          (<React.Fragment key={groupIndex}>
-            <CommandGroup key={group} heading={group}>
-              {items.map((item: Content) => (
-                <CommandItemComponent document={item} handleSelect={handleSelect} key={item.slug} />
-              ))}
-            </CommandGroup>
-            <CommandSeparator />
-          </React.Fragment>))}
+          {(
+            Object.entries(groups) as [SearchDocumentKind, SearchDocument[]][]
+          ).map(([kind, items], groupIndex) =>
+            items.length > 0 ? (
+              <div key={kind}>
+                {groupIndex > 0 && <CommandSeparator />}
+                <CommandGroup heading={dialog(`groups.${kind}`)}>
+                  {items.map((document) => (
+                    <CommandItem
+                      key={document.id}
+                      value={`${document.title} ${document.description ?? ""}`}
+                      onSelect={() => selectDocument(document)}
+                      className="group gap-4 rounded-none border-b border-border/60 py-3 last:border-0"
+                    >
+                      <span className="w-10 shrink-0 font-mono text-[0.62rem] uppercase tracking-[0.12em] text-primary">
+                        {dialog(`groups.${kind}`).slice(0, 3)}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate font-medium text-foreground">
+                          {document.title}
+                        </span>
+                        {document.description && (
+                          <span className="mt-0.5 block truncate text-xs text-muted-foreground group-aria-selected:text-foreground">
+                            {document.description}
+                          </span>
+                        )}
+                      </span>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </div>
+            ) : null,
+          )}
         </CommandList>
-      )}
-    </CommandDialog >
-  )
+      </CommandDialog>
+    </>
+  );
 }
-

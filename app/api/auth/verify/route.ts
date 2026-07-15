@@ -1,38 +1,65 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken, createUser, setAuthCookie } from '@/lib/auth';
-import { isProduction } from '@/lib/utils';
+import { createUser, setAuthCookie, verifyToken } from "@/lib/auth";
+import { getLocalizedPath, type SiteLocale } from "@/lib/site-url";
+import { isProduction } from "@/lib/utils";
+import { routing } from "@/routing";
+import { NextRequest, NextResponse } from "next/server";
+
+function resolveLocale(locale: string | null): SiteLocale {
+  return (
+    routing.locales.find((supportedLocale) => supportedLocale === locale) ??
+    routing.defaultLocale
+  );
+}
+
+function redirectToLocalizedHome(
+  request: NextRequest,
+  locale: SiteLocale,
+  searchParams: Record<string, string>,
+) {
+  const redirectUrl = new URL(getLocalizedPath(locale), request.url);
+
+  for (const [key, value] of Object.entries(searchParams)) {
+    redirectUrl.searchParams.set(key, value);
+  }
+
+  return NextResponse.redirect(redirectUrl);
+}
 
 export async function GET(request: NextRequest) {
-    try {
-        const { searchParams } = new URL(request.url);
-        const token = searchParams.get('token');
+  const { searchParams } = new URL(request.url);
+  const locale = resolveLocale(searchParams.get("locale"));
+  const token = searchParams.get("token");
 
-        if (!token) {
-            return NextResponse.redirect(new URL('/?error=invalid-token', request.url));
-        }
-
-        // Verify the token
-        const email = await verifyToken(token);
-
-        if (!email) {
-            return NextResponse.redirect(new URL('/?error=invalid-token', request.url));
-        }
-
-        // Create or get user
-        const userId = await createUser(email);
-
-        // Set authentication cookie
-        await setAuthCookie(userId);
-
-        if (!isProduction) {
-            console.log(`✅ User ${email} authenticated successfully`);
-        }
-
-        // Redirect to home page with success message
-        return NextResponse.redirect(new URL('/?verified=true', request.url));
-
-    } catch (error) {
-        console.error('Error in magic link verification:', error);
-        return NextResponse.redirect(new URL('/?error=verification-failed', request.url));
+  try {
+    if (!token) {
+      return redirectToLocalizedHome(request, locale, {
+        error: "invalid-token",
+      });
     }
+
+    const email = await verifyToken(token);
+
+    if (!email) {
+      return redirectToLocalizedHome(request, locale, {
+        error: "invalid-token",
+      });
+    }
+
+    const userId = await createUser(email);
+
+    await setAuthCookie(userId);
+
+    if (!isProduction) {
+      console.log("Magic-link authentication completed");
+    }
+
+    return redirectToLocalizedHome(request, locale, {
+      verified: "true",
+    });
+  } catch (error) {
+    console.error("Error in magic link verification:", error);
+    return redirectToLocalizedHome(request, locale, {
+      error: "verification-failed",
+    });
+  }
 }
