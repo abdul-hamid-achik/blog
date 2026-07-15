@@ -28,7 +28,8 @@ const icoImages = await Promise.all(
     size,
     data: await sharp(source)
       .resize(size, size, { fit: "fill" })
-      .png({ compressionLevel: 9, palette: true })
+      .ensureAlpha()
+      .png({ compressionLevel: 9, palette: false })
       .toBuffer(),
   })),
 );

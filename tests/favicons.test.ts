@@ -43,5 +43,18 @@ describe("brand icons", () => {
     expect([icon.readUInt8(6), icon.readUInt8(22), icon.readUInt8(38)]).toEqual(
       [16, 32, 48],
     );
+
+    const frameOffsets = [0, 1, 2].map((index) =>
+      icon.readUInt32LE(6 + index * 16 + 12),
+    );
+
+    for (const frameOffset of frameOffsets) {
+      expect(icon.subarray(frameOffset, frameOffset + 8)).toEqual(
+        Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      );
+      // PNG IHDR color type 6 is truecolor with alpha. Turbopack requires
+      // embedded ICO PNG frames to be RGBA rather than indexed-color images.
+      expect(icon.readUInt8(frameOffset + 25)).toBe(6);
+    }
   });
 });

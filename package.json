@@ -10,7 +10,7 @@
     "content:index": "content-collections build && bun scripts/generate-search-index.ts",
     "icons:generate": "bun scripts/generate-favicons.ts",
     "dev": "bun run content:index && concurrently --raw \"content-collections watch\" \"next dev\"",
-    "build": "bun run content:index && next build --webpack",
+    "build": "bun run content:index && next build",
     "start": "next start",
     "lint": "eslint .",
     "test": "vitest run",
