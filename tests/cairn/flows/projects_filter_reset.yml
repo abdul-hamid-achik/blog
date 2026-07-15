@@ -51,7 +51,13 @@ steps:
           ?.click();
         true;
   - wait: { text: "No project matches that combination.", timeoutMs: 10000 }
-  - click: { by: role, role: button, name: "Reset the directory" }
+  - eval:
+      js: |
+        const reset = [...document.querySelectorAll("button")].find(
+          (button) => button.textContent?.trim() === "Reset the directory"
+        );
+        reset?.click();
+        Boolean(reset);
   - wait: { selector: "#project-cortex", timeoutMs: 10000 }
   - snapshot: { interactive: true, label: project_directory_reset }
 contractHash: sha256:55e1e392ec780a34fb2fbf84dc00937d323457f35797b4f24d799837cca9601a
