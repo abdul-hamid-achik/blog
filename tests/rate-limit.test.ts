@@ -42,6 +42,7 @@ vi.mock("@upstash/ratelimit", () => {
 vi.mock("@vercel/kv", () => ({ kv: mocks.kv }));
 
 import {
+  checkContactRateLimit,
   checkIpRateLimit,
   checkRateLimit,
   isIpBlocked,
@@ -76,6 +77,7 @@ describe("rate limiting and abuse escalation", () => {
       ["ratelimit:chat", { count: 60, duration: "1 m" }],
       ["ratelimit:stream", { count: 30, duration: "1 m" }],
       ["ratelimit:chat-ip", { count: 40, duration: "1 m" }],
+      ["ratelimit:contact", { count: 3, duration: "24 h" }],
     ]);
   });
 
@@ -121,6 +123,21 @@ describe("rate limiting and abuse escalation", () => {
       allowed: false,
       remaining: 2,
     });
+  });
+
+  it("applies a separate daily budget to real concierge emails", async () => {
+    limiter("ratelimit:contact").mockResolvedValueOnce({
+      success: false,
+      remaining: 0,
+      reset: 789,
+    });
+
+    await expect(checkContactRateLimit("verified-user")).resolves.toEqual({
+      allowed: false,
+      remaining: 0,
+      reset: 789,
+    });
+    expect(limiter("ratelimit:contact")).toHaveBeenCalledWith("verified-user");
   });
 
   it("checks user and IP block keys", async () => {

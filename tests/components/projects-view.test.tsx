@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -52,6 +52,7 @@ const projects: Project[] = [
     category: "cli",
     description: "Evidence-guided agent kernel",
     tech: ["Go", "MCP"],
+    website: "https://cortex.example",
   }),
   project({
     name: "glyphrun",
@@ -99,6 +100,40 @@ describe("ProjectsView", () => {
     expect(screen.getByText("4 shown")).toBeInTheDocument();
     expect(getProjectDetails("cortex")).toBeInTheDocument();
     expect(getProjectDetails("Tiny Vault")).toBeInTheDocument();
+  });
+
+  it("keeps the inverse featured card legible on hover and keyboard focus", () => {
+    render(<ProjectsView projects={projects} />);
+
+    const cortexCard = screen
+      .getAllByRole("heading", { name: "cortex" })[0]
+      .closest("article") as HTMLElement;
+    const standardCard = screen
+      .getAllByRole("heading", { name: "glyphrun" })[0]
+      .closest("article") as HTMLElement;
+
+    expect(cortexCard).toHaveClass(
+      "bg-foreground",
+      "hover:bg-foreground/95",
+      "focus-within:bg-foreground/95",
+      "dark:hover:bg-secondary/55",
+      "dark:focus-within:bg-secondary/55",
+    );
+    expect(cortexCard).toHaveAttribute("data-featured-project", "true");
+    expect(cortexCard).toHaveAttribute("data-project-card", "project-cortex");
+    expect(cortexCard).not.toHaveClass("hover:bg-secondary/55");
+    expect(
+      within(cortexCard).getByRole("link", { name: /cortex\.example/i }),
+    ).toHaveClass(
+      "focus-visible:outline-inverse-accent",
+      "dark:focus-visible:outline-primary",
+    );
+
+    expect(standardCard).toHaveClass(
+      "hover:bg-secondary/55",
+      "focus-within:bg-secondary/55",
+    );
+    expect(standardCard).not.toHaveClass("hover:bg-foreground/95");
   });
 
   it("ignores a malformed percent-encoded project hash", () => {

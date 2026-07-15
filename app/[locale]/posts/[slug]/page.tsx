@@ -1,6 +1,7 @@
 import { ArticleJsonLd } from "@/components/json-ld";
 import { Mdx } from "@/components/mdx-components";
 import RelatedPosts from "@/components/related-posts";
+import { hasInlineHero } from "@/lib/article-media";
 import { getPost } from "@/lib/data";
 import { getLocalizedUrl, getOgImageUrl } from "@/lib/site-url";
 import { getBaseURL } from "@/lib/utils";
@@ -103,6 +104,7 @@ export default async function PostPage({ params }: PostProps) {
         .setLocale(locale)
         .toLocaleString(DateTime.DATE_MED)
     : null;
+  const includesHeroInBody = hasInlineHero(post.content, post.image);
 
   return (
     <>
@@ -141,8 +143,11 @@ export default async function PostPage({ params }: PostProps) {
             </div>
           </div>
 
-          {post.image && (
-            <div className="relative mt-12 aspect-[16/8.5] min-h-64 overflow-hidden border-y border-border bg-secondary sm:mt-16">
+          {post.image && !includesHeroInBody && (
+            <div
+              className="relative mt-10 aspect-[4/3] w-full max-w-full overflow-hidden border-y border-border bg-secondary sm:mt-16 sm:aspect-[16/8.5]"
+              data-article-hero
+            >
               <Image
                 src={post.image}
                 alt=""

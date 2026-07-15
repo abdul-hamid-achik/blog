@@ -1,0 +1,92 @@
+version: 1
+name: article_mobile_responsive_hero
+intent: a mobile essay with a separate cover keeps its header artwork
+  proportional and inside the viewport
+backend: agent-browser
+coldStart: guest
+viewport: { width: 390, height: 844 }
+metadata: { feature: essays, priority: high, tags: [mobile, media, regression] }
+artifacts:
+  capture:
+    screenshots: always
+    snapshots: always
+    trace: on-failure
+
+outcomes:
+  - id: essay_heading_visible
+    description: the requested essay heading is rendered
+    verify:
+      text: { contains: "The Gambler and the Black Square" }
+  - id: responsive_header_hero_is_present
+    description: the separate article cover is rendered once in the header
+    verify:
+      count: { selector: "[data-article-hero]", equals: 1 }
+  - id: header_hero_is_mobile_safe
+    description: the cover uses the mobile ratio without exceeding its container
+    verify:
+      script:
+        run: |
+          const hero = document.querySelector("[data-article-hero]");
+          const viewportWidth = document.documentElement.clientWidth;
+          if (!hero) {
+            return { ok: false, evidence: { reason: "missing article hero" } };
+          }
+          const rect = hero.getBoundingClientRect();
+          const ratio = rect.width / rect.height;
+          return {
+            ok:
+              rect.left >= -1 &&
+              rect.right <= viewportWidth + 1 &&
+              rect.width <= viewportWidth + 1 &&
+              ratio >= 1.3 &&
+              ratio <= 1.36,
+            evidence: {
+              viewportWidth,
+              left: rect.left,
+              right: rect.right,
+              width: rect.width,
+              height: rect.height,
+              ratio
+            }
+          };
+  - id: header_hero_image_is_loaded
+    description: the responsive cover decodes into a visible image
+    verify:
+      script:
+        run: |
+          const image = document.querySelector("[data-article-hero] img");
+          return {
+            ok: Boolean(image?.complete && image.naturalWidth > 0 && image.naturalHeight > 0),
+            evidence: {
+              complete: image?.complete ?? false,
+              naturalWidth: image?.naturalWidth ?? 0,
+              naturalHeight: image?.naturalHeight ?? 0
+            }
+          };
+  - id: article_has_no_horizontal_overflow
+    description: the complete essay fits a 390 pixel viewport
+    verify:
+      script:
+        run: |
+          const viewportWidth = document.documentElement.clientWidth;
+          const pageWidth = Math.max(
+            document.body.scrollWidth,
+            document.documentElement.scrollWidth
+          );
+          const overflow = pageWidth - viewportWidth;
+          return { ok: overflow <= 1, evidence: { viewportWidth, pageWidth, overflow } };
+  - id: article_has_no_console_errors
+    description: the essay produces no browser console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open:
+      path: /posts/the-gambler-and-the-black-square
+      waitUntil: networkidle
+      timeoutMs: 30000
+  - wait:
+      text: "The Gambler and the Black Square"
+      timeoutMs: 10000
+  - snapshot: { interactive: true, label: mobile_essay_responsive_hero }
+contractHash: sha256:f5579bcc4480fd1a339c2a15dce3b44a85ec75c8d9527655c44de7cfda8de558

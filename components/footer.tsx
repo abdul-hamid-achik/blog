@@ -24,10 +24,10 @@ export default function Footer() {
             {footer("statement")}
           </p>
           <a
-            href="mailto:abdulachik@icloud.com"
+            href="mailto:hello@abdulachik.dev"
             className="mt-7 inline-block border-b border-current pb-1 text-sm transition-colors hover:text-inverse-accent"
           >
-            abdulachik@icloud.com
+            hello@abdulachik.dev
           </a>
         </div>
 

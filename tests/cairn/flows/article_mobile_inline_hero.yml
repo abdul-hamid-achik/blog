@@ -1,0 +1,95 @@
+version: 1
+name: article_mobile_inline_hero
+intent: a mobile essay that includes its cover artwork renders that artwork once
+  and stays within the viewport
+backend: agent-browser
+coldStart: guest
+viewport: { width: 390, height: 844 }
+metadata: { feature: essays, priority: high, tags: [mobile, media, regression] }
+artifacts:
+  capture:
+    screenshots: always
+    snapshots: always
+    trace: on-failure
+
+outcomes:
+  - id: essay_heading_visible
+    description: the requested essay heading is rendered
+    verify:
+      text: { contains: "The Stranger at the Feast" }
+  - id: duplicate_header_hero_is_omitted
+    description: an authored body image replaces the decorative header copy
+    verify:
+      count: { selector: "[data-article-hero]", equals: 0 }
+  - id: cover_artwork_is_rendered_once
+    description: the Klimt cover asset occurs exactly once in the article
+    verify:
+      script:
+        run: |
+          const expected = "/paintings/Gustav_Klimt_Adele_Bloch-Bauer_I.jpg";
+          const images = [...document.querySelectorAll("article img")];
+          const originalSource = (image) => {
+            const url = new URL(image.currentSrc || image.src, location.href);
+            return url.pathname === "/_next/image"
+              ? url.searchParams.get("url")
+              : url.pathname;
+          };
+          const matches = images.filter((image) => originalSource(image) === expected);
+          return {
+            ok:
+              matches.length === 1 &&
+              matches[0].complete &&
+              matches[0].naturalWidth > 0 &&
+              matches[0].naturalHeight > 0,
+            evidence: {
+              count: matches.length,
+              naturalWidth: matches[0]?.naturalWidth ?? 0,
+              naturalHeight: matches[0]?.naturalHeight ?? 0,
+              sources: images.map(originalSource)
+            }
+          };
+  - id: article_media_fits_the_mobile_viewport
+    description: every essay image remains inside the visible page width
+    verify:
+      script:
+        run: |
+          const viewportWidth = document.documentElement.clientWidth;
+          const images = [...document.querySelectorAll("article img")];
+          const overflowing = images
+            .map((image) => {
+              const rect = image.getBoundingClientRect();
+              return { alt: image.alt, left: rect.left, right: rect.right, width: rect.width };
+            })
+            .filter((rect) => rect.left < -1 || rect.right > viewportWidth + 1);
+          return { ok: overflowing.length === 0, evidence: { viewportWidth, overflowing } };
+  - id: article_has_no_horizontal_overflow
+    description: the complete essay fits a 390 pixel viewport
+    verify:
+      script:
+        run: |
+          const viewportWidth = document.documentElement.clientWidth;
+          const pageWidth = Math.max(
+            document.body.scrollWidth,
+            document.documentElement.scrollWidth
+          );
+          const overflow = pageWidth - viewportWidth;
+          return { ok: overflow <= 1, evidence: { viewportWidth, pageWidth, overflow } };
+  - id: article_has_no_blocking_wcag_issues
+    description: axe-core reports no serious or critical A or AA violations
+    verify:
+      script: { runtime: browser, file: ../verifiers/axe-wcag.js }
+  - id: article_has_no_console_errors
+    description: the essay produces no browser console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open:
+      path: /posts/the-stranger-at-the-feast
+      waitUntil: networkidle
+      timeoutMs: 30000
+  - wait:
+      text: "The Stranger at the Feast"
+      timeoutMs: 10000
+  - snapshot: { interactive: true, label: mobile_essay_inline_hero }
+contractHash: sha256:477134b612ffa67b74f0524fa3c75739b480e0aa52dc1986a0a5f2a0a1894d30

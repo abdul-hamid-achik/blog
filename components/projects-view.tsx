@@ -38,8 +38,8 @@ function ProjectLinks({
           className={cn(
             "border-b pb-0.5 transition-colors",
             inverse
-              ? "border-inverse-accent text-inverse-accent hover:border-background hover:text-background dark:border-primary dark:text-primary dark:hover:border-foreground dark:hover:text-foreground"
-              : "border-primary text-primary hover:border-foreground hover:text-foreground",
+              ? "border-inverse-accent text-inverse-accent hover:border-background hover:text-background focus-visible:outline-inverse-accent dark:border-primary dark:text-primary dark:hover:border-foreground dark:hover:text-foreground dark:focus-visible:outline-primary"
+              : "border-primary text-primary hover:border-foreground hover:text-foreground focus-visible:outline-primary",
           )}
         >
           {project.website.replace("https://", "")}{" "}
@@ -54,8 +54,8 @@ function ProjectLinks({
           className={cn(
             "border-b pb-0.5 transition-colors",
             inverse
-              ? "border-background/25 text-background/70 hover:border-background hover:text-background dark:border-border dark:text-muted-foreground dark:hover:border-foreground dark:hover:text-foreground"
-              : "border-border text-muted-foreground hover:border-foreground hover:text-foreground",
+              ? "border-background/25 text-background/70 hover:border-background hover:text-background focus-visible:outline-inverse-accent dark:border-border dark:text-muted-foreground dark:hover:border-foreground dark:hover:text-foreground dark:focus-visible:outline-primary"
+              : "border-border text-muted-foreground hover:border-foreground hover:text-foreground focus-visible:outline-primary",
           )}
         >
           {t("source")} <span aria-hidden="true">↗</span>
@@ -76,11 +76,14 @@ function SelectedProject({
 
   return (
     <article
+      data-featured-project={index === 0 ? "true" : undefined}
+      data-project-card={getProjectAnchor(project.name)}
       className={cn(
-        "group flex min-h-80 flex-col border border-border bg-card p-6 transition-colors hover:bg-secondary/55 sm:p-8",
+        "group flex min-h-80 flex-col border border-border bg-card p-6 transition-colors sm:p-8",
         selectedLayouts[index],
-        index === 0 &&
-          "bg-foreground text-background dark:bg-card dark:text-foreground",
+        index === 0
+          ? "bg-foreground text-background hover:bg-foreground/95 focus-within:bg-foreground/95 dark:bg-card dark:text-foreground dark:hover:bg-secondary/55 dark:focus-within:bg-secondary/55"
+          : "hover:bg-secondary/55 focus-within:bg-secondary/55",
       )}
     >
       <div className="flex items-start justify-between gap-6 font-mono text-[0.62rem] uppercase tracking-[0.15em]">

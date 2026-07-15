@@ -24,6 +24,8 @@ export const env = createEnv({
     POSTGRES_PASSWORD: z.string(),
     EDGE_CONFIG: z.string().optional(),
     RESEND_API_KEY: z.string().min(1),
+    RESEND_WEBHOOK_SECRET: z.string().min(1).optional(),
+    SITE_INBOUND_EMAIL: z.string().email().optional(),
     SITE_OWNER_EMAIL: z.string().email().optional(),
   },
   client: {
@@ -50,6 +52,8 @@ export const env = createEnv({
     POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD,
     EDGE_CONFIG: process.env.EDGE_CONFIG,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
+    RESEND_WEBHOOK_SECRET: process.env.RESEND_WEBHOOK_SECRET,
+    SITE_INBOUND_EMAIL: process.env.SITE_INBOUND_EMAIL,
     SITE_OWNER_EMAIL: process.env.SITE_OWNER_EMAIL,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },

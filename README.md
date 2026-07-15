@@ -55,8 +55,8 @@ Create `.env.local`. The environment schema in `env.mjs` is the source of truth;
 | Database                  | `DATABASE_URL`, `POSTGRES_HOST`, `POSTGRES_DATABASE`, `POSTGRES_USER`, `POSTGRES_PASSWORD` |
 | KV and rate-limit storage | `KV_URL`, `KV_REST_API_URL`, `KV_REST_API_TOKEN`, `KV_REST_API_READ_ONLY_TOKEN`            |
 | Last.fm data              | `LASTFM_API_KEY`, `LASTFM_API_SECRET`, `LASTFM_USERNAME`                                   |
-| Email                     | `RESEND_API_KEY`                                                                           |
-| Owner-aware concierge     | `SITE_OWNER_EMAIL` (optional; defaults to the public site-owner address)                   |
+| Email                     | `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET` (required for inbound forwarding)                |
+| Owner-aware concierge     | `SITE_OWNER_EMAIL`, `SITE_INBOUND_EMAIL` (both optional; defaults are documented in code)  |
 | Graph metadata            | `APOLLO_KEY`, `APOLLO_GRAPH_REF`                                                           |
 | AI Gateway concierge      | `VERCEL_OIDC_TOKEN` or `AI_GATEWAY_API_KEY`                                                |
 | OpenAI embeddings         | `OPENAI_API_KEY` (`OPEN_AI_API_KEY` remains a legacy fallback)                             |
@@ -120,6 +120,24 @@ Routing follows `localePrefix: "as-needed"`:
 - Russian: `/ru`, `/ru/essays`, `/ru/projects`, `/ru/posts/...`
 
 Use the navigation helpers in `navigation.ts` and the URL helpers in `lib/site-url.ts` instead of assembling localized URLs by hand.
+
+## Email and concierge contact
+
+Resend delivers verification links and the concierge's explicit contact action.
+Only authenticated visitors can ask the concierge to send a real message, the
+server supplies their verified address as Reply-To, and a separate daily limit
+protects the action from repeated sends.
+
+`hello@abdulachik.dev` is the public address. Resend receives mail for the
+domain and calls `/api/webhooks/resend`; the route verifies the raw Svix
+signature, filters the recipient, prevents forwarding loops, and passes the
+original message and attachments to `SITE_OWNER_EMAIL`. Configure the domain's
+sending and receiving DNS records, subscribe the webhook to `email.received`,
+and store its one-time signing secret without placing it in shell history:
+
+```bash
+vercel env add RESEND_WEBHOOK_SECRET production --sensitive
+```
 
 ## Projects
 

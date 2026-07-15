@@ -4,7 +4,12 @@ import {
   getConciergeProviderOptions,
   searchSimilarContent,
 } from "@/lib/ai";
-import { getAuthenticatedUser, getMessageCount, isSiteOwner } from "@/lib/auth";
+import {
+  getAuthenticatedUser,
+  getMessageCount,
+  isSiteOwner,
+  type User,
+} from "@/lib/auth";
 import { FREE_MESSAGE_LIMIT } from "@/lib/constants";
 import {
   getCrisisSupportMessage,
@@ -12,6 +17,7 @@ import {
 } from "@/lib/chat-safety";
 import { ContentType, getContent, Locale } from "@/lib/data";
 import { db } from "@/lib/db";
+import { sendConciergeMessageEmail } from "@/lib/concierge-email";
 import { ModerationResult, moderateInput } from "@/lib/moderation";
 import {
   findProjects,
@@ -26,6 +32,7 @@ import {
   getPromptWithParams,
 } from "@/lib/prompts";
 import {
+  checkContactRateLimit,
   checkIpRateLimit,
   checkRateLimit,
   isIpBlocked,
@@ -97,6 +104,33 @@ const STREAM_RESPONSE_COPY = {
     internalError: string;
     generationFailed: string;
   }
+>;
+
+const CONTACT_TOOL_COPY = {
+  [Locale.EN]: {
+    sent: "The message was sent to Abdul Hamid. Any reply will go to the visitor's verified email address.",
+    rateLimited:
+      "The daily contact limit has been reached. No email was sent; please try again after the limit resets.",
+    unavailable:
+      "The email could not be sent right now. No delivery should be claimed; please try again later.",
+  },
+  [Locale.ES]: {
+    sent: "El mensaje se envió a Abdul Hamid. Cualquier respuesta llegará al correo verificado de la persona visitante.",
+    rateLimited:
+      "Se alcanzó el límite diario de contacto. No se envió ningún correo; inténtalo de nuevo cuando se restablezca el límite.",
+    unavailable:
+      "No se pudo enviar el correo en este momento. No confirmes la entrega; inténtalo de nuevo más tarde.",
+  },
+  [Locale.RU]: {
+    sent: "Сообщение отправлено Абдулу Хамиду. Ответ придёт на подтверждённый адрес посетителя.",
+    rateLimited:
+      "Дневной лимит сообщений исчерпан. Письмо не отправлено; повторите попытку после сброса лимита.",
+    unavailable:
+      "Сейчас отправить письмо не удалось. Не подтверждайте доставку; попробуйте позже.",
+  },
+} satisfies Record<
+  Locale,
+  { sent: string; rateLimited: string; unavailable: string }
 >;
 
 const TOOL_COPY = {
@@ -206,6 +240,13 @@ type StoredContent<T> = T & { _id: string };
 type BlogContent =
   StoredContent<Post> | StoredContent<Page> | StoredContent<Painting>;
 type ChatRole = "user" | "assistant" | "system";
+type VerifiedUser = Extract<User, { isAuthenticated: true }>;
+
+interface ContactToolContext {
+  user: VerifiedUser;
+  sessionId: string;
+  currentPageUrl: string;
+}
 
 interface RoutableContent {
   slug: string;
@@ -390,7 +431,7 @@ function formatCurrentPageContent(
     .join("\n");
 }
 
-const createTools = (locale: Locale) => ({
+const createTools = (locale: Locale, contactContext?: ContactToolContext) => ({
   searchContent: tool({
     description:
       "Search the blog content for relevant information about posts, paintings, and pages. Use this tool to find specific information before answering questions.",
@@ -621,6 +662,67 @@ const createTools = (locale: Locale) => ({
       }
     },
   }),
+
+  ...(contactContext
+    ? {
+        sendMessageToOwner: tool({
+          description:
+            "Send one real email to Abdul Hamid only when the authenticated visitor explicitly asks to send, email, or contact him and has supplied or approved the message. Never call this tool merely to draft text, discuss contacting him, ask for an address, or infer consent. The server supplies the verified Reply-To address; never ask the model for it.",
+          inputSchema: z.object({
+            subject: z
+              .string()
+              .trim()
+              .min(1)
+              .max(120)
+              .describe(
+                "A concise subject approved or requested by the visitor",
+              ),
+            message: z
+              .string()
+              .trim()
+              .min(1)
+              .max(3000)
+              .describe(
+                "The complete message the visitor explicitly wants sent",
+              ),
+          }),
+          execute: async ({ subject, message }) => {
+            const copy = CONTACT_TOOL_COPY[locale];
+
+            try {
+              const contactLimit = await checkContactRateLimit(
+                contactContext.user.id,
+              );
+              if (!contactLimit.allowed) {
+                return {
+                  status: "rate_limited" as const,
+                  message: copy.rateLimited,
+                };
+              }
+
+              await sendConciergeMessageEmail({
+                subject,
+                message,
+                senderEmail: contactContext.user.email,
+                locale,
+                sessionId: contactContext.sessionId,
+                currentPageUrl: contactContext.currentPageUrl,
+              });
+
+              return { status: "sent" as const, message: copy.sent };
+            } catch (error) {
+              console.error("Concierge contact action failed", {
+                errorName: error instanceof Error ? error.name : "UnknownError",
+              });
+              return {
+                status: "unavailable" as const,
+                message: copy.unavailable,
+              };
+            }
+          },
+        }),
+      }
+    : {}),
 });
 
 async function ensureChatSession(
@@ -732,7 +834,16 @@ export async function POST(request: NextRequest) {
 
     await ensureChatSession(sessionId, user.isAuthenticated ? userId : null);
 
-    const tools = createTools(locale);
+    const tools = createTools(
+      locale,
+      user.isAuthenticated
+        ? {
+            user,
+            sessionId,
+            currentPageUrl: currentPageUrl ?? getLocalizedPath(locale, "/"),
+          }
+        : undefined,
+    );
     const defaultParams = getDefaultPromptParams(locale);
     const systemPrompt = getPromptWithParams(
       "smerdyakov-personality",

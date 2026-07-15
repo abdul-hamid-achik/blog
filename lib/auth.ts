@@ -22,8 +22,12 @@ export type User = AuthenticatedUser | UnauthenticatedUser;
 
 const DEFAULT_SITE_OWNER_EMAIL = "abdulachik@icloud.com";
 
+export function getSiteOwnerEmail() {
+  return env.SITE_OWNER_EMAIL ?? DEFAULT_SITE_OWNER_EMAIL;
+}
+
 export function isSiteOwner(user: User): user is AuthenticatedUser {
-  const ownerEmail = env.SITE_OWNER_EMAIL ?? DEFAULT_SITE_OWNER_EMAIL;
+  const ownerEmail = getSiteOwnerEmail();
   return (
     user.isAuthenticated &&
     user.email.trim().toLocaleLowerCase() === ownerEmail.toLocaleLowerCase()

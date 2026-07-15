@@ -1,0 +1,127 @@
+version: 1
+name: projects_featured_hover_contrast
+intent: the inverse featured project remains dark and readable when hovered in
+  the light theme
+backend: agent-browser
+coldStart: guest
+viewport: { width: 1440, height: 900 }
+metadata: { feature: projects, priority: high, tags: [theme, hover, contrast] }
+artifacts:
+  capture:
+    screenshots: always
+    snapshots: always
+    trace: on-failure
+
+outcomes:
+  - id: featured_card_remains_inverse_on_hover
+    description: Cortex keeps its inverse surface instead of inheriting the pale
+      standard-card hover
+    verify:
+      script:
+        run: |
+          const card = document.querySelector('[data-featured-project="true"]');
+          const heading = card?.querySelector('h3');
+          const body = card?.querySelector('p');
+          if (!card || !heading || !body) {
+            return { ok: false, evidence: { reason: "featured project card is incomplete" } };
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = 1;
+          canvas.height = 1;
+          const context = canvas.getContext("2d", { willReadFrequently: true });
+
+          const color = (value) => {
+            context.clearRect(0, 0, 1, 1);
+            context.fillStyle = value;
+            context.fillRect(0, 0, 1, 1);
+            return [...context.getImageData(0, 0, 1, 1).data].map((part) => part / 255);
+          };
+          const composite = (foreground, background) => {
+            const alpha = foreground[3] + background[3] * (1 - foreground[3]);
+            return [0, 1, 2].map((index) =>
+              (foreground[index] * foreground[3] +
+                background[index] * background[3] * (1 - foreground[3])) / alpha
+            ).concat(alpha);
+          };
+          const luminance = (rgba) => {
+            const linear = rgba.slice(0, 3).map((channel) =>
+              channel <= 0.04045
+                ? channel / 12.92
+                : ((channel + 0.055) / 1.055) ** 2.4
+            );
+            return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+          };
+          const contrast = (first, second) => {
+            const values = [luminance(first), luminance(second)].sort((a, b) => b - a);
+            return (values[0] + 0.05) / (values[1] + 0.05);
+          };
+
+          const page = color(getComputedStyle(document.body).backgroundColor);
+          const cardStyle = getComputedStyle(card);
+          const surface = composite(color(cardStyle.backgroundColor), page);
+          const headingColor = composite(color(getComputedStyle(heading).color), surface);
+          const bodyColor = composite(color(getComputedStyle(body).color), surface);
+          const headingContrast = contrast(headingColor, surface);
+          const bodyContrast = contrast(bodyColor, surface);
+          const surfaceLuminance = luminance(surface);
+
+          return {
+            ok:
+              surfaceLuminance < 0.08 &&
+              headingContrast >= 7 &&
+              bodyContrast >= 4.5,
+            evidence: {
+              background: cardStyle.backgroundColor,
+              surfaceLuminance,
+              headingContrast,
+              bodyContrast
+            }
+          };
+  - id: standard_cards_keep_their_light_surface
+    description: the inverse fix does not turn ordinary selected projects dark
+    verify:
+      script:
+        run: |
+          const card = document.querySelector('[data-project-card="project-bob"]');
+          if (!card) return { ok: false, evidence: { reason: "missing Bob card" } };
+          const background = getComputedStyle(card).backgroundColor;
+          const canvas = document.createElement("canvas");
+          canvas.width = 1;
+          canvas.height = 1;
+          const context = canvas.getContext("2d", { willReadFrequently: true });
+          context.fillStyle = background;
+          context.fillRect(0, 0, 1, 1);
+          const channels = [...context.getImageData(0, 0, 1, 1).data].slice(0, 3).map((part) => part / 255);
+          const linear = channels.map((channel) =>
+            channel <= 0.04045
+              ? channel / 12.92
+              : ((channel + 0.055) / 1.055) ** 2.4
+          );
+          const luminance = 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
+          return { ok: luminance > 0.75, evidence: { background, luminance } };
+  - id: projects_page_has_no_horizontal_overflow
+    description: the desktop project layout remains within the viewport
+    verify:
+      script:
+        run: |
+          const viewportWidth = document.documentElement.clientWidth;
+          const pageWidth = Math.max(document.body.scrollWidth, document.documentElement.scrollWidth);
+          return {
+            ok: pageWidth - viewportWidth <= 1,
+            evidence: { viewportWidth, pageWidth, overflow: pageWidth - viewportWidth }
+          };
+  - id: projects_hover_has_no_console_errors
+    description: the hover interaction produces no browser console errors
+    verify:
+      console: { errorsMax: 0 }
+
+steps:
+  - open: { path: /projects, waitUntil: networkidle, timeoutMs: 30000 }
+  - eval:
+      js: localStorage.setItem("theme", "light"); true
+  - open: { path: /projects, waitUntil: networkidle, timeoutMs: 30000 }
+  - wait: { selector: '[data-featured-project="true"]', timeoutMs: 10000 }
+  - hover: { by: selector, selector: '[data-featured-project="true"]' }
+  - snapshot: { interactive: true, label: featured_project_hover_light }
+contractHash: sha256:7fce1810e06ab47192329c17c39dcea86b315f797976b2c3f0f43573c81bff90

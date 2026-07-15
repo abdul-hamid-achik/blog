@@ -35,6 +35,14 @@ const ipChatRateLimiter = new Ratelimit({
   prefix: "ratelimit:chat-ip",
 });
 
+// Verified visitors may ask the concierge to send a real email. Keep this
+// external side effect on a much smaller, dedicated budget than chat turns.
+const contactRateLimiter = new Ratelimit({
+  redis: kv,
+  limiter: Ratelimit.slidingWindow(3, "24 h"),
+  prefix: "ratelimit:contact",
+});
+
 export async function checkRateLimit(
   userId: string,
   type: "site" | "chat" | "stream" = "chat",
@@ -62,6 +70,15 @@ export async function checkRateLimit(
 export async function checkIpRateLimit(ip: string) {
   const result = await ipChatRateLimiter.limit(ip);
   return { allowed: result.success, remaining: result.remaining };
+}
+
+export async function checkContactRateLimit(userId: string) {
+  const result = await contactRateLimiter.limit(userId);
+  return {
+    allowed: result.success,
+    remaining: result.remaining,
+    reset: result.reset,
+  };
 }
 
 export async function isUserBlocked(userId: string): Promise<boolean> {
