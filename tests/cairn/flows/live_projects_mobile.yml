@@ -14,11 +14,11 @@ artifacts:
 
 outcomes:
   - id: complete_live_directory
-    description: the landing directory exposes all twenty public live-site links
+    description: the landing directory exposes all twenty-one public live-site links
     verify:
       count:
         selector: '#live-projects a[target="_blank"]'
-        equals: 20
+        equals: 21
   - id: requested_deployments_are_linked
     description:
       local-agent, Blueprint, tinyvault, file.cheap, monitor, and hitspec
@@ -65,4 +65,4 @@ steps:
   - open: { path: /#live-projects, waitUntil: networkidle, timeoutMs: 30000 }
   - wait: { selector: "#live-projects", timeoutMs: 10000 }
   - snapshot: { interactive: true, label: live_projects_mobile }
-contractHash: sha256:906f57b1baea4446282ea54cf013ed07ac6752443088b44342d038c80255f3c1
+contractHash: sha256:3a1ca5fec294dc0bf903e43d67db2132ec6be8f703fc4a3db4bdba578ef5f5cf

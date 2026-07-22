@@ -9,9 +9,9 @@ metadata: { feature: projects, priority: critical, tags: [filters, a11y] }
 
 outcomes:
   - id: reset_restores_every_project
-    description: resetting restores all thirty-three project disclosures
+    description: resetting restores all thirty-four project disclosures
     verify:
-      count: { selector: "#project-directory details", equals: 33 }
+      count: { selector: "#project-directory details", equals: 34 }
   - id: reset_clears_search_and_filter
     description: the search is empty and the All work filter is active
     verify:
@@ -60,4 +60,4 @@ steps:
         Boolean(reset);
   - wait: { selector: "#project-cortex", timeoutMs: 10000 }
   - snapshot: { interactive: true, label: project_directory_reset }
-contractHash: sha256:55e1e392ec780a34fb2fbf84dc00937d323457f35797b4f24d799837cca9601a
+contractHash: sha256:1d41fda370225866553bea2a2055ad19d862dd398693673b5c45e9185f3db63c
