@@ -469,24 +469,24 @@ export const projects: Project[] = [
   },
   {
     name: "rosewood",
-    description:
-      "Native macOS code editor in Swift and SwiftUI (docs coming soon)",
+    description: "Native macOS code editor in Swift and SwiftUI",
     longDescription:
-      "Lightweight native macOS code editor built with Swift and SwiftUI/AppKit. VS Code-like editing experience with multi-tab editing, syntax highlighting for 20+ languages, LSP integration, DAP debugger, project-wide search, command palette, git integration, code folding, minimap, and session persistence. Multiple themes including Nord, GitHub Light, and Dracula.",
+      "Lightweight native macOS code editor built with Swift and SwiftUI/AppKit. VS Code-like editing experience with multi-tab editing, syntax highlighting for 20+ languages, LSP integration with semantic-token highlighting, DAP debugger, a real PTY-backed interactive terminal via SwiftTerm, project-wide search, command palette, git integration with push/pull/fetch and ahead-behind sync, crash recovery with incremental editor indexing, code folding, minimap, and session persistence. Multiple themes including Nord, GitHub Light, and Dracula.",
     category: "product",
     tech: ["Swift", "SwiftUI", "AppKit", "LSP", "DAP"],
     github: "https://github.com/abdul-hamid-achik/rosewood",
     featured: true,
     features: [
-      "Multi-tab editing with LSP autocomplete and diagnostics",
-      "DAP debugger with breakpoints and debug console",
-      "Git integration with branch status and diff preview",
-      "Interactive minimap and code folding",
+      "Multi-tab editing with LSP semantic tokens and diagnostics",
+      "PTY-backed interactive terminal via SwiftTerm",
+      "Git push/pull/fetch with ahead-behind sync indicator",
+      "Crash recovery, DAP debugger, minimap, and code folding",
     ],
   },
   {
     name: "local-agent",
-    description: "Local-first terminal coding agent powered by Ollama",
+    description:
+      "Local-first terminal coding agent powered by Ollama — local-agent.dev",
     longDescription:
       "A terminal coding agent with approval-gated tools, MCP integrations, durable goals, expert consultation, and optional workspace-scoped memory. It runs against local Ollama models and keeps resumable sessions in SQLite.",
     category: "cli",
@@ -569,6 +569,24 @@ export const projects: Project[] = [
       "Collaborative character and world-building tools",
       "TipTap rich text editor with manuscript management",
       "Export capabilities and localStorage draft recovery",
+    ],
+  },
+  {
+    name: "minerva",
+    description:
+      "Agent library operator and stack readiness CLI/MCP — minervacli.dev",
+    longDescription:
+      "Library operator and stack readiness CLI and MCP server for the shared ~/.agents tree, built with Go and Cobra. Manages skills and agent profiles on disk (the same layout local-agent loads), seeds profiles from templates, and probes companion tools (bob, cortex, mcphub, codemap, vecgrep) using real binary names with tiered health checks. Ranked suggestion engine, append-safe analytics log, deep readiness doctors, and a full MCP stdio server.",
+    category: "cli",
+    tech: ["Go", "Cobra", "MCP"],
+    github: "https://github.com/abdul-hamid-achik/minerva",
+    website: "https://minervacli.dev",
+    featured: true,
+    features: [
+      "Skill and profile management for the shared ~/.agents tree",
+      "Stack readiness probes with tiered health for bob, cortex, and mcphub",
+      "Ranked library/stack suggestion engine shared by CLI and MCP",
+      "Full MCP stdio server for harnesses and MCPHub",
     ],
   },
   {

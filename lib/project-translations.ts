@@ -271,6 +271,12 @@ export const projectTranslations: Record<
       longDescription:
         "Aplicación para aprender código Morse con una app nativa para iOS en Swift 6 y SwiftUI, un backend de API Bun/Hono/GraphQL y una aplicación web complementaria en Nuxt. La lógica de dominio compartida en paquetes TypeScript y Swift se mantiene en paridad. Incluye SRS, gamificación con XP/rachas/corazones/desbloqueos, más de 15 logros, modos de desafío, rutas de aprendizaje seleccionadas, Core Haptics y reproducción Morse con CoreAudio.",
     },
+    minerva: {
+      description:
+        "Operador de biblioteca de agentes y CLI/MCP de preparación de stack — minervacli.dev",
+      longDescription:
+        "Operador de biblioteca y CLI/MCP de preparación de stack para el árbol compartido ~/.agents, creado con Go y Cobra. Gestiona skills y perfiles de agentes en disco (la misma estructura que carga local-agent), genera perfiles a partir de plantillas y sondea herramientas compañeras (bob, cortex, mcphub, codemap, vecgrep) usando nombres binarios reales con verificaciones de salud por niveles. Motor de sugerencias clasificadas, registro de analítica de solo adición, diagnósticos profundos de preparación y un servidor MCP stdio completo.",
+    },
   },
   ru: {
     cortex: {
@@ -528,6 +534,12 @@ export const projectTranslations: Record<
       longDescription:
         "Приложение для изучения азбуки Морзе с нативным iOS-приложением на Swift 6 и SwiftUI, серверной частью API на Bun/Hono/GraphQL и сопутствующим веб-приложением Nuxt. Общая доменная логика в пакетах TypeScript и Swift поддерживается синхронно. Включает интервальные повторения (SRS), геймификацию с XP, сериями, жизнями и разблокировками, более 15 достижений, режимы испытаний, продуманные учебные маршруты, Core Haptics и воспроизведение азбуки Морзе через CoreAudio.",
     },
+    minerva: {
+      description:
+        "Оператор агентной библиотеки и CLI/MCP проверки готовности стека — minervacli.dev",
+      longDescription:
+        "Оператор библиотеки и CLI/MCP проверки готовности стека для общего дерева ~/.agents, созданный на Go и Cobra. Управляет навыками и профилями агентов на диске (та же структура, что загружает local-agent), создаёт профили из шаблонов и проверяет сопутствующие инструменты (bob, cortex, mcphub, codemap, vecgrep) по реальным именам бинарников с многоуровневыми проверками состояния. Ранжированный движок рекомендаций, журнал аналитики только на добавление, глубокая диагностика готовности и полноценный MCP-сервер через stdio.",
+    },
   },
 };
 
@@ -663,6 +675,12 @@ const projectFeatureTranslations: Record<
       "SRS, XP, rachas, vidas, desbloqueos y más de 15 logros",
       "Reproducción de código Morse mediante Core Haptics y CoreAudio",
     ],
+    minerva: [
+      "Gestión de skills y perfiles para el árbol compartido ~/.agents",
+      "Sondeo de preparación del stack con salud por niveles para bob, cortex y mcphub",
+      "Motor de sugerencias clasificadas compartido entre CLI y MCP",
+      "Servidor MCP stdio completo para harnesses y MCPHub",
+    ],
   },
   ru: {
     LinkGlow: [
@@ -791,6 +809,12 @@ const projectFeatureTranslations: Record<
       "GraphQL API на Bun, Hono, Pothos и Drizzle",
       "Интервальные повторения, XP, серии, жизни, разблокировки и более 15 достижений",
       "Воспроизведение азбуки Морзе через Core Haptics и CoreAudio",
+    ],
+    minerva: [
+      "Управление навыками и профилями в общем дереве ~/.agents",
+      "Проверка готовности стека с многоуровневым состоянием для bob, cortex и mcphub",
+      "Ранжированный движок рекомендаций, общий для CLI и MCP",
+      "Полноценный MCP-сервер через stdio для сред и MCPHub",
     ],
   },
 };

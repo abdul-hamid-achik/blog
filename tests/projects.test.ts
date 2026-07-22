@@ -37,7 +37,7 @@ describe("project catalog", () => {
   it("contains every named project exactly once", () => {
     const names = projects.map(({ name }) => name);
 
-    expect(projects).toHaveLength(33);
+    expect(projects).toHaveLength(34);
     expect(new Set(names).size).toBe(names.length);
     expect(names).toEqual(expect.arrayContaining(recentlyAddedProjects));
   });
@@ -76,7 +76,7 @@ describe("project catalog", () => {
         .map((project) => [project.name, project.website]),
     );
 
-    expect(liveSites.size).toBe(20);
+    expect(liveSites.size).toBe(21);
     expect(Object.fromEntries(liveSites)).toMatchObject(requestedLiveSites);
   });
 });
